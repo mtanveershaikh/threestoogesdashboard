@@ -2,6 +2,14 @@
   @if (vm.bot; as bot) {
     <a class="back" routerLink="/">← Back to overview</a>
 
+    <nav class="switcher" aria-label="Choose a bot">
+      @for (b of vm.bots; track b.id) {
+        <a [routerLink]="['/bots', b.id]" routerLinkActive="active" ariaCurrentWhenActive="page">
+          <span class="dot" [style.background]="b.color"></span>{{ b.name }}
+        </a>
+      }
+    </nav>
+
     <section class="head">
       <app-avatar [name]="bot.name" [color]="bot.color" [url]="bot.avatarUrl" [size]="96" />
       <div>

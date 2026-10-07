@@ -84,3 +84,32 @@ footer {
 @media (max-width: 640px) {
   .head { align-items: flex-start; }
 }
+
+.switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--touch);
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  a:hover { color: var(--text); }
+  a.active {
+    background: var(--bg-raised);
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}

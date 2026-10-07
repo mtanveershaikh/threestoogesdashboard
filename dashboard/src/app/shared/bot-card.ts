@@ -13,7 +13,7 @@ import { arrowOf, ratio, signedPct, signedR, toneOf, usd } from './format';
     <div class="head">
       <app-avatar [name]="bot().name" [color]="bot().color" [url]="bot().avatarUrl" />
       <div class="names">
-        <h3>{{ bot().name }}</h3>
+        <h3><a class="name" [routerLink]="['/bots', bot().id]">{{ bot().name }}</a></h3>
         <div class="muted">{{ bot().strategy }}</div>
       </div>
       <span class="status">{{ status() }}</span>
@@ -49,6 +49,13 @@ import { arrowOf, ratio, signedPct, signedR, toneOf, usd } from './format';
     .head { display: flex; align-items: center; gap: 14px; }
     .names { min-width: 0; }
     h3 { font-size: 18px; }
+    .name {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--touch);
+      color: var(--text);
+    }
+    .name:hover { text-decoration: underline; }
     .muted { color: var(--text-muted); }
     .small { font-size: 12px; }
     .status {
