@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { axisRange } from '../../charts/chart-math';
 import { LineChart, LineSeries } from '../../charts/line-chart';
@@ -8,6 +8,7 @@ import { Bot, BotId } from '../../data/models';
 import { BotCard } from '../../shared/bot-card';
 import { Column, DataTable } from '../../shared/data-table';
 import { EmptyState } from '../../shared/empty-state';
+import { createLoader } from '../../shared/load-state';
 import { arrowOf, exitLabel, shortDate, signedPct, signedR, signedUsd, toneOf, usd } from '../../shared/format';
 import { PlanCard } from '../../shared/plan-card';
 import { ProgressRow } from '../../shared/progress-row';
@@ -31,12 +32,32 @@ export class Overview {
   protected readonly telegramUrl = environment.telegramUrl;
   protected readonly isSample = this.data.isSample;
 
-  protected readonly status = toSignal(this.data.getSystemStatus());
-  protected readonly bots = toSignal(this.data.getBots(), { initialValue: [] });
-  protected readonly rollups = toSignal(this.data.getRollups(DAYS), { initialValue: [] });
-  protected readonly plans = toSignal(this.data.getPlans(), { initialValue: [] });
-  private readonly positions = toSignal(this.data.getOpenPositions(), { initialValue: [] });
-  private readonly trades = toSignal(this.data.getRecentTrades(CLOSED_LIMIT), { initialValue: [] });
+  protected readonly loader = createLoader(() =>
+    combineLatest({
+      status: this.data.getSystemStatus(),
+      bots: this.data.getBots(),
+      rollups: this.data.getRollups(DAYS),
+      plans: this.data.getPlans(),
+      positions: this.data.getOpenPositions(),
+      trades: this.data.getRecentTrades(CLOSED_LIMIT),
+    }),
+  );
+  protected readonly load = this.loader.state;
+  private readonly ready = computed(() => {
+    const l = this.load();
+    return l.status === 'ready' ? l.value : undefined;
+  });
+
+  protected readonly errorMessage = computed(() => {
+    const l = this.load();
+    return l.status === 'error' ? l.message : '';
+  });
+  protected readonly status = computed(() => this.ready()?.status);
+  protected readonly bots = computed(() => this.ready()?.bots ?? []);
+  protected readonly rollups = computed(() => this.ready()?.rollups ?? []);
+  protected readonly plans = computed(() => this.ready()?.plans ?? []);
+  private readonly positions = computed(() => this.ready()?.positions ?? []);
+  private readonly trades = computed(() => this.ready()?.trades ?? []);
 
   private readonly botsById = computed(() => new Map(this.bots().map((b) => [b.id, b])));
   protected botFor(id: BotId): Bot | undefined {

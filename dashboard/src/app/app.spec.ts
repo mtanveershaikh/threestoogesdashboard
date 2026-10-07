@@ -28,4 +28,10 @@ describe('App shell', () => {
     const el = await render();
     expect(el.textContent).toContain('Sample data');
   });
+
+  it('has a skip link to the main content and marks the current page', async () => {
+    const el = await render();
+    expect(el.querySelector('a.skip-link')?.getAttribute('href')).toBe('#main');
+    expect(el.querySelector('main#main')).not.toBeNull();
+  });
 });

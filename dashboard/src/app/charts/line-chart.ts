@@ -101,6 +101,11 @@ const H = 240;
       color: var(--text-muted);
       font-size: 12px;
     }
+    .xaxis span { white-space: nowrap; }
+    /* On a phone, show every other label so none wrap. */
+    @media (max-width: 640px) {
+      .xaxis span:nth-child(even) { display: none; }
+    }
   `,
 })
 export class LineChart {

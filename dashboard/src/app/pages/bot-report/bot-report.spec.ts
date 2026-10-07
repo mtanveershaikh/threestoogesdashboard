@@ -1,7 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { DataService } from '../../data/data.service';
 import { MockDataService } from '../../data/mock-data.service';
@@ -75,7 +75,25 @@ describe('BotReport', () => {
 
   it('shows a clear message for an unknown bot', async () => {
     const el = await render('nope');
-    expect(el.textContent).toContain('Bot not found');
-    expect(el.querySelector('h1')).toBeNull();
+    expect(el.querySelector('h1')?.textContent).toBe('Bot not found');
+    expect(el.querySelector('.kpis')).toBeNull();
+  });
+
+  it('shows a message and a Try again button when the data cannot be read', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        { provide: DataService, useValue: Object.assign(new MockDataService(), { getBot: () => throwError(() => ({ code: 'unavailable' })) }) },
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'breakout' })) } },
+      ],
+    });
+    const fixture = TestBed.createComponent(BotReport);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('The report could not load');
+    expect(el.textContent).toContain('could not be reached');
+    expect(el.querySelector('button')?.textContent).toContain('Try again');
   });
 });

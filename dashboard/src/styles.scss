@@ -5,7 +5,7 @@
   --bg-inset: #0f141b;
   --bg-raised: #1b2330;
   --border: #232c38;
-  --border-strong: #3a4656;
+  --border-strong: #667690;
   --border-dashed: #4a5668;
 
   --text: #e8ecf1;
@@ -15,7 +15,7 @@
   --loss: #ff7a7a;
   --warn: #f2b84b;
   --info: #5bb8ff;
-  --neutral: #7c8798;
+  --neutral: #8793a4;
 
   --bot-breakout: #f2b84b;
   --bot-pullback: #5bb8ff;
@@ -90,11 +90,44 @@ button {
   color: var(--neutral);
 }
 
+.button {
+  min-height: var(--touch);
+  margin-top: 16px;
+  padding: 0 18px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  background: var(--bg-raised);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+.button:hover {
+  background: #232c3a;
+}
+
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   padding: 20px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -64px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+  padding: 0 16px;
+  border-radius: var(--radius-control);
+  background: var(--bg-raised);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+.skip-link:focus {
+  top: 8px;
 }
 
 .visually-hidden {

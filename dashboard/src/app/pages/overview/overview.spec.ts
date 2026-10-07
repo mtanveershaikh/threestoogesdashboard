@@ -1,6 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { DataService } from '../../data/data.service';
 import { MockDataService } from '../../data/mock-data.service';
@@ -66,5 +67,22 @@ describe('Overview', () => {
   it('labels sample data in the footer', async () => {
     const el = await render();
     expect(el.querySelector('footer')?.textContent).toContain('sample data');
+  });
+
+  it('shows a plain message and a Try again button when the data cannot be read', async () => {
+    const failing = Object.assign(new MockDataService(), {
+      getBots: () => throwError(() => ({ code: 'permission-denied' })),
+    });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection(), provideRouter([]), { provide: DataService, useValue: failing }],
+    });
+    const fixture = TestBed.createComponent(Overview);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('The overview could not load');
+    expect(el.textContent).toContain('not allowed to read');
+    expect(el.querySelector('button')?.textContent).toContain('Try again');
+    expect(el.querySelector('.kpis')).toBeNull();
   });
 });
