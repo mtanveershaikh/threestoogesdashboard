@@ -99,14 +99,17 @@ for (const width of [1360, 390]) {
   await page.evaluate(() => {
     window.__saved = [];
     const original = URL.createObjectURL.bind(URL);
-    URL.createObjectURL = (blob) => { blob.text().then((t) => window.__saved.push(t)); return original(blob); };
+    URL.createObjectURL = (blob) => { blob.arrayBuffer().then((b) => window.__saved.push(Array.from(new Uint8Array(b)))); return original(blob); };
   });
   await page.click('button.download');
   await new Promise((r) => setTimeout(r, 500));
   const saved = await page.evaluate(() => window.__saved);
   check(saved.length === 1, 'Download report saves one file');
-  check(saved[0]?.startsWith('﻿Report,Wasif,Generated,'), 'the file starts with the bot name and the day');
-  check(saved[0]?.includes('Average per trade (R),0.21,0.28'), 'the file has paper and backtest numbers, unsigned text-free');
+  const bytes = saved[0] ?? [];
+  check(bytes.slice(0, 3).join() === '239,187,191', 'the file starts with a UTF-8 byte-order mark, so Excel reads it correctly');
+  const text = Buffer.from(bytes.slice(3)).toString('utf8');
+  check(text.startsWith('Report,Wasif,Generated,'), 'the file starts with the bot name and the day');
+  check(text.includes('Average per trade (R),0.21,0.28'), 'the file has the paper and backtest averages as plain numbers');
   check(errors.length === 0, 'downloading causes no errors');
   await page.close();
 }
