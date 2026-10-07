@@ -54,6 +54,11 @@ export interface Bot {
   openCount: number;
   /** Target reward to risk, for example 3 for 1:3. */
   targetRR: number;
+  /** Largest drop from the bot's own equity peak, in percent of budget (positive number). */
+  maxDrawdownPct: number;
+  /** Where the bot looks for trades, for example "Nasdaq 100". */
+  universe: string;
+  timeStopDays: number;
 }
 
 /** `daily_rollups/{yyyy-mm-dd}` */
@@ -133,9 +138,12 @@ export interface SetupStat {
 /** One go-live acceptance gate, driven by the thresholds in config. */
 export interface Gate {
   id: string;
+  /** What is measured, for example "Profit factor". */
   name: string;
+  /** The threshold from config, for example "at least 1.3". */
+  rule: string;
   status: GateStatus;
-  /** Human text such as "Met: +0.21R" or "20 of 100". */
+  /** The measured value, for example "+0.21R" or "20 of 100". The UI adds the Met or Not met word. */
   result: string;
   /** Progress toward the gate, 0 to 100. */
   progressPct: number;

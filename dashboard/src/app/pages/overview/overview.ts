@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '../../../environments/environment';
+import { axisRange } from '../../charts/chart-math';
 import { LineChart, LineSeries } from '../../charts/line-chart';
 import { DataService } from '../../data/data.service';
 import { Bot, BotId } from '../../data/models';
@@ -83,11 +84,7 @@ export class Overview {
   protected readonly weekLabels = computed(() =>
     Array.from({ length: Math.ceil(this.rollups().length / TRADING_DAYS_PER_WEEK) }, (_, i) => `Week ${i + 1}`),
   );
-  /** Axis bounds in whole steps of 2%, always including 0. */
-  protected readonly yRange = computed(() => {
-    const all = this.series().flatMap((s) => s.values);
-    return { min: Math.min(0, Math.floor(Math.min(...all) / 2) * 2), max: Math.max(2, Math.ceil(Math.max(...all) / 2) * 2) };
-  });
+  protected readonly yRange = computed(() => axisRange(this.series().flatMap((s) => s.values)));
 
   protected trend(id: BotId): number[] {
     return this.rollups().map((r) => r.botReturnPct[id]);

@@ -21,12 +21,12 @@ import { VerdictChip } from '../../shared/verdict-chip';
 })
 export class Styleguide {
   protected readonly bots = MOCK_BOTS;
-  protected readonly histogram = MOCK_REPORTS.breakout!.rHistogram;
+  protected readonly histogram = MOCK_REPORTS.breakout.rHistogram;
   protected readonly weeks = Array.from({ length: 8 }, (_, i) => `Week ${i + 1}`);
   protected readonly series: LineSeries[] = [
     ...MOCK_BOTS.map((b) => ({ name: b.name.replace(' Bot', ''), color: b.color, values: MOCK_ROLLUPS.map((r) => r.botReturnPct[b.id]) })),
     { name: 'Total', color: 'var(--text)', width: 2.75, values: MOCK_ROLLUPS.map((r) => r.totalReturnPct) },
-    { name: 'Backtest', color: 'var(--text-muted)', dashed: true, values: MOCK_REPORTS.breakout!.backtestReturnPct },
+    { name: 'Backtest', color: 'var(--text-muted)', dashed: true, values: MOCK_REPORTS.breakout.backtestReturnPct },
   ];
   protected readonly sparkValues = (id: string) => MOCK_ROLLUPS.map((r) => r.botReturnPct[id as 'breakout']);
   protected readonly columns: Column[] = [
