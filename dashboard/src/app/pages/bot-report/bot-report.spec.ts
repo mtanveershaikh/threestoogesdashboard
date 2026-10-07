@@ -1,6 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { DataService } from '../../data/data.service';
@@ -58,6 +59,31 @@ describe('BotReport', () => {
     expect(wasif.querySelector('.head')?.textContent).toContain('Breakout momentum');
     expect((await render('pullback')).querySelector('h1')?.textContent).toBe('Waseem');
     expect((await render('reversion')).querySelector('h1')?.textContent).toBe('Nawaz');
+  });
+
+  it('lets you switch between the three bots and marks the current one', async () => {
+    const el = await render('pullback');
+    const links = Array.from(el.querySelectorAll('nav.switcher a'));
+    expect(links.map((a) => a.textContent?.trim())).toEqual(['Wasif', 'Waseem', 'Nawaz']);
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['/bots/breakout', '/bots/pullback', '/bots/reversion']);
+  });
+
+  it('marks only the current bot in the switcher, using the real router', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([{ path: 'bots/:id', component: BotReport }]),
+        { provide: DataService, useClass: MockDataService },
+      ],
+    });
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/bots/pullback', BotReport);
+    harness.detectChanges();
+    const el = harness.routeNativeElement as HTMLElement;
+    const active = Array.from(el.querySelectorAll('nav.switcher a.active'));
+    expect(active.map((a) => a.textContent?.trim())).toEqual(['Waseem']);
+    expect(active[0].getAttribute('aria-current')).toBe('page');
   });
 
   it('has no write controls', async () => {

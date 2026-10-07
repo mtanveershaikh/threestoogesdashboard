@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { combineLatest, map, switchMap } from 'rxjs';
 import { axisRange } from '../../charts/chart-math';
 import { HistogramBars } from '../../charts/histogram-bars';
@@ -24,7 +24,7 @@ const verdictText = (v?: AnalystVerdict) => (v ? `${v.verdict.charAt(0)}${v.verd
 
 @Component({
   selector: 'app-bot-report',
-  imports: [RouterLink, Avatar, StatTile, LineChart, HistogramBars, ProgressRow, DataTable, EmptyState],
+  imports: [RouterLink, RouterLinkActive, Avatar, StatTile, LineChart, HistogramBars, ProgressRow, DataTable, EmptyState],
   templateUrl: './bot-report.html',
   styleUrl: './bot-report.scss',
 })
@@ -39,6 +39,7 @@ export class BotReport {
       map((p) => p.get('id') as BotId),
       switchMap((id) =>
         combineLatest({
+          bots: this.data.getBots(),
           bot: this.data.getBot(id),
           rollups: this.data.getRollups(DAYS),
           report: this.data.getBotReport(id),

@@ -60,6 +60,8 @@ describe('Overview', () => {
     expect(cards).toHaveLength(3);
     expect(cards[2].textContent).toContain('▼ -0.6%');
     expect(cards[0].querySelector('a')?.getAttribute('href')).toBe('/bots/breakout');
+    // The bot's name and the View report link both go to its report.
+    expect(cards.map((c) => c.querySelector('h3 a')?.getAttribute('href'))).toEqual(['/bots/breakout', '/bots/pullback', '/bots/reversion']);
   });
 
   it('fills both tables, with signs on every result', async () => {
