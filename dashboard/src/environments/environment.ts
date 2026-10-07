@@ -1,16 +1,16 @@
 import { Environment } from './environment.model';
 
-/** Production build: reads the real database. Fill in `firebase` from the console before deploying. */
+/** Production build: reads the real database. The web config is public; access is enforced by firestore.rules. */
 export const environment: Environment = {
   dataSource: 'firestore',
   useEmulator: false,
   firebase: {
-    apiKey: '',
+    apiKey: 'AIzaSyCRStPMaUtomkMwHDLMZ7cZRLftXq1Oq1w',
     authDomain: 'the-three-stooges.firebaseapp.com',
     projectId: 'the-three-stooges',
     storageBucket: 'the-three-stooges.firebasestorage.app',
-    messagingSenderId: '',
-    appId: '',
+    messagingSenderId: '621130941023',
+    appId: '1:621130941023:web:7c6aacd70a9ddb5e2191ea',
   },
   allowedEmail: 'm.tanveer.shaikh@gmail.com',
   telegramUrl: 'https://t.me/',
