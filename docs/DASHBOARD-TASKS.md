@@ -79,7 +79,7 @@ Done when: `ng serve` shows the starter page and CI is green.
 - [ ] D9-3 Phone-first approvals view (decide first whether web approvals are allowed at all).
 - [ ] D9-4 Optional: pause or halt from the web through a guarded control document the bots poll.
 
-## D10: Features the mockups show that are not built yet (about 5 days) (all done, on `develop`, not yet deployed)
+## D10: Features the mockups show that are not built yet (about 5 days) (all done; merged to `main` and deployed on 7 October 2026)
 
 Found by rendering the two mockups next to the app on 7 October 2026. Look and feel was judged fine; these are missing features. Work in this order. Each page ships with unit tests, a demo-build entry in `e2e/smoke.mjs`, and sample data in the mock service. All of it stays read-only.
 
@@ -119,7 +119,7 @@ What is still outstanding after D0 to D8. Items marked "owner" need you; the res
 
 ### Housekeeping
 
-- [ ] O-6 Merge `develop` into `main` (commit `5afdabd`: demo site, README, two-site hosting config). Merging does not change the live site.
+- [x] O-6 Merge `develop` into `main`. (Done through PR #3, merge commit `7a0cd058`; CI deployed the real site and the demo.)
 - [ ] O-7 Delete the merged branch `feature/threestooges` on GitHub, and the local `backup/before-trailer-removal`.
 - [ ] O-8 Delete `~/.secrets/dashboard-deploy.json` now that the GitHub secret is set. The deploy key appeared in a chat session; it can only deploy Hosting, but delete it and rotate it if you want to be tidy.
 - [x] O-9 Update `docs/DASHBOARD-DESIGN.md`: it still says `@angular/fire` (the app uses the `firebase` SDK, because Angular Fire does not support Angular 22), puts avatars in `src/assets/avatars/` (they are in `dashboard/public/avatars/`), and lists one allowed email (it is a list of five). (Done: design doc now matches the build.)
