@@ -6,6 +6,13 @@
     </div>
   </div>
 
+  @if (backtestOnly()) {
+    <div class="notice" role="note">
+      <strong>Backtest only.</strong>
+      Paper trading has not started, so there are no paper trades, plans or positions yet. The chart and the bot cards show backtest results.
+    </div>
+  }
+
   <section class="kpis" aria-label="Key figures">
     <app-stat-tile label="Equity" [value]="equity()!.value" [delta]="equity()!.delta" [tone]="equity()!.tone" />
     <app-stat-tile label="Today" [value]="today()!.value" [delta]="today()!.delta" [tone]="today()!.tone" />
@@ -20,14 +27,14 @@
 
   <section class="chart-and-plans">
     <div class="card chart">
-      <h2>Return since start</h2>
-      <p class="muted sub">Percent of each bot's own budget</p>
+      <h2>{{ chartTitle() }}</h2>
+      <p class="muted sub">{{ chartSubtitle() }}</p>
       <app-line-chart
         [series]="series()"
         [xLabels]="weekLabels()"
         [yMin]="yRange().min"
         [yMax]="yRange().max"
-        ariaLabel="Return since start for each bot and the total over eight weeks"
+        [ariaLabel]="chartLabel()"
       />
     </div>
 
@@ -54,7 +61,7 @@
     </div>
     <div class="bot-grid">
       @for (b of bots(); track b.id) {
-        <app-bot-card [bot]="b" [trend]="trend(b.id)" />
+        <app-bot-card [bot]="b" [trend]="trend(b.id)" [backtest]="backtestFor(b.id)" />
       }
     </div>
   </section>

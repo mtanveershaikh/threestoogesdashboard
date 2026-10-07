@@ -16,7 +16,7 @@
 
     <div class="chips">
       @if (status(); as s) {
-        <span class="chip mode">{{ s.mode === 'paper' ? 'Paper trading' : 'Live trading' }}</span>
+        <span class="chip mode">{{ modeLabel(s.mode) }}</span>
       }
       <app-sample-data-badge />
       @if (auth.user(); as u) {

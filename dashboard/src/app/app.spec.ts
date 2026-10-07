@@ -52,4 +52,15 @@ describe('App shell', () => {
     expect(el.querySelector('main#main')).not.toBeNull();
     expect(el.querySelector('.mode')).toBeNull();
   });
+
+  it('labels the mode chip Backtest only when paper trading has not started', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideRouter([]), { provide: DataService, useValue: new MockDataService('backtest') }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.mode')?.textContent).toContain('Backtest only');
+  });
 });

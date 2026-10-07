@@ -12,6 +12,8 @@ import {
  * Everything except the rollups is a handful of documents, so one minute is cheap.
  */
 export const REFRESH_MS = 60_000;
+/** The most rollup documents 'all time' will read: about four years of trading days. */
+export const ALL_ROLLUPS_CAP = 1000;
 /** Rollups are up to 60 documents and change once a day, so they refresh slowly. */
 export const ROLLUP_REFRESH_MS = 10 * 60_000;
 
@@ -56,9 +58,11 @@ export class FirestoreDataService extends DataService {
     });
   }
 
-  getRollups(days: number): Observable<DailyRollup[]> {
+  getRollups(days: number | 'all'): Observable<DailyRollup[]> {
     return this.poll(async () => {
-      const snap = await getDocs(query(collection(this.db, 'daily_rollups'), orderBy('date', 'desc'), limit(days)));
+      const rollups = collection(this.db, 'daily_rollups');
+      // 'all' is capped so a runaway collection cannot cost an unbounded number of reads.
+      const snap = await getDocs(query(rollups, orderBy('date', 'desc'), limit(days === 'all' ? ALL_ROLLUPS_CAP : days)));
       return snap.docs.map((d) => d.data() as DailyRollup).reverse();
     }, ROLLUP_REFRESH_MS);
   }
@@ -106,6 +110,10 @@ export class FirestoreDataService extends DataService {
   }
 
   /** Reads now, then again every `everyMs`. Refreshes are skipped while the tab is hidden. */
+  getBotReports(): Observable<BotReport[]> {
+    return this.poll(async () => (await getDocs(collection(this.db, 'bot_reports'))).docs.map((d) => d.data() as BotReport), ROLLUP_REFRESH_MS);
+  }
+
   private poll<T>(read: () => Promise<T>, everyMs = REFRESH_MS): Observable<T> {
     return timer(0, everyMs).pipe(
       filter((tick) => tick === 0 || typeof document === 'undefined' || !document.hidden),

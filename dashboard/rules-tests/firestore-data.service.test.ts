@@ -56,6 +56,13 @@ describe('FirestoreDataService against the seeded emulator', () => {
     expect(breakout).toHaveLength(MOCK_TRADES.filter((t) => t.botId === 'breakout').length);
   });
 
+  it('reads every rollup for All time and every bot report', async () => {
+    expect(await first(service.getRollups('all'))).toEqual(MOCK_ROLLUPS);
+    const reports = await first(service.getBotReports());
+    expect(reports.map((r) => r.botId).sort()).toEqual(['breakout', 'pullback', 'reversion']);
+    expect(reports.find((r) => r.botId === 'breakout')).toEqual(MOCK_REPORTS.breakout);
+  });
+
   it('returns undefined for an unknown bot', async () => {
     expect(await first(service.getBot('nope' as never))).toBeUndefined();
   });

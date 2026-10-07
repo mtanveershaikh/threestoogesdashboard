@@ -96,4 +96,49 @@ describe('Overview', () => {
     expect(el.querySelector('button')?.textContent).toContain('Try again');
     expect(el.querySelector('.kpis')).toBeNull();
   });
+
+  describe('backtest only', () => {
+    async function renderBacktest(): Promise<HTMLElement> {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [provideZonelessChangeDetection(), provideRouter([]), { provide: DataService, useValue: new MockDataService('backtest') }],
+      });
+      const fixture = TestBed.createComponent(Overview);
+      await fixture.whenStable();
+      return fixture.nativeElement as HTMLElement;
+    }
+
+    it('says paper trading has not started and does not claim a paper week', async () => {
+      const el = await renderBacktest();
+      expect(el.querySelector('.notice')?.textContent).toContain('Paper trading has not started');
+      expect(el.querySelector('.title')?.textContent).toContain('Paper trading has not started');
+      expect(el.querySelector('.title')?.textContent).not.toMatch(/Week \d+ of the/);
+    });
+
+    it('charts the three backtests, with dates and without a paper total', async () => {
+      const el = await renderBacktest();
+      const legend = Array.from(el.querySelectorAll('app-line-chart .legend li')).map((l) => l.textContent?.trim());
+      expect(legend).toEqual(['Wasif', 'Waseem', 'Nawaz']);
+      expect(el.querySelectorAll('app-line-chart svg path')).toHaveLength(3);
+      expect(el.querySelector('.chart h2')?.textContent).toBe('Backtest return');
+      expect(el.querySelector('app-line-chart .xaxis')?.textContent).toContain('Aug 13');
+    });
+
+    it('bot cards show the backtest with a Backtest only pill and no paper trades', async () => {
+      const el = await renderBacktest();
+      const cards = Array.from(el.querySelectorAll('app-bot-card'));
+      expect(cards).toHaveLength(3);
+      expect(cards[0].querySelector('.status')?.textContent).toBe('Backtest only');
+      expect(cards[0].textContent).toContain('Backtest return on $2,000 budget');
+      expect(cards[0].textContent).toContain('▲ +11.8%');
+      expect(cards[0].textContent).toContain('no paper trades yet');
+    });
+
+    it('explains the empty paper sections instead of showing blanks', async () => {
+      const el = await renderBacktest();
+      expect(el.textContent).toContain('No plans waiting');
+      expect(el.textContent).toContain('No open positions.');
+      expect(el.textContent).toContain('No closed trades yet.');
+    });
+  });
 });

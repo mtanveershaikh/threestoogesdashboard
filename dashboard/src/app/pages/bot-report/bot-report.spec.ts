@@ -149,4 +149,53 @@ describe('BotReport', () => {
     expect(el.textContent).toContain('could not be reached');
     expect(el.querySelector('button')?.textContent).toContain('Try again');
   });
+
+  describe('backtest only', () => {
+    async function renderBacktest(id: string): Promise<HTMLElement> {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideZonelessChangeDetection(),
+          provideRouter([]),
+          { provide: DataService, useValue: new MockDataService('backtest') },
+          { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id })) } },
+        ],
+      });
+      const fixture = TestBed.createComponent(BotReport);
+      await fixture.whenStable();
+      return fixture.nativeElement as HTMLElement;
+    }
+
+    it('shows the Backtest only pill and backtest figures in the tiles', async () => {
+      const el = await renderBacktest('breakout');
+      expect(el.querySelector('.status')?.textContent).toBe('Backtest only');
+      const kpis = el.querySelector('.kpis')!.textContent!;
+      expect(kpis).toContain('Backtest return');
+      expect(kpis).toContain('+11.8%');
+      expect(kpis).toContain('Backtest, after costs and slippage');
+      expect(kpis).toContain('backtest trades');
+    });
+
+    it('draws one backtest line with dates, not a paper line', async () => {
+      const el = await renderBacktest('breakout');
+      expect(el.querySelector('.paper h2')?.textContent).toBe('Backtest results');
+      expect(el.querySelectorAll('app-line-chart svg path')).toHaveLength(1);
+      expect(el.querySelector('app-line-chart .xaxis')?.textContent).toContain('Aug 13');
+    });
+
+    it('puts dashes in the paper column and says there are no paper trades', async () => {
+      const el = await renderBacktest('breakout');
+      const trades = Array.from(el.querySelectorAll('.compare tbody tr')).find((r) => r.textContent?.includes('Trades'))!;
+      expect(trades.textContent).toContain('–');
+      expect(trades.textContent).toContain('42');
+      expect(el.querySelector('.histogram')?.textContent).toContain('No paper trades yet');
+      expect(el.textContent).toContain('No paper trades yet.');
+    });
+
+    it('keeps every gate pending, so the verdict is Not yet', async () => {
+      const el = await renderBacktest('pullback');
+      expect(el.querySelector('.verdict-title')?.textContent).toBe('Not yet');
+      expect(el.querySelector('.checklist')?.textContent).toContain('Not yet: 0 of 100');
+    });
+  });
 });

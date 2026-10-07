@@ -15,36 +15,38 @@
       <div>
         <div class="name">
           <h1>{{ bot.name }}</h1>
-          <span class="status">{{ status() }}</span>
+          <span class="status" [class.backtest]="backtestOnly()">{{ status() }}</span>
         </div>
         <p class="muted">{{ description() }}</p>
       </div>
     </section>
 
     <section class="kpis" aria-label="Key figures">
-      <app-stat-tile label="Return" [value]="kpis()!.ret.value" [tone]="kpis()!.ret.tone" [delta]="kpis()!.ret.delta" />
-      <app-stat-tile label="Average per trade" [value]="kpis()!.avgR.value" [tone]="kpis()!.avgR.tone" [delta]="kpis()!.avgR.note" [showArrow]="false" />
-      <app-stat-tile label="Win rate" [value]="kpis()!.win.value" [delta]="kpis()!.win.note" />
-      <app-stat-tile label="Profit factor" [value]="kpis()!.pf.value" [delta]="kpis()!.pf.note" />
-      <app-stat-tile label="Max drawdown" [value]="kpis()!.dd.value" [delta]="kpis()!.dd.note" />
+      <app-stat-tile [label]="kpis()!.ret.label" [value]="kpis()!.ret.value" [tone]="kpis()!.ret.tone" [delta]="kpis()!.ret.delta" />
+      <app-stat-tile [label]="kpis()!.avgR.label" [value]="kpis()!.avgR.value" [tone]="kpis()!.avgR.tone" [delta]="kpis()!.avgR.note" [showArrow]="false" />
+      <app-stat-tile [label]="kpis()!.win.label" [value]="kpis()!.win.value" [delta]="kpis()!.win.note" />
+      <app-stat-tile [label]="kpis()!.pf.label" [value]="kpis()!.pf.value" [delta]="kpis()!.pf.note" />
+      <app-stat-tile [label]="kpis()!.dd.label" [value]="kpis()!.dd.value" [delta]="kpis()!.dd.note" />
     </section>
 
     <section class="charts">
       <div class="card paper">
-        <h2>Paper results against the backtest</h2>
+        <h2>{{ chartTitle() }}</h2>
         <p class="muted sub">Return on the bot's budget, percent</p>
         <app-line-chart
           [series]="series()"
           [xLabels]="weekLabels()"
           [yMin]="yRange().min"
           [yMax]="yRange().max"
-          [ariaLabel]="'Paper return against the backtest expectation for ' + bot.name"
+          [ariaLabel]="chartLabel()"
         />
       </div>
       <div class="card histogram">
         <h2>Result of each trade, in R</h2>
         <p class="muted sub">Number of trades per result</p>
-        @if (vm.report; as report) {
+        @if (backtestOnly()) {
+          <app-empty-state title="No paper trades yet" message="The R histogram fills in once paper trading starts." />
+        } @else if (vm.report; as report) {
           <app-histogram-bars [bins]="report.rHistogram" />
         } @else {
           <app-empty-state title="No results to show" message="The R histogram appears once this bot has a report." />
@@ -82,14 +84,14 @@
       <div class="card">
         <h2>Results by setup</h2>
         <p class="muted sub">A setup is blocked once its average is below zero after 15 trades</p>
-        <app-data-table caption="Results by setup" [columns]="setupColumns" [rows]="setupRows()" [cell]="signTpl" emptyText="No setups traded yet." />
+        <app-data-table caption="Results by setup" [columns]="setupColumns" [rows]="setupRows()" [cell]="signTpl" [emptyText]="backtestOnly() ? 'No paper trades yet.' : 'No setups traded yet.'" />
       </div>
     </section>
 
     <section class="card">
       <h2>Recent trades with analyst verdicts</h2>
       <p class="muted sub">Verdict and confidence from each analyst at the time of the call</p>
-      <app-data-table caption="Recent trades" [columns]="tradeColumns" [rows]="tradeRows()" [cell]="signTpl" emptyText="No closed trades yet." />
+      <app-data-table caption="Recent trades" [columns]="tradeColumns" [rows]="tradeRows()" [cell]="signTpl" [emptyText]="noTradesText()" />
     </section>
 
     <ng-template #signTpl let-row let-col="column">

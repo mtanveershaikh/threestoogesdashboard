@@ -34,6 +34,11 @@ h2 { font-size: 18px; }
   font-weight: 600;
 }
 
+.status.backtest {
+  background: rgba(91, 184, 255, 0.14);
+  color: #8cccff;
+}
+
 .kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));

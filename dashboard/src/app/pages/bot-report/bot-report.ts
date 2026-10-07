@@ -11,7 +11,7 @@ import { Avatar } from '../../shared/avatar';
 import { Column, DataTable } from '../../shared/data-table';
 import { EmptyState } from '../../shared/empty-state';
 import { createLoader } from '../../shared/load-state';
-import { arrowOf, exitLabel, ratio, shortDate, signedPct, signedR, signedUsd, toneOf, usd } from '../../shared/format';
+import { arrowOf, dateLabels, exitLabel, ratio, shortDate, signedPct, signedR, signedUsd, statusLabel, toneOf, usd } from '../../shared/format';
 import { GATE_COLORS, gateStatusText, gateVerdict } from '../../shared/gates';
 import { ProgressRow } from '../../shared/progress-row';
 import { StatTile } from '../../shared/stat-tile';
@@ -72,23 +72,37 @@ export class BotReport {
     return b && `${b.strategy} on the ${b.universe}. ${b.budget.toLocaleString('en-US')} USD budget, target ${ratio(b.targetRR)}, time stop ${b.timeStopDays} days.`;
   });
   protected readonly status = computed(() => {
-    const s = this.vm()?.bot?.status ?? '';
-    return s.charAt(0) + s.slice(1).toLowerCase();
+    const st = this.vm()?.bot?.status;
+    return st ? statusLabel(st) : '';
   });
+  /** True while the bot only has a backtest: no paper trades yet. */
+  protected readonly backtestOnly = computed(() => this.vm()?.bot?.status === 'BACKTEST_ONLY');
   protected readonly kpis = computed(() => {
     const b = this.vm()?.bot;
     if (!b) return undefined;
-    const wins = Math.round((b.winRatePct * b.tradeCount) / 100);
     const gate = (id: string) => {
       const g = this.vm()?.report?.gates.find((x) => x.id === id);
       return g && `Gate: ${g.rule}`;
     };
+    const breakEven = Math.round(100 / (1 + b.targetRR));
+    const bt = this.vm()?.report?.backtest;
+    if (this.backtestOnly() && bt) {
+      const wins = Math.round((bt.winRatePct * bt.trades) / 100);
+      return {
+        ret: { label: 'Backtest return', value: signedPct(bt.returnPct), tone: toneOf(bt.returnPct), delta: `${signedUsd((b.budget * bt.returnPct) / 100)} on ${usd(b.budget)}` },
+        avgR: { label: 'Average per trade', value: signedR(bt.avgR, 2), tone: toneOf(bt.avgR), note: 'Backtest, after costs and slippage' },
+        win: { label: 'Win rate', value: `${bt.winRatePct}%`, note: `${wins} of ${bt.trades} backtest trades. Break-even at ${ratio(b.targetRR)} is ${breakEven}%` },
+        pf: { label: 'Profit factor', value: bt.profitFactor.toFixed(1), note: gate('profit-factor') },
+        dd: { label: 'Max drawdown', value: `-${bt.maxDrawdownPct}%`, note: gate('drawdown') },
+      };
+    }
+    const wins = Math.round((b.winRatePct * b.tradeCount) / 100);
     return {
-      ret: { value: signedPct(b.returnPct), tone: toneOf(b.returnPct), delta: `${signedUsd((b.budget * b.returnPct) / 100)} on ${usd(b.budget)}` },
-      avgR: { value: signedR(b.avgR, 2), tone: toneOf(b.avgR), note: 'After costs and slippage' },
-      win: { value: `${b.winRatePct}%`, note: `${wins} of ${b.tradeCount} trades. Break-even at ${ratio(b.targetRR)} is ${Math.round(100 / (1 + b.targetRR))}%` },
-      pf: { value: b.profitFactor.toFixed(1), note: gate('profit-factor') },
-      dd: { value: `-${b.maxDrawdownPct}%`, note: gate('drawdown') },
+      ret: { label: 'Return', value: signedPct(b.returnPct), tone: toneOf(b.returnPct), delta: `${signedUsd((b.budget * b.returnPct) / 100)} on ${usd(b.budget)}` },
+      avgR: { label: 'Average per trade', value: signedR(b.avgR, 2), tone: toneOf(b.avgR), note: 'After costs and slippage' },
+      win: { label: 'Win rate', value: `${b.winRatePct}%`, note: `${wins} of ${b.tradeCount} trades. Break-even at ${ratio(b.targetRR)} is ${breakEven}%` },
+      pf: { label: 'Profit factor', value: b.profitFactor.toFixed(1), note: gate('profit-factor') },
+      dd: { label: 'Max drawdown', value: `-${b.maxDrawdownPct}%`, note: gate('drawdown') },
     };
   });
 
@@ -96,13 +110,21 @@ export class BotReport {
   protected readonly series = computed<LineSeries[]>(() => {
     const vm = this.vm();
     if (!vm?.bot) return [];
+    const backtest = vm.report?.backtestReturnPct ?? [];
+    if (this.backtestOnly()) return [{ name: 'Backtest', color: vm.bot.color, width: 2.75, values: backtest }];
     return [
-      ...(vm.report ? [{ name: 'Backtest expectation', color: 'var(--text-muted)', dashed: true, values: vm.report.backtestReturnPct }] : []),
+      ...(vm.report ? [{ name: 'Backtest expectation', color: 'var(--text-muted)', dashed: true, values: backtest }] : []),
       { name: 'Paper', color: vm.bot.color, width: 2.75, values: vm.rollups.map((r) => r.botReturnPct[vm.bot!.id]) },
     ];
   });
-  protected readonly weekLabels = computed(() =>
-    Array.from({ length: Math.ceil((this.vm()?.rollups.length ?? 0) / TRADING_DAYS_PER_WEEK) }, (_, i) => `Week ${i + 1}`),
+  protected readonly weekLabels = computed(() => {
+    const bt = this.vm()?.report?.backtest;
+    if (this.backtestOnly()) return bt ? dateLabels(bt.periodStart, bt.periodEnd) : [];
+    return Array.from({ length: Math.ceil((this.vm()?.rollups.length ?? 0) / TRADING_DAYS_PER_WEEK) }, (_, i) => `Week ${i + 1}`);
+  });
+  protected readonly chartTitle = computed(() => (this.backtestOnly() ? 'Backtest results' : 'Paper results against the backtest'));
+  protected readonly chartLabel = computed(() =>
+    this.backtestOnly() ? `Backtest return for ${this.vm()?.bot?.name}` : `Paper return against the backtest expectation for ${this.vm()?.bot?.name}`,
   );
   protected readonly yRange = computed(() => axisRange(this.series().flatMap((s) => s.values)));
 
@@ -117,14 +139,16 @@ export class BotReport {
     const bot = vm?.bot;
     const bt = vm?.report?.backtest;
     if (!bot || !bt) return undefined;
+    const none = this.backtestOnly();
+    const paper = (value: string) => (none ? '–' : value);
     const rows = [
-      { measure: 'Trades', paper: `${bot.tradeCount}`, backtest: `${bt.trades}` },
-      { measure: 'Win rate', paper: `${bot.winRatePct}%`, backtest: `${bt.winRatePct}%` },
-      { measure: 'Average per trade', paper: signedR(bot.avgR, 2), backtest: signedR(bt.avgR, 2) },
-      { measure: 'Profit factor', paper: bot.profitFactor.toFixed(1), backtest: bt.profitFactor.toFixed(1) },
-      { measure: 'Max drawdown', paper: `-${bot.maxDrawdownPct}%`, backtest: `-${bt.maxDrawdownPct}%` },
-      { measure: 'Average hold', paper: `${bot.avgHoldDays} days`, backtest: `${bt.avgHoldDays} days` },
-      { measure: 'Return on budget', paper: signedPct(bot.returnPct), backtest: signedPct(bt.returnPct) },
+      { measure: 'Trades', paper: paper(`${bot.tradeCount}`), backtest: `${bt.trades}` },
+      { measure: 'Win rate', paper: paper(`${bot.winRatePct}%`), backtest: `${bt.winRatePct}%` },
+      { measure: 'Average per trade', paper: paper(signedR(bot.avgR, 2)), backtest: signedR(bt.avgR, 2) },
+      { measure: 'Profit factor', paper: paper(bot.profitFactor.toFixed(1)), backtest: bt.profitFactor.toFixed(1) },
+      { measure: 'Max drawdown', paper: paper(`-${bot.maxDrawdownPct}%`), backtest: `-${bt.maxDrawdownPct}%` },
+      { measure: 'Average hold', paper: paper(`${bot.avgHoldDays} days`), backtest: `${bt.avgHoldDays} days` },
+      { measure: 'Return on budget', paper: paper(signedPct(bot.returnPct)), backtest: signedPct(bt.returnPct) },
     ];
     const note = `Backtest over the same trading days (${shortDate(bt.periodStart)} to ${shortDate(bt.periodEnd)}): every signal taken, no analyst filter, after ${bt.costR}R of cost and slippage per trade.`;
     return { rows, note };
@@ -146,6 +170,8 @@ export class BotReport {
   });
 
   // Tables
+  protected readonly noTradesText = computed(() => (this.backtestOnly() ? 'No paper trades yet.' : 'No closed trades yet.'));
+
   protected readonly setupColumns: Column[] = [
     { key: 'name', label: 'Setup' },
     { key: 'trades', label: 'Trades', align: 'right', mono: true },

@@ -238,7 +238,7 @@ Return is cumulative since the start, in percent of that bot's own budget (and o
 
 ## Backtest-only bots
 
-Your config marks all three strategies `backtest_only`: there are no paper trades yet. The dashboard today assumes a paper run. These are the values the bots should write now, and what the dashboard will change to understand them (task D10-9):
+Your config marks all three strategies `backtest_only`: there are no paper trades yet. The dashboard today assumes a paper run. These are the values the bots should write now, and what the dashboard does with them:
 
 | Where | Today | Backtest-only |
 | --- | --- | --- |
@@ -247,7 +247,7 @@ Your config marks all three strategies `backtest_only`: there are no paper trade
 | `daily_rollups`, `trades`, `positions`, `plans` | paper results | leave empty until paper trading starts |
 | `bot_reports/{id}` | gates and backtest | write `backtest` and `backtestReturnPct` now; gates say `PENDING` |
 
-Until D10-9 ships, a backtest-only run shows a page with empty paper sections.
+The dashboard now understands this (D10-9). To see what it looks like with sample data, open the demo or `npm start` with `?scenario=backtest` on the address, for example `http://localhost:4200/?scenario=backtest`.
 
 ## Smallest set that shows something
 

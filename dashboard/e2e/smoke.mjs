@@ -40,7 +40,7 @@ async function open(path, width) {
 }
 
 // 1. Every page: no errors, a heading, no sideways scroll, no accessibility violations.
-const routes = ['/', '/bots/breakout', '/bots/pullback', '/bots/reversion', '/bots/nope', '/signed-out', '/styleguide'];
+const routes = ['/', '/bots/breakout', '/bots/pullback', '/bots/reversion', '/bots/nope', '/signed-out', '/styleguide', '/?scenario=backtest', '/bots/breakout?scenario=backtest'];
 for (const width of [1360, 390]) {
   for (const route of routes) {
     const { page, errors } = await open(route, width);

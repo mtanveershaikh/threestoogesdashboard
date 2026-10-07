@@ -6,9 +6,9 @@
 
 export type BotId = 'breakout' | 'pullback' | 'reversion';
 
-export type BotStatus = 'ACTIVE' | 'PAUSED' | 'HALTED';
+export type BotStatus = 'ACTIVE' | 'PAUSED' | 'HALTED' | 'BACKTEST_ONLY';
 export type KillSwitchState = 'ARMED' | 'TRIPPED';
-export type TradingMode = 'paper' | 'live';
+export type TradingMode = 'backtest' | 'paper' | 'live';
 export type Verdict = 'BUY' | 'HOLD' | 'AVOID';
 export type ExitReason = 'TARGET' | 'STOP' | 'TIME_STOP' | 'BREAKEVEN_STOP';
 export type PlanStatus = 'PROPOSED' | 'ARMED';
