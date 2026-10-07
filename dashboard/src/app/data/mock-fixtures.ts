@@ -148,8 +148,10 @@ const GENERATED_TRADES: Trade[] = MOCK_BOTS.flatMap((bot, i) =>
   generatePaperTrades({ bot, existing: TRADES_BY_ENTRY.filter((t) => t.botId === bot.id), days: OLDER_DAYS, tickerOffset: i * 13 }),
 );
 
+// Newest first. Trades closing on the same day sort by id, descending: that is how Firestore breaks the tie
+// for `orderBy('closedAt', 'desc')`, so the sample and the real data list them the same way.
 export const MOCK_TRADES: Trade[] = [...TRADES_BY_ENTRY, ...GENERATED_TRADES].sort(
-  (a, b) => b.closedAt.localeCompare(a.closedAt) || a.id.localeCompare(b.id),
+  (a, b) => b.closedAt.localeCompare(a.closedAt) || b.id.localeCompare(a.id),
 );
 
 export const MOCK_SETUPS: SetupStat[] = [
