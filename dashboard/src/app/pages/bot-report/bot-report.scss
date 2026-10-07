@@ -1,0 +1,115 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+h1 { font-size: 30px; }
+h2 { font-size: 18px; }
+.muted { color: var(--text-muted); }
+.sub { margin: 2px 0 16px; font-size: 13px; }
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--touch);
+  font-size: 13px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  p { margin: 4px 0 0; }
+}
+.name { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.status {
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(67, 217, 160, 0.14);
+  color: var(--gain);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.charts, .lower {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.charts { align-items: stretch; }
+.paper { flex: 999 1 600px; min-width: 0; }
+.histogram { flex: 1 1 340px; min-width: 0; }
+.lower { align-items: flex-start; .card { flex: 1 1 480px; min-width: 0; } }
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  .sub { margin-bottom: 0; }
+}
+.gate {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-weight: 500;
+}
+
+.verdict {
+  margin-top: 4px;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.verdict-title { font-size: 14px; font-weight: 600; }
+.verdict.warn { background: rgba(242, 184, 75, 0.1); border: 1px solid rgba(242, 184, 75, 0.35); .verdict-title { color: var(--warn); } }
+.verdict.loss { background: rgba(255, 122, 122, 0.1); border: 1px solid rgba(255, 122, 122, 0.35); .verdict-title { color: var(--loss); } }
+.verdict.gain { background: rgba(67, 217, 160, 0.1); border: 1px solid rgba(67, 217, 160, 0.35); .verdict-title { color: var(--gain); } }
+
+footer {
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .head { align-items: flex-start; }
+}
+
+.switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--touch);
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  a:hover { color: var(--text); }
+  a.active {
+    background: var(--bg-raised);
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}

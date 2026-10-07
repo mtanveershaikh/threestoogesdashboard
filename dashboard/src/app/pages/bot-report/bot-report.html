@@ -1,0 +1,123 @@
+@if (vm(); as vm) {
+  @if (vm.bot; as bot) {
+    <a class="back" routerLink="/">← Back to overview</a>
+
+    <nav class="switcher" aria-label="Choose a bot">
+      @for (b of vm.bots; track b.id) {
+        <a [routerLink]="['/bots', b.id]" routerLinkActive="active" ariaCurrentWhenActive="page">
+          <span class="dot" [style.background]="b.color"></span>{{ b.name }}
+        </a>
+      }
+    </nav>
+
+    <section class="head">
+      <app-avatar [name]="bot.name" [color]="bot.color" [url]="bot.avatarUrl" [size]="96" />
+      <div>
+        <div class="name">
+          <h1>{{ bot.name }}</h1>
+          <span class="status">{{ status() }}</span>
+        </div>
+        <p class="muted">{{ description() }}</p>
+      </div>
+    </section>
+
+    <section class="kpis" aria-label="Key figures">
+      <app-stat-tile label="Return" [value]="kpis()!.ret.value" [tone]="kpis()!.ret.tone" [delta]="kpis()!.ret.delta" />
+      <app-stat-tile label="Average per trade" [value]="kpis()!.avgR.value" [tone]="kpis()!.avgR.tone" [delta]="kpis()!.avgR.note" [showArrow]="false" />
+      <app-stat-tile label="Win rate" [value]="kpis()!.win.value" [delta]="kpis()!.win.note" />
+      <app-stat-tile label="Profit factor" [value]="kpis()!.pf.value" [delta]="kpis()!.pf.note" />
+      <app-stat-tile label="Max drawdown" [value]="kpis()!.dd.value" [delta]="kpis()!.dd.note" />
+    </section>
+
+    <section class="charts">
+      <div class="card paper">
+        <h2>Paper results against the backtest</h2>
+        <p class="muted sub">Return on the bot's budget, percent</p>
+        <app-line-chart
+          [series]="series()"
+          [xLabels]="weekLabels()"
+          [yMin]="yRange().min"
+          [yMax]="yRange().max"
+          [ariaLabel]="'Paper return against the backtest expectation for ' + bot.name"
+        />
+      </div>
+      <div class="card histogram">
+        <h2>Result of each trade, in R</h2>
+        <p class="muted sub">Number of trades per result</p>
+        @if (vm.report; as report) {
+          <app-histogram-bars [bins]="report.rHistogram" />
+        } @else {
+          <app-empty-state title="No results to show" message="The R histogram appears once this bot has a report." />
+        }
+      </div>
+    </section>
+
+    @if (compare(); as c) {
+      <section class="card compare">
+        <h2>Paper and backtest, side by side</h2>
+        <p class="muted sub">{{ c.note }}</p>
+        <app-data-table caption="Paper and backtest, side by side" [columns]="compareColumns" [rows]="c.rows" />
+      </section>
+    }
+
+    <section class="lower">
+      <div class="card checklist">
+        <div>
+          <h2>Go-live checklist</h2>
+          <p class="muted sub">Decided per bot, by you, after the paper run</p>
+        </div>
+        @for (g of gates(); track g.label) {
+          <app-progress-row class="gate" [label]="g.label" [status]="g.status" [value]="g.pct" [color]="g.color" [detail]="g.detail" />
+        } @empty {
+          <app-empty-state title="No checklist yet" message="The checklist appears once the bot has a report." />
+        }
+        @if (verdict(); as v) {
+          <div class="verdict" [class]="v.tone" role="status">
+            <div class="verdict-title">{{ v.title }}</div>
+            <div>{{ v.message }}</div>
+          </div>
+        }
+      </div>
+
+      <div class="card">
+        <h2>Results by setup</h2>
+        <p class="muted sub">A setup is blocked once its average is below zero after 15 trades</p>
+        <app-data-table caption="Results by setup" [columns]="setupColumns" [rows]="setupRows()" [cell]="signTpl" emptyText="No setups traded yet." />
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Recent trades with analyst verdicts</h2>
+      <p class="muted sub">Verdict and confidence from each analyst at the time of the call</p>
+      <app-data-table caption="Recent trades" [columns]="tradeColumns" [rows]="tradeRows()" [cell]="signTpl" emptyText="No closed trades yet." />
+    </section>
+
+    <ng-template #signTpl let-row let-col="column">
+      @if (col.key === 'result' || col.key === 'avgR') {
+        <span [class]="row['tone']">{{ row[col.key] }}</span>
+      } @else if (col.key === 'state' || col.key === 'exit' || col.key === 'date') {
+        <span class="muted">{{ row[col.key] }}</span>
+      } @else {
+        {{ row[col.key] }}
+      }
+    </ng-template>
+
+    <footer>
+      @if (isSample) {
+        All figures are sample data. Paper trading only; past results do not predict live results.
+      } @else {
+        Paper trading only; past results do not predict live results.
+      }
+    </footer>
+  } @else {
+    <app-empty-state [level]="1" title="Bot not found" message="There is no bot with that name. Go back to the overview to pick one.">
+      <a class="back" routerLink="/">← Back to overview</a>
+    </app-empty-state>
+  }
+} @else if (load().status === 'error') {
+  <app-empty-state [level]="1" title="The report could not load" [message]="errorMessage()">
+    <button type="button" class="button" (click)="loader.retry()">Try again</button>
+  </app-empty-state>
+} @else {
+  <app-empty-state [level]="1" title="Loading the report" message="Fetching the latest figures." />
+}

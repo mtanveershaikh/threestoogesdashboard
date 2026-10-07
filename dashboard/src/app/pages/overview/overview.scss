@@ -1,0 +1,99 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+h1 { font-size: 30px; }
+h2 { font-size: 18px; }
+.muted { color: var(--text-muted); }
+.title p { margin: 4px 0 0; }
+.sub { margin: 2px 0 16px; font-size: 13px; }
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+.meter { margin-top: 10px; }
+
+.chart-and-plans {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: stretch;
+}
+.chart { flex: 999 1 600px; min-width: 0; }
+.plans {
+  flex: 1 1 340px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  .sub { margin: -8px 0 0; }
+}
+.plans-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.count {
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(242, 184, 75, 0.16);
+  color: var(--warn);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bots { display: flex; flex-direction: column; gap: 14px; }
+.bots-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+
+  h2 { font-size: 22px; }
+  .muted { font-size: 13px; }
+}
+.bot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.tables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+
+  .card { flex: 1 1 520px; min-width: 0; }
+  h2 { margin-bottom: 14px; }
+}
+
+.bot { display: inline-flex; align-items: center; font-family: var(--font-body); }
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+}
+
+footer {
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  /* An odd tile out takes the full row instead of leaving a gap. */
+  .kpis > app-stat-tile:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}

@@ -1,0 +1,38 @@
+<a class="skip-link" href="#main" (click)="skipToMain($event)">Skip to content</a>
+<div class="page">
+  <header class="shell">
+    <a class="brand" routerLink="/" aria-label="The Three Stooges, overview">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="1" y="1" width="30" height="30" rx="8" fill="#151B23" stroke="#2B3644" />
+        <path d="M7 21 L13 14 L18 18 L25 9" fill="none" stroke="#43D9A0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span>The Three Stooges</span>
+    </a>
+
+    <nav aria-label="Main">
+      <a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Overview</a>
+      <a routerLink="/bots/breakout" routerLinkActive="active" ariaCurrentWhenActive="page">Bots</a>
+    </nav>
+
+    <div class="chips">
+      @if (status(); as s) {
+        <span class="chip mode">{{ s.mode === 'paper' ? 'Paper trading' : 'Live trading' }}</span>
+      }
+      <app-sample-data-badge />
+      @if (auth.user(); as u) {
+        <app-avatar [name]="u.displayName ?? 'You'" [url]="u.photoURL ?? undefined" [size]="36" />
+        <button type="button" class="signout" (click)="auth.signOut()">Sign out</button>
+      } @else {
+        <app-avatar name="You" [size]="36" />
+      }
+    </div>
+  </header>
+
+  @if (status(); as s) {
+    <app-stale-data-banner [lastHeartbeat]="s.lastHeartbeat" [disabled]="isSample" />
+  }
+
+  <main id="main" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>

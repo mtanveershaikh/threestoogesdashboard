@@ -1,0 +1,55 @@
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { throwError } from 'rxjs';
+import { describe, expect, it } from 'vitest';
+import { App } from './app';
+import { DataService } from './data/data.service';
+import { MockDataService } from './data/mock-data.service';
+
+describe('App shell', () => {
+  async function render(): Promise<HTMLElement> {
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideRouter([]), { provide: DataService, useClass: MockDataService }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('shows the brand, the nav links and the mode chip', async () => {
+    const el = await render();
+    expect(el.textContent).toContain('The Three Stooges');
+    const links = Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim());
+    expect(links).toEqual(['Overview', 'Bots']);
+    expect(el.querySelector('.mode')?.textContent).toContain('Paper trading');
+  });
+
+  it('shows the Sample data badge in mock mode', async () => {
+    const el = await render();
+    expect(el.textContent).toContain('Sample data');
+  });
+
+  it('has a skip link to the main content and marks the current page', async () => {
+    const el = await render();
+    expect(el.querySelector('a.skip-link')?.getAttribute('href')).toBe('#main');
+    expect(el.querySelector('main#main')).not.toBeNull();
+  });
+
+  it('still renders the header and the page when the status read fails', async () => {
+    const failing = Object.assign(new MockDataService(), {
+      getSystemStatus: () => throwError(() => ({ code: 'permission-denied' })),
+    });
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideRouter([]), { provide: DataService, useValue: failing }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('The Three Stooges');
+    expect(el.querySelector('main#main')).not.toBeNull();
+    expect(el.querySelector('.mode')).toBeNull();
+  });
+});
