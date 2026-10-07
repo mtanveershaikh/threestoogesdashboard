@@ -65,6 +65,32 @@
 </section>
 
 <section>
+  <h2>LineChart</h2>
+  <div class="card">
+    <app-line-chart [series]="series" [xLabels]="weeks" ariaLabel="Return since start for each bot, the total and the backtest over eight weeks" />
+  </div>
+  <div class="card gap">
+    <app-line-chart [series]="[]" ariaLabel="Empty example" />
+  </div>
+</section>
+
+<section>
+  <h2>Sparkline</h2>
+  <div class="row">
+    @for (b of bots; track b.id) {
+      <app-sparkline [values]="sparkValues(b.id)" [color]="b.color" />
+    }
+  </div>
+</section>
+
+<section>
+  <h2>HistogramBars</h2>
+  <div class="card">
+    <app-histogram-bars [bins]="histogram" />
+  </div>
+</section>
+
+<section>
   <h2>EmptyState</h2>
   <app-empty-state title="No open positions" message="Positions appear here when a bot enters a trade." />
 </section>
