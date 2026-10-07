@@ -70,9 +70,26 @@ describe('mock fixtures', () => {
     expect([...dates].sort().reverse()).toEqual(dates);
   });
 
-  it('breakout report histogram covers the closed trades and the curve has one point per day', () => {
-    const report = MOCK_REPORTS.breakout!;
-    expect(report.rHistogram.reduce((s, b) => s + b.count, 0)).toBe(20);
-    expect(report.backtestReturnPct).toHaveLength(MOCK_ROLLUPS.length);
+  it('each bot report histogram covers its closed trades and the curve has one point per day', () => {
+    for (const bot of MOCK_BOTS) {
+      const report = MOCK_REPORTS[bot.id];
+      expect(report.rHistogram.reduce((s, b) => s + b.count, 0)).toBe(bot.tradeCount);
+      expect(report.backtestReturnPct).toHaveLength(MOCK_ROLLUPS.length);
+    }
+  });
+
+  it('each bot setups add up to its trade count', () => {
+    for (const bot of MOCK_BOTS) {
+      const total = MOCK_SETUPS.filter((s) => s.botId === bot.id).reduce((n, s) => n + s.trades, 0);
+      expect(total).toBe(bot.tradeCount);
+    }
+  });
+
+  it('the closed-trades gate and the drawdown gate match the bot card', () => {
+    for (const bot of MOCK_BOTS) {
+      const gates = MOCK_REPORTS[bot.id].gates;
+      expect(gates.find((g) => g.id === 'trades')?.result).toBe(`${bot.tradeCount} of 100`);
+      expect(gates.find((g) => g.id === 'drawdown')?.result).toBe(`${bot.maxDrawdownPct}%`);
+    }
   });
 });

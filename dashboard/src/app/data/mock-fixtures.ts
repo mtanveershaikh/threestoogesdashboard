@@ -26,16 +26,19 @@ export const MOCK_BOTS: Bot[] = [
     id: 'breakout', name: 'Breakout Bot', strategy: 'Breakout momentum', color: '#F2B84B',
     budget: 2000, status: 'ACTIVE', returnPct: BOT_END_RETURN.breakout,
     winRatePct: 30, avgR: 0.21, profitFactor: 1.3, tradeCount: 20, openCount: 1, targetRR: 3,
+    maxDrawdownPct: 6.1, universe: 'Nasdaq 100', timeStopDays: 10,
   },
   {
     id: 'pullback', name: 'Pullback Bot', strategy: 'Trend pullback', color: '#5BB8FF',
     budget: 1750, status: 'ACTIVE', returnPct: BOT_END_RETURN.pullback,
     winRatePct: 28, avgR: 0.16, profitFactor: 1.2, tradeCount: 18, openCount: 2, targetRR: 3,
+    maxDrawdownPct: 4.8, universe: 'Nasdaq 100', timeStopDays: 15,
   },
   {
     id: 'reversion', name: 'Reversion Bot', strategy: 'Mean reversion', color: '#B49CFF',
     budget: 1250, status: 'ACTIVE', returnPct: BOT_END_RETURN.reversion,
     winRatePct: 33, avgR: -0.05, profitFactor: 0.9, tradeCount: 12, openCount: 1, targetRR: 2,
+    maxDrawdownPct: 7.4, universe: 'Nasdaq 100', timeStopDays: 5,
   },
 ];
 
@@ -138,29 +141,71 @@ export const MOCK_SETUPS: SetupStat[] = [
   { id: 'breakout_55d-high', botId: 'breakout', name: '55-day high, volume above 1.5x', trades: 9, winRatePct: 44, avgR: 0.6, state: 'ACTIVE' },
   { id: 'breakout_gap-up', botId: 'breakout', name: 'Gap-up breakout', trades: 6, winRatePct: 17, avgR: -0.2, state: 'WATCHING', tradesToGo: 9 },
   { id: 'breakout_late-session', botId: 'breakout', name: 'Late-session breakout', trades: 5, winRatePct: 20, avgR: 0.0, state: 'WATCHING', tradesToGo: 10 },
+  { id: 'pullback_20d-average', botId: 'pullback', name: 'Pullback to the 20-day average', trades: 10, winRatePct: 30, avgR: 0.3, state: 'ACTIVE' },
+  { id: 'pullback_deep', botId: 'pullback', name: 'Deep pullback to the 50-day average', trades: 8, winRatePct: 25, avgR: 0.0, state: 'WATCHING', tradesToGo: 7 },
+  { id: 'reversion_rsi2', botId: 'reversion', name: 'RSI(2) below 10, above 200-day', trades: 7, winRatePct: 29, avgR: -0.1, state: 'WATCHING', tradesToGo: 8 },
+  { id: 'reversion_lower-band', botId: 'reversion', name: 'Close below the lower band', trades: 5, winRatePct: 40, avgR: 0.0, state: 'WATCHING', tradesToGo: 10 },
 ];
 
-export const MOCK_REPORTS: Partial<Record<BotId, BotReport>> = {
+const bins = (counts: number[]) =>
+  ['-1', '-0.5', '0', '+0.5', '+1', '+2', '+3'].map((label, i) => ({ label, count: counts[i] }));
+
+export const MOCK_REPORTS: Record<BotId, BotReport> = {
   breakout: {
     botId: 'breakout',
     gates: [
-      { id: 'trades', name: 'Closed trades, at least 100', status: 'PENDING', result: '20 of 100', progressPct: 20,
+      { id: 'trades', name: 'Closed trades', rule: 'at least 100', status: 'PENDING', result: '20 of 100', progressPct: 20,
         detail: 'About 80 more trades. At one or two a day, that is two to four more months.' },
-      { id: 'avg-r', name: 'Average per trade, at least +0.15R', status: 'MET', result: 'Met: +0.21R', progressPct: 100,
+      { id: 'avg-r', name: 'Average per trade', rule: 'at least +0.15R', status: 'MET', result: '+0.21R', progressPct: 100,
         detail: 'After costs and slippage.' },
-      { id: 'profit-factor', name: 'Profit factor, at least 1.3', status: 'MET', result: 'Met: 1.3', progressPct: 100,
+      { id: 'profit-factor', name: 'Profit factor', rule: 'at least 1.3', status: 'MET', result: '1.3', progressPct: 100,
         detail: 'Right on the line; a few more losses would break it.' },
-      { id: 'drawdown', name: 'Largest drawdown, within 20% of budget', status: 'MET', result: 'Met: 6.1%', progressPct: 30,
+      { id: 'drawdown', name: 'Largest drawdown', rule: 'within 20% of budget', status: 'MET', result: '6.1%', progressPct: 30,
         detail: "Measured from the bot's own equity peak." },
-      { id: 'weeks', name: 'Profitable weeks, at least 60%', status: 'MET', result: 'Met: 5 of 8', progressPct: 63,
+      { id: 'weeks', name: 'Profitable weeks', rule: 'at least 60%', status: 'MET', result: '5 of 8', progressPct: 63,
         detail: 'Weeks with a net gain since the paper run began.' },
-      { id: 'backtest-gap', name: 'Paper close to backtest, within 0.15R', status: 'MET', result: 'Met: gap 0.07R', progressPct: 47,
+      { id: 'backtest-gap', name: 'Paper close to backtest', rule: 'within 0.15R', status: 'MET', result: 'gap 0.07R', progressPct: 47,
         detail: 'Backtest +0.28R per trade against +0.21R on paper.' },
     ],
-    rHistogram: [
-      { label: '-1', count: 10 }, { label: '-0.5', count: 2 }, { label: '0', count: 2 },
-      { label: '+0.5', count: 0 }, { label: '+1', count: 1 }, { label: '+2', count: 1 }, { label: '+3', count: 4 },
-    ],
+    rHistogram: bins([10, 2, 2, 0, 1, 1, 4]),
     backtestReturnPct: series(5.6, 0.2, 0.5),
+  },
+  pullback: {
+    botId: 'pullback',
+    gates: [
+      { id: 'trades', name: 'Closed trades', rule: 'at least 100', status: 'PENDING', result: '18 of 100', progressPct: 18,
+        detail: 'About 82 more trades.' },
+      { id: 'avg-r', name: 'Average per trade', rule: 'at least +0.15R', status: 'MET', result: '+0.16R', progressPct: 100,
+        detail: 'After costs and slippage. Only just above the line.' },
+      { id: 'profit-factor', name: 'Profit factor', rule: 'at least 1.3', status: 'FAILED', result: '1.2', progressPct: 92,
+        detail: 'Below the gate. It needs a few more winners to clear 1.3.' },
+      { id: 'drawdown', name: 'Largest drawdown', rule: 'within 20% of budget', status: 'MET', result: '4.8%', progressPct: 24,
+        detail: "Measured from the bot's own equity peak." },
+      { id: 'weeks', name: 'Profitable weeks', rule: 'at least 60%', status: 'MET', result: '5 of 8', progressPct: 63,
+        detail: 'Weeks with a net gain since the paper run began.' },
+      { id: 'backtest-gap', name: 'Paper close to backtest', rule: 'within 0.15R', status: 'MET', result: 'gap 0.08R', progressPct: 53,
+        detail: 'Backtest +0.24R per trade against +0.16R on paper.' },
+    ],
+    rHistogram: bins([8, 2, 1, 1, 1, 1, 4]),
+    backtestReturnPct: series(4.4, 0.2, 0.5),
+  },
+  reversion: {
+    botId: 'reversion',
+    gates: [
+      { id: 'trades', name: 'Closed trades', rule: 'at least 100', status: 'PENDING', result: '12 of 100', progressPct: 12,
+        detail: 'About 88 more trades.' },
+      { id: 'avg-r', name: 'Average per trade', rule: 'at least +0.15R', status: 'FAILED', result: '-0.05R', progressPct: 0,
+        detail: 'Losing money per trade after costs and slippage.' },
+      { id: 'profit-factor', name: 'Profit factor', rule: 'at least 1.3', status: 'FAILED', result: '0.9', progressPct: 69,
+        detail: 'Below 1.0 means losses outweigh wins.' },
+      { id: 'drawdown', name: 'Largest drawdown', rule: 'within 20% of budget', status: 'MET', result: '7.4%', progressPct: 37,
+        detail: "Measured from the bot's own equity peak." },
+      { id: 'weeks', name: 'Profitable weeks', rule: 'at least 60%', status: 'FAILED', result: '3 of 8', progressPct: 38,
+        detail: 'Weeks with a net gain since the paper run began.' },
+      { id: 'backtest-gap', name: 'Paper close to backtest', rule: 'within 0.15R', status: 'FAILED', result: 'gap 0.25R', progressPct: 100,
+        detail: 'Backtest +0.20R per trade against -0.05R on paper.' },
+    ],
+    rHistogram: bins([5, 1, 1, 0, 1, 3, 1]),
+    backtestReturnPct: series(3.0, 0.2, 0.5),
   },
 };

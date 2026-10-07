@@ -45,3 +45,12 @@ export function ticks(min: number, max: number, step: number): number[] {
   for (let v = min; v <= max + 1e-9; v += step) out.push(Math.round(v * 1e6) / 1e6);
   return out;
 }
+
+/** Axis bounds in whole steps that always include 0 and a little room, for any set of values. */
+export function axisRange(values: number[], step = 2): { min: number; max: number } {
+  if (!values.length) return { min: -step, max: step * 3 };
+  return {
+    min: Math.min(0, Math.floor(Math.min(...values) / step) * step),
+    max: Math.max(step, Math.ceil(Math.max(...values) / step) * step),
+  };
+}

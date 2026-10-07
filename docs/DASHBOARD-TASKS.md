@@ -47,10 +47,10 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D5: Bot report page (2d)
 
-- [ ] D5-1 Header with avatar, status and budget; five KPI tiles.
-- [ ] D5-2 Paper against backtest chart; R-result histogram.
-- [ ] D5-3 Go-live checklist driven by the acceptance gates in config, with the verdict box.
-- [ ] D5-4 Results by setup table; recent trades with both analyst verdicts.
+- [x] D5-1 Header with avatar, status and budget; five KPI tiles.
+- [x] D5-2 Paper against backtest chart; R-result histogram.
+- [x] D5-3 Go-live checklist driven by the acceptance gates in config, with the verdict box.
+- [x] D5-4 Results by setup table; recent trades with both analyst verdicts.
 
 ## D6: Real data, auth and rules (1-2d)
 

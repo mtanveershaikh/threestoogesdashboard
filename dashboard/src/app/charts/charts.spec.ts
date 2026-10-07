@@ -1,7 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
-import { linePath, sparklinePath, ticks, xAt, yAt } from './chart-math';
+import { axisRange, linePath, sparklinePath, ticks, xAt, yAt } from './chart-math';
 import { HistogramBars } from './histogram-bars';
 import { LineChart } from './line-chart';
 import { Sparkline } from './sparkline';
@@ -37,6 +37,12 @@ describe('chart math', () => {
     expect(sparklinePath([1, 3], { width: 120, height: 40 })).toBe('M0.0 36.0 L120.0 4.0');
     expect(sparklinePath([5, 5], { width: 120, height: 40 })).toBe('M0.0 36.0 L120.0 36.0');
     expect(sparklinePath([], { width: 120, height: 40 })).toBe('');
+  });
+
+  it('picks axis bounds that include zero', () => {
+    expect(axisRange([0.3, 4.2])).toEqual({ min: 0, max: 6 });
+    expect(axisRange([-0.6, 1.1])).toEqual({ min: -2, max: 2 });
+    expect(axisRange([])).toEqual({ min: -2, max: 6 });
   });
 
   it('lists ticks inclusive of both ends', () => {
