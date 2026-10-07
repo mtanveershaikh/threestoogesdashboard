@@ -8,11 +8,11 @@ Rough effort: D0 0.5d, D1 1d, D2 1-2d, D3 1-2d, D4 2d, D5 2d, D6 1-2d, D7 1-2d, 
 
 ## D0: Setup (0.5d)
 
-- [ ] D0-1 Run `scripts/check_prereqs.sh`; install Node and the Angular CLI (`npm install -g @angular/cli`).
+- [x] D0-1 Run `scripts/check_prereqs.sh`; install Node and the Angular CLI (`npm install -g @angular/cli`).
 - [ ] D0-2 Add the `frontend-design` skill to the repo (see `SKILLS-SETUP.md`); confirm Claude Code lists it.
-- [ ] D0-3 Create the app: `ng new dashboard` inside the repo (standalone, SCSS, no SSR).
-- [ ] D0-4 Copy the two mockup files into `docs/mockups/` and `DASHBOARD-DESIGN.md` into `docs/`.
-- [ ] D0-5 Add `dashboard/CLAUDE.md` (provided) and a `dashboard.yml` CI workflow: install, lint, test, build.
+- [x] D0-3 Create the app: `ng new dashboard` inside the repo (standalone, SCSS, no SSR).
+- [x] D0-4 Copy the two mockup files into `docs/mockups/` and `DASHBOARD-DESIGN.md` into `docs/`.
+- [x] D0-5 Add `dashboard/CLAUDE.md` (provided) and a `dashboard.yml` CI workflow: install, lint, test, build.
 - [ ] D0-6 `firebase init` for Hosting and the Firestore emulator at the repo root; hosting folder is the Angular build output.
 
 Done when: `ng serve` shows the starter page and CI is green.
