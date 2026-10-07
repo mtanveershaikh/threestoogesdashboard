@@ -54,7 +54,9 @@ export class StatTile {
   readonly tone = input<Tone>('neutral');
   /** Show the value as words (for example "Armed, normal") instead of a figure. */
   readonly textValue = input(false);
+  /** Turn off the ▲/▼ glyph when the delta line is not a gain or loss. */
+  readonly showArrow = input(true);
 
-  protected readonly arrow = computed(() => ARROWS[this.tone()]);
+  protected readonly arrow = computed(() => (this.showArrow() ? ARROWS[this.tone()] : ''));
   protected readonly valueClass = computed(() => (this.textValue() ? `text ${this.tone()}` : ''));
 }

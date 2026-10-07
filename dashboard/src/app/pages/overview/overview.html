@@ -1,0 +1,99 @@
+@if (status(); as s) {
+  <div class="title">
+    <div>
+      <h1>Performance overview</h1>
+      <p class="muted">{{ subtitle() }}</p>
+    </div>
+  </div>
+
+  <section class="kpis" aria-label="Key figures">
+    <app-stat-tile label="Equity" [value]="equity()!.value" [delta]="equity()!.delta" [tone]="equity()!.tone" />
+    <app-stat-tile label="Today" [value]="today()!.value" [delta]="today()!.delta" [tone]="today()!.tone" />
+    <app-stat-tile [label]="'Open risk (limit ' + risk()!.limit + '%)'" [value]="risk()!.value">
+      <app-progress-row class="meter" [value]="risk()!.pct" color="var(--warn)" [status]="risk()!.value + ' of ' + risk()!.limit + '% limit'" />
+    </app-stat-tile>
+    <app-stat-tile [label]="'Trades today (cap ' + tradesToday()!.cap + ')'" [value]="tradesToday()!.value">
+      <app-progress-row class="meter" [value]="tradesToday()!.pct" color="var(--info)" [status]="tradesToday()!.value + ' of ' + tradesToday()!.cap" />
+    </app-stat-tile>
+    <app-stat-tile label="Kill switch" [value]="kill()!.value" [tone]="kill()!.tone" [textValue]="true" [delta]="kill()!.detail" [showArrow]="false" />
+  </section>
+
+  <section class="chart-and-plans">
+    <div class="card chart">
+      <h2>Return since start</h2>
+      <p class="muted sub">Percent of each bot's own budget</p>
+      <app-line-chart
+        [series]="series()"
+        [xLabels]="weekLabels()"
+        [yMin]="yRange().min"
+        [yMax]="yRange().max"
+        ariaLabel="Return since start for each bot and the total over eight weeks"
+      />
+    </div>
+
+    <div class="card plans">
+      <div class="plans-head">
+        <h2>Awaiting your approval</h2>
+        @if (plans().length) {
+          <span class="count">{{ plans().length }} {{ plans().length === 1 ? 'plan' : 'plans' }}</span>
+        }
+      </div>
+      <p class="muted sub">This page is read-only. Approve or reject in Telegram.</p>
+      @for (p of plans(); track p.id) {
+        <app-plan-card [plan]="p" [bot]="botFor(p.botId)" [telegramUrl]="telegramUrl" />
+      } @empty {
+        <app-empty-state title="No plans waiting" message="New plans appear here when a bot proposes a trade." />
+      }
+    </div>
+  </section>
+
+  <section class="bots">
+    <div class="bots-head">
+      <h2>The three bots</h2>
+      <span class="muted">Go-live is decided per bot, after at least 100 paper trades</span>
+    </div>
+    <div class="bot-grid">
+      @for (b of bots(); track b.id) {
+        <app-bot-card [bot]="b" [trend]="trend(b.id)" />
+      }
+    </div>
+  </section>
+
+  <section class="tables">
+    <div class="card">
+      <h2>Open positions</h2>
+      <app-data-table caption="Open positions" [columns]="positionColumns" [rows]="positionRows()" [cell]="cellTpl" emptyText="No open positions." />
+    </div>
+    <div class="card">
+      <h2>Recently closed</h2>
+      <app-data-table caption="Recently closed trades" [columns]="closedColumns" [rows]="closedRows()" [cell]="cellTpl" emptyText="No closed trades yet." />
+    </div>
+  </section>
+
+  <ng-template #cellTpl let-row let-col="column">
+    @switch (col.key) {
+      @case ('bot') {
+        <span class="bot"><span class="dot" [style.background]="row['botColor']"></span>{{ row['botName'] }}</span>
+      }
+      @case ('result') {
+        <span [class]="row['tone']">{{ row['result'] }}</span>
+      }
+      @case ('pnl') {
+        <span [class]="row['tone']">{{ row['pnl'] }}</span>
+      }
+      @default {
+        {{ row[col.key] }}
+      }
+    }
+  </ng-template>
+
+  <footer>
+    @if (isSample) {
+      All figures are sample data. Paper trading only; past results do not predict live results.
+    } @else {
+      Paper trading only; past results do not predict live results.
+    }
+  </footer>
+} @else {
+  <app-empty-state title="Loading the overview" message="Fetching the latest figures." />
+}

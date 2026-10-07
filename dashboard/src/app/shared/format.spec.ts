@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { arrowOf, signedPct, signedR, signedUsd, toneOf, usd } from './format';
+import { arrowOf, exitLabel, ratio, shortDate, signedPct, signedR, signedUsd, toneOf, usd } from './format';
 
 describe('format', () => {
   it('adds a sign to gains and losses', () => {
@@ -27,5 +27,15 @@ describe('format', () => {
 
   it('formats plain dollars', () => {
     expect(usd(5127.25)).toBe('$5,127');
+  });
+
+  it('writes short dates without a time zone shift', () => {
+    expect(shortDate('2026-10-06')).toBe('Oct 6');
+    expect(shortDate('2026-01-01')).toBe('Jan 1');
+  });
+
+  it('names exits in words and ratios as 1:n', () => {
+    expect(exitLabel('TIME_STOP')).toBe('Time stop');
+    expect(ratio(3)).toBe('1:3');
   });
 });
