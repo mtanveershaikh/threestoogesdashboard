@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService, describeSignInError } from '../../auth/auth.service';
 import { EmptyState } from '../../shared/empty-state';
 
 @Component({
@@ -34,8 +34,8 @@ export class SignedOut {
     try {
       await this.auth.signIn();
       if (this.auth.canRead()) await this.router.navigateByUrl('/');
-    } catch {
-      this.error.set('Sign-in did not finish. Allow the pop-up and try again.');
+    } catch (err) {
+      this.error.set(describeSignInError(err));
     }
   }
 

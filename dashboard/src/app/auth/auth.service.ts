@@ -50,3 +50,24 @@ export class AuthService {
     await signOut(firebaseAuth());
   }
 }
+
+/** One plain sentence for a failed sign-in, by what actually went wrong. */
+export function describeSignInError(err: unknown): string {
+  const code = (err as { code?: string } | null)?.code ?? '';
+  switch (code) {
+    case 'auth/popup-blocked':
+      return 'The browser blocked the sign-in pop-up. Allow pop-ups for this site and try again.';
+    case 'auth/popup-closed-by-user':
+    case 'auth/cancelled-popup-request':
+      return 'The sign-in window was closed before it finished. Try again.';
+    case 'auth/operation-not-allowed':
+    case 'auth/configuration-not-found':
+      return 'Google sign-in is not turned on for this project. In the Firebase console, open Authentication and enable the Google provider.';
+    case 'auth/unauthorized-domain':
+      return 'This web address is not authorized for sign-in. In the Firebase console, add it under Authentication, Settings, Authorized domains.';
+    case 'auth/network-request-failed':
+      return 'The network request failed. Check your connection and try again.';
+    default:
+      return `Sign-in did not finish${code ? ` (${code})` : ''}. Try again.`;
+  }
+}
