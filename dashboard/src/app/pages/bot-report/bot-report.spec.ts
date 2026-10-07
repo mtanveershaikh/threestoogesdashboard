@@ -2,6 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { FileDownload } from '../../shared/file-download';
 import { of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { DataService } from '../../data/data.service';
@@ -84,6 +85,31 @@ describe('BotReport', () => {
     const active = Array.from(el.querySelectorAll('nav.switcher a.active'));
     expect(active.map((a) => a.textContent?.trim())).toEqual(['Waseem']);
     expect(active[0].getAttribute('aria-current')).toBe('page');
+  });
+
+  it('downloads the report as a CSV named after the bot, without sending anything', async () => {
+    const saved: { filename: string; text: string }[] = [];
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        { provide: DataService, useClass: MockDataService },
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'pullback' })) } },
+        { provide: FileDownload, useValue: { save: (filename: string, text: string) => saved.push({ filename, text }) } },
+      ],
+    });
+    const fixture = TestBed.createComponent(BotReport);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    const button = el.querySelector<HTMLButtonElement>('button.download')!;
+    expect(button.textContent?.trim()).toBe('Download report');
+    button.click();
+    expect(saved).toHaveLength(1);
+    expect(saved[0].filename).toMatch(/^waseem-report-\d{4}-\d{2}-\d{2}\.csv$/);
+    expect(saved[0].text).toContain('Report,Waseem');
+    expect(saved[0].text).toContain('Budget (USD),1750');
+    expect(saved[0].text).toContain('PLSM');
   });
 
   it('has no write controls', async () => {

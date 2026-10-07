@@ -88,7 +88,7 @@ Dependency sketch: D10-1 to D10-3 are independent. D10-4 to D10-6 each need the 
 ### Quick wins (about 1 day)
 
 - [x] D10-1 "8 weeks / All time" toggle on the Overview. Default stays the last 8 weeks; "All time" fetches every rollup once, on click, and refreshes slowly. The chart axis labels switch from weeks to months when the range is long. Done when: both ranges render from mock data, the toggle is keyboard-operable and announces the current choice, and a test shows "All time" is not fetched until clicked (read budget).
-- [ ] D10-2 Download report on the bot page. A button that saves a CSV made in the browser: bot stats, paper against backtest, go-live gates and recent trades. No server call and no write. Done when: the file opens in a spreadsheet, numbers carry their signs, and a test checks the CSV content for each bot.
+- [x] D10-2 Download report on the bot page. A button that saves a CSV made in the browser: bot stats, paper against backtest, go-live gates and recent trades. No server call and no write. Done when: the file opens in a spreadsheet, numbers carry their signs, and a test checks the CSV content for each bot.
 - [ ] D10-3 Caption under the R histogram, written from the data (for example "Most trades lose 1R. A few reach 3R and pay for the rest."). Done when: the sentence follows the data (most common result, share of trades at the target) and an empty histogram shows no caption.
 
 ### New pages (about 3.5 days)

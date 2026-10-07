@@ -8,6 +8,9 @@ import { LineChart, LineSeries } from '../../charts/line-chart';
 import { DataService } from '../../data/data.service';
 import { AnalystVerdict, BotId } from '../../data/models';
 import { Avatar } from '../../shared/avatar';
+import { botReportFilename, botReportRows } from '../../shared/bot-report-csv';
+import { toCsv } from '../../shared/csv';
+import { FileDownload } from '../../shared/file-download';
 import { Column, DataTable } from '../../shared/data-table';
 import { EmptyState } from '../../shared/empty-state';
 import { createLoader } from '../../shared/load-state';
@@ -59,6 +62,17 @@ export class BotReport {
     const l = this.load();
     return l.status === 'ready' ? l.value : undefined;
   });
+
+  private readonly files = inject(FileDownload);
+
+  /** Saves this report as a CSV, built in the browser. Nothing is sent anywhere. */
+  protected downloadReport(): void {
+    const vm = this.vm();
+    if (!vm?.bot) return;
+    const generated = new Date().toISOString().slice(0, 10);
+    const csv = toCsv(botReportRows({ bot: vm.bot, report: vm.report, setups: vm.setups, trades: vm.trades }, generated));
+    this.files.save(botReportFilename(vm.bot, generated), csv);
+  }
 
   private readonly title = inject(Title);
   private readonly setTitle = effect(() => {
