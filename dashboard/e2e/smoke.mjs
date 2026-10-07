@@ -80,6 +80,19 @@ for (const width of [1360, 390]) {
   await page.close();
 }
 
+// 3b. Chart range toggle works from the keyboard and says which range is on.
+{
+  const { page, errors } = await open('/', 1360);
+  const pressed = () => page.$$eval('.range button', (b) => b.map((x) => `${x.textContent.trim()}=${x.getAttribute('aria-pressed')}`).join(' '));
+  check((await pressed()) === '8 weeks=true All time=false', 'range toggle starts on 8 weeks');
+  await page.focus('.range button:nth-child(2)');
+  await page.keyboard.press('Enter');
+  await new Promise((r) => setTimeout(r, 400));
+  check((await pressed()) === '8 weeks=false All time=true', 'Enter on All time switches the range');
+  check(errors.length === 0, 'switching the range causes no errors');
+  await page.close();
+}
+
 // 4. Keyboard: skip link first, it moves focus into the page, and every tab stop has a visible focus ring and a name.
 {
   const { page } = await open('/', 1360);

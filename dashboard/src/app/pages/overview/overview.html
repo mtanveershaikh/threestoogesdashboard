@@ -4,6 +4,12 @@
       <h1>Performance overview</h1>
       <p class="muted">{{ subtitle() }}</p>
     </div>
+    @if (!backtestOnly()) {
+      <div class="range" role="group" aria-label="Chart range">
+        <button type="button" [attr.aria-pressed]="range() === '8w'" (click)="setRange('8w')">8 weeks</button>
+        <button type="button" [attr.aria-pressed]="range() === 'all'" (click)="setRange('all')">All time</button>
+      </div>
+    }
   </div>
 
   @if (backtestOnly()) {
@@ -29,6 +35,15 @@
     <div class="card chart">
       <h2>{{ chartTitle() }}</h2>
       <p class="muted sub">{{ chartSubtitle() }}</p>
+      @if (loadingAllTime()) {
+        <p class="range-note" role="status">Loading all-time data…</p>
+      }
+      @if (allTimeError(); as message) {
+        <p class="range-note error" role="alert">
+          {{ message }}
+          <button type="button" class="link" (click)="retryAllTime()">Try again</button>
+        </p>
+      }
       <app-line-chart
         [series]="series()"
         [xLabels]="weekLabels()"

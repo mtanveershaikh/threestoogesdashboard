@@ -1,5 +1,6 @@
-import { Component, computed, inject } from '@angular/core';
-import { combineLatest } from 'rxjs';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { combineLatest, of, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { axisRange } from '../../charts/chart-math';
 import { LineChart, LineSeries } from '../../charts/line-chart';
@@ -9,12 +10,13 @@ import { BotCard } from '../../shared/bot-card';
 import { Column, DataTable } from '../../shared/data-table';
 import { EmptyState } from '../../shared/empty-state';
 import { createLoader } from '../../shared/load-state';
-import { arrowOf, dateLabels, exitLabel, shortDate, signedPct, signedR, signedUsd, toneOf, usd } from '../../shared/format';
+import { arrowOf, dateLabels, exitLabel, shortDate, signedPct, signedR, signedUsd, spreadDateLabels, toneOf, usd } from '../../shared/format';
 import { PlanCard } from '../../shared/plan-card';
 import { ProgressRow } from '../../shared/progress-row';
 import { StatTile } from '../../shared/stat-tile';
 
-const DAYS = 60;
+/** Eight weeks of trading days: the default chart range. */
+const EIGHT_WEEKS = 40;
 const TRADING_DAYS_PER_WEEK = 5;
 const CLOSED_LIMIT = 6;
 
@@ -36,7 +38,7 @@ export class Overview {
     combineLatest({
       status: this.data.getSystemStatus(),
       bots: this.data.getBots(),
-      rollups: this.data.getRollups(DAYS),
+      rollups: this.data.getRollups(EIGHT_WEEKS),
       plans: this.data.getPlans(),
       positions: this.data.getOpenPositions(),
       trades: this.data.getRecentTrades(CLOSED_LIMIT),
@@ -60,6 +62,31 @@ export class Overview {
   private readonly positions = computed(() => this.ready()?.positions ?? []);
   private readonly trades = computed(() => this.ready()?.trades ?? []);
   private readonly reports = computed(() => this.ready()?.reports ?? []);
+
+  /** The chart's range. "All time" is only fetched after someone picks it. */
+  protected readonly range = signal<'8w' | 'all'>('8w');
+  private readonly range$ = toObservable(this.range);
+  private readonly allTime = createLoader(() =>
+    this.range$.pipe(switchMap((r) => (r === 'all' ? this.data.getRollups('all') : of(null)))),
+  );
+  protected readonly allTimeState = this.allTime.state;
+  protected retryAllTime(): void {
+    this.allTime.retry();
+  }
+  protected setRange(r: '8w' | 'all'): void {
+    this.range.set(r);
+  }
+  /** What the chart plots: the last eight weeks, or everything once All time has loaded. */
+  protected readonly chartRollups = computed(() => {
+    const all = this.allTimeState();
+    return this.range() === 'all' && all.status === 'ready' && all.value ? all.value : this.rollups();
+  });
+  protected readonly loadingAllTime = computed(() => this.range() === 'all' && this.allTimeState().status === 'loading');
+  protected readonly allTimeError = computed(() => {
+    const a = this.allTimeState();
+    return this.range() === 'all' && a.status === 'error' ? a.message : '';
+  });
+  private readonly showingAll = computed(() => this.range() === 'all' && this.chartRollups() !== this.rollups());
 
   /** True while the bots only have a backtest: no paper trades, plans, positions or rollups yet. */
   protected readonly backtestOnly = computed(() => this.status()?.mode === 'backtest');
@@ -120,7 +147,7 @@ export class Overview {
     this.backtestOnly() ? "Simulated, after costs, as a percent of each bot's own budget" : "Percent of each bot's own budget",
   );
   protected readonly chartLabel = computed(() =>
-    this.backtestOnly() ? 'Backtest return for each bot' : 'Return since start for each bot and the total over eight weeks',
+    this.backtestOnly() ? 'Backtest return for each bot' : `Return since start for each bot and the total ${this.showingAll() ? 'for all time' : 'over eight weeks'}`,
   );
 
   // Return chart
@@ -129,14 +156,15 @@ export class Overview {
       return this.bots().map((b) => ({ name: shortName(b), color: b.color, values: this.backtestCurve(b.id) }));
     }
     return [
-      ...this.bots().map((b) => ({ name: shortName(b), color: b.color, values: this.trend(b.id) })),
-      { name: 'Total', color: 'var(--text)', width: 2.75, values: this.rollups().map((r) => r.totalReturnPct) },
+      ...this.bots().map((b) => ({ name: shortName(b), color: b.color, values: this.chartRollups().map((r) => r.botReturnPct[b.id]) })),
+      { name: 'Total', color: 'var(--text)', width: 2.75, values: this.chartRollups().map((r) => r.totalReturnPct) },
     ];
   });
   protected readonly weekLabels = computed(() => {
     const window = this.backtestWindow();
     if (this.backtestOnly()) return window ? dateLabels(window.start, window.end) : [];
-    return Array.from({ length: Math.ceil(this.rollups().length / TRADING_DAYS_PER_WEEK) }, (_, i) => `Week ${i + 1}`);
+    if (this.showingAll()) return spreadDateLabels(this.chartRollups().map((r) => r.date));
+    return Array.from({ length: Math.ceil(this.chartRollups().length / TRADING_DAYS_PER_WEEK) }, (_, i) => `Week ${i + 1}`);
   });
   protected readonly yRange = computed(() => axisRange(this.series().flatMap((s) => s.values)));
 

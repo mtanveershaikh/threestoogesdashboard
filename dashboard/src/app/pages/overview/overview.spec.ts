@@ -1,7 +1,9 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
+import { DailyRollup } from '../../data/models';
+import { MOCK_ROLLUPS } from '../../data/mock-fixtures';
 import { describe, expect, it } from 'vitest';
 import { DataService } from '../../data/data.service';
 import { MockDataService } from '../../data/mock-data.service';
@@ -95,6 +97,85 @@ describe('Overview', () => {
     expect(el.textContent).toContain('not allowed to read');
     expect(el.querySelector('button')?.textContent).toContain('Try again');
     expect(el.querySelector('.kpis')).toBeNull();
+  });
+
+  describe('chart range', () => {
+    /** Sample service whose All time has 60 earlier days on top of the usual eight weeks, and counts the calls. */
+    class RangeService extends MockDataService {
+      allCalls = 0;
+      override getRollups(days: number | 'all'): Observable<DailyRollup[]> {
+        if (days !== 'all') return super.getRollups(days);
+        this.allCalls++;
+        const earlier: DailyRollup[] = Array.from({ length: 60 }, (_, i) => ({
+          ...MOCK_ROLLUPS[0],
+          date: new Date(Date.UTC(2026, 4, 1 + i)).toISOString().slice(0, 10),
+        }));
+        return of([...earlier, ...MOCK_ROLLUPS]);
+      }
+    }
+
+    async function renderRange(service: MockDataService): Promise<{ el: HTMLElement; settle: () => Promise<void> }> {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [provideZonelessChangeDetection(), provideRouter([]), { provide: DataService, useValue: service }],
+      });
+      const fixture = TestBed.createComponent(Overview);
+      await fixture.whenStable();
+      return { el: fixture.nativeElement as HTMLElement, settle: () => fixture.whenStable() };
+    }
+    const button = (el: HTMLElement, text: string) =>
+      Array.from(el.querySelectorAll<HTMLButtonElement>('.range button')).find((b) => b.textContent?.trim() === text)!;
+
+    it('starts on 8 weeks and does not fetch all-time data until it is picked', async () => {
+      const service = new RangeService();
+      const { el } = await renderRange(service);
+      expect(button(el, '8 weeks').getAttribute('aria-pressed')).toBe('true');
+      expect(button(el, 'All time').getAttribute('aria-pressed')).toBe('false');
+      expect(service.allCalls).toBe(0);
+      expect(el.querySelector('app-line-chart .xaxis')?.textContent).toContain('Week 8');
+    });
+
+    it('fetches once on All time, then plots every day with dates', async () => {
+      const service = new RangeService();
+      const { el, settle } = await renderRange(service);
+      button(el, 'All time').click();
+      await settle();
+      expect(service.allCalls).toBe(1);
+      expect(button(el, 'All time').getAttribute('aria-pressed')).toBe('true');
+      const xaxis = el.querySelector('app-line-chart .xaxis')!.textContent!;
+      expect(xaxis).toContain('May 1');
+      expect(xaxis).not.toContain('Week');
+    });
+
+    it('goes back to 8 weeks without fetching again', async () => {
+      const service = new RangeService();
+      const { el, settle } = await renderRange(service);
+      button(el, 'All time').click();
+      await settle();
+      button(el, '8 weeks').click();
+      await settle();
+      expect(service.allCalls).toBe(1);
+      expect(el.querySelector('app-line-chart .xaxis')?.textContent).toContain('Week 8');
+    });
+
+    it('shows a message and Try again when all-time data cannot load', async () => {
+      const service = Object.assign(new MockDataService(), {
+        getRollups: (days: number | 'all') => (days === 'all' ? throwError(() => ({ code: 'unavailable' })) : new MockDataService().getRollups(days)),
+      });
+      const { el, settle } = await renderRange(service);
+      button(el, 'All time').click();
+      await settle();
+      const note = el.querySelector('.range-note.error');
+      expect(note?.textContent).toContain('could not be reached');
+      expect(note?.querySelector('button')?.textContent).toContain('Try again');
+      // The chart keeps the last eight weeks meanwhile.
+      expect(el.querySelectorAll('app-line-chart svg path')).toHaveLength(4);
+    });
+
+    it('is not offered when there are only backtests', async () => {
+      const { el } = await renderRange(new MockDataService('backtest'));
+      expect(el.querySelector('.range')).toBeNull();
+    });
   });
 
   describe('backtest only', () => {
