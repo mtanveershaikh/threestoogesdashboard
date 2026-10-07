@@ -40,7 +40,7 @@ async function open(path, width) {
 }
 
 // 1. Every page: no errors, a heading, no sideways scroll, no accessibility violations.
-const routes = ['/', '/bots/breakout', '/bots/pullback', '/bots/reversion', '/bots/nope', '/signed-out', '/styleguide', '/?scenario=backtest', '/bots/breakout?scenario=backtest', '/trades', '/trades?bot=pullback&result=win'];
+const routes = ['/', '/bots/breakout', '/bots/pullback', '/bots/reversion', '/bots/nope', '/signed-out', '/styleguide', '/?scenario=backtest', '/bots/breakout?scenario=backtest', '/trades', '/trades?bot=pullback&result=win', '/reports', '/reports?view=month', '/reports?scenario=backtest', '/trades?q=zzzz'];
 for (const width of [1360, 390]) {
   for (const route of routes) {
     const { page, errors } = await open(route, width);
@@ -106,6 +106,19 @@ for (const width of [1360, 390]) {
   await new Promise((r) => setTimeout(r, 500));
   check((await rowCount()) === 50 && new URL(page.url()).search === '', 'Clear filters brings every trade back');
   check(errors.length === 0, 'filtering causes no errors');
+  await page.close();
+}
+
+// 3b3. Reports page: Monthly switches the table and the URL, and the weeks add up.
+{
+  const { page, errors } = await open('/reports', 1360);
+  const firstCells = () => page.$$eval('tbody tr td:first-child', (c) => c.map((x) => x.textContent.trim()));
+  check((await firstCells()).length === 9, 'Reports starts weekly with nine weeks');
+  await page.evaluate(() => [...document.querySelectorAll('.range button')].find((b) => b.textContent.trim() === 'Monthly').click());
+  await new Promise((r) => setTimeout(r, 500));
+  check(JSON.stringify(await firstCells()) === JSON.stringify(['October 2026', 'September 2026', 'August 2026']), 'Monthly shows three months');
+  check(new URL(page.url()).search === '?view=month', 'the period is in the URL');
+  check(errors.length === 0, 'switching the period causes no errors');
   await page.close();
 }
 

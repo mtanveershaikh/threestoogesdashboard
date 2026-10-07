@@ -4,6 +4,7 @@ import { authGuard } from './auth/auth.guard';
 export const routes: Routes = [
   { path: '', pathMatch: 'full', title: 'Overview · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/overview/overview').then((m) => m.Overview) },
   { path: 'trades', title: 'Trades · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/trades/trades').then((m) => m.Trades) },
+  { path: 'reports', title: 'Reports · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/reports/reports').then((m) => m.Reports) },
   { path: 'bots/:id', title: 'Bot report · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/bot-report/bot-report').then((m) => m.BotReport) },
   { path: 'signed-out', title: 'Sign in · The Three Stooges', loadComponent: () => import('./pages/signed-out/signed-out').then((m) => m.SignedOut) },
   // Hidden: not linked from the nav.

@@ -6,6 +6,8 @@ import { Component, input } from '@angular/core';
   template: `
     @if (level() === 1) {
       <h1>{{ title() }}</h1>
+    } @else if (level() === 2) {
+      <h2>{{ title() }}</h2>
     } @else {
       <h3>{{ title() }}</h3>
     }
@@ -22,7 +24,7 @@ import { Component, input } from '@angular/core';
       border-radius: var(--radius-card);
       text-align: center;
     }
-    h1, h3 { font-size: 16px; }
+    h1, h2, h3 { font-size: 16px; }
     p {
       margin: 6px auto 0;
       max-width: 52ch;
@@ -34,6 +36,6 @@ import { Component, input } from '@angular/core';
 export class EmptyState {
   readonly title = input.required<string>();
   readonly message = input<string>();
-  /** Use 1 when the empty state is the whole page, so the page still has a main heading. */
-  readonly level = input<1 | 3>(3);
+  /** 1 when the empty state is the whole page, 2 under a page heading, 3 inside a card that has its own heading. */
+  readonly level = input<1 | 2 | 3>(3);
 }

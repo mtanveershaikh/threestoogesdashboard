@@ -1,0 +1,86 @@
+<div class="title">
+  <div>
+    <h1>Reports</h1>
+    <p class="muted">How the bots did, week by week or month by month.</p>
+  </div>
+  @if (status() === 'ready' && periods().length) {
+    <div class="range" role="group" aria-label="Report period">
+      <button type="button" [attr.aria-pressed]="view() === 'week'" (click)="setView('week')">Weekly</button>
+      <button type="button" [attr.aria-pressed]="view() === 'month'" (click)="setView('month')">Monthly</button>
+    </div>
+  }
+</div>
+
+@if (status() === 'ready') {
+  @if (latest(); as l) {
+    <h2 class="latest-title">Latest {{ noun() }}: {{ l.title }}</h2>
+    <section class="summary" aria-label="The latest period">
+      <app-stat-tile label="Return" [value]="l.ret.value" [tone]="l.ret.tone" delta="Of starting capital" [showArrow]="false" />
+      <app-stat-tile label="Trades closed" [value]="l.trades" />
+      <app-stat-tile label="Win rate" [value]="l.winRate" [delta]="l.winNote" />
+      <app-stat-tile label="Average per trade (R)" [value]="l.avgR.value" [tone]="l.avgR.tone" />
+      <app-stat-tile label="Net result (USD)" [value]="l.net.value" [tone]="l.net.tone" />
+    </section>
+
+    <section class="card list">
+      <h2>All {{ noun() }}s</h2>
+      <p class="muted sub">
+        Return is the change in the cumulative return over the {{ noun() }}: the {{ noun() }}s add up to the Overview total. Each bot's
+        return is as a percent of its own budget.
+      </p>
+      <app-data-table [caption]="view() === 'month' ? 'Monthly report' : 'Weekly report'" [columns]="columns()" [rows]="rows()" [cell]="cellTpl" />
+      <div class="foot">
+        <p class="muted" role="status">
+          @if (tradesTruncated()) {
+            Trade figures cover the latest {{ maxTrades }} trades, so the oldest {{ noun() }}s may show fewer trades than they had.
+          } @else {
+            {{ periods().length }} {{ noun() }}{{ periods().length === 1 ? '' : 's' }} with data.
+          }
+        </p>
+        <div class="actions">
+          <button type="button" class="button" (click)="refresh()">Refresh</button>
+          <button type="button" class="button" (click)="downloadCsv()">Download CSV</button>
+        </div>
+      </div>
+    </section>
+
+    <ng-template #cellTpl let-row let-col="column">
+      @switch (col.key) {
+        @case ('ret') {
+          <span [class]="row['retTone']">{{ row['ret'] }}</span>
+        }
+        @case ('avgR') {
+          <span [class]="row['avgTone']">{{ row['avgR'] }}</span>
+        }
+        @case ('net') {
+          <span [class]="row['netTone']">{{ row['net'] }}</span>
+        }
+        @case ('best') {
+          <span class="plain">{{ row['best'] }}</span>
+        }
+        @case ('worst') {
+          <span class="plain">{{ row['worst'] }}</span>
+        }
+        @default {
+          @if (col.key.startsWith('bot-')) {
+            <span [class]="row['tone-' + col.key.slice(4)]">{{ row[col.key] }}</span>
+          } @else {
+            {{ row[col.key] }}
+          }
+        }
+      }
+    </ng-template>
+  } @else {
+    <app-empty-state
+      [level]="2"
+      title="No paper results yet"
+      message="Weekly and monthly reports appear once the bots have paper trading results. Until then, each bot's backtest is on its own page."
+    />
+  }
+} @else if (status() === 'error') {
+  <app-empty-state [level]="2" title="Reports could not load" [message]="errorMessage()">
+    <button type="button" class="button" (click)="refresh()">Try again</button>
+  </app-empty-state>
+} @else {
+  <app-empty-state [level]="2" title="Loading reports" message="Fetching the results." />
+}

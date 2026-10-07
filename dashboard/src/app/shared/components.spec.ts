@@ -93,6 +93,12 @@ describe('SampleDataBadge', () => {
 });
 
 describe('EmptyState', () => {
+  it('can sit one level under the page heading', () => {
+    const { el } = render(EmptyState, { title: 'No trades match', level: 2 });
+    expect(el.querySelector('h2')?.textContent).toBe('No trades match');
+    expect(el.querySelector('h3')).toBeNull();
+  });
+
   it('can be the page heading', () => {
     const { el } = render(EmptyState, { title: 'Bot not found', level: 1 });
     expect(el.querySelector('h1')?.textContent).toBe('Bot not found');

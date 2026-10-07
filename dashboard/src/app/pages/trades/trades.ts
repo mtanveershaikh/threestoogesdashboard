@@ -14,12 +14,8 @@ import { StatTile } from '../../shared/stat-tile';
 import {
   BOT_IDS, EXITS, TradeFilters, applyFilters, filtersFromParams, hasFilters, paramsFromFilters, summarize,
 } from './trade-filters';
+import { MAX_TRADES, PAGE_SIZE } from './trade-limits';
 import { tradesRows } from './trades-csv';
-
-/** How many trades one request loads, and how many each "Load more" adds. */
-export const PAGE_SIZE = 100;
-/** The most trades the page will load (the data service also caps it). */
-export const MAX_TRADES = 1000;
 
 const verdictText = (v?: { verdict: string; score: number }) => (v ? `${v.verdict.charAt(0)}${v.verdict.slice(1).toLowerCase()} ${v.score}` : '–');
 const EXIT_OPTIONS = EXITS.map((e) => ({ value: e, label: exitLabel(e) }));
