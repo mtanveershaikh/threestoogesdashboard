@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bot report</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D1117;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#E8ECF1}
+a{color:#9AA6B5;text-decoration:none}a:hover{color:#E8ECF1}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="max-width: 1280px; margin: 0 auto; padding: 20px 32px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px; font-size: 14px; line-height: 1.45">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #232C38">
+<div style="display: flex; align-items: center; gap: 12px">
+<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="8" fill="#151B23" stroke="#2B3644"/><path d="M7 21 L13 14 L18 18 L25 9" fill="none" stroke="#43D9A0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 20px">Tradebots</span>
+</div>
+<nav style="display: flex; flex-wrap: wrap; gap: 4px; font-weight: 500">
+<a href="Main.dc.html" style="padding: 8px 14px; border-radius: 8px">Overview</a>
+<a href="BotDetail.dc.html" style="padding: 8px 14px; border-radius: 8px; background: #1B2330; color: #E8ECF1">Bots</a>
+<a href="Main.dc.html" style="padding: 8px 14px; border-radius: 8px">Trades</a>
+<a href="Main.dc.html" style="padding: 8px 14px; border-radius: 8px">Reports</a>
+<a href="Main.dc.html" style="padding: 8px 14px; border-radius: 8px">Settings</a>
+</nav>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<span style="padding: 5px 10px; border-radius: 999px; background: rgba(91,184,255,.14); color: #8CCBFF; font-size: 12px; font-weight: 600">Paper trading</span>
+<span style="padding: 5px 10px; border-radius: 999px; border: 1px dashed #4A5668; color: #9AA6B5; font-size: 12px">Sample data</span>
+<div style="width: 36px; height: 36px; border-radius: 50%; border: 1px dashed #4A5668; display: flex; align-items: center; justify-content: center; color: #9AA6B5; font-size: 12px" aria-label="Your avatar goes here">You</div>
+</div>
+</header>
+
+<a href="Main.dc.html" style="font-size: 13px; padding: 6px 0">← Back to overview</a>
+
+<!-- Bot header -->
+<section style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px">
+<div style="display: flex; align-items: center; gap: 20px">
+<div style="width: 96px; height: 96px; border-radius: 50%; border: 2px dashed #F2B84B; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; flex: none" aria-label="Avatar placeholder">
+<svg width="40" height="40" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="11" r="5" fill="none" stroke="#F2B84B" stroke-width="1.6"/><path d="M5 26 C6 19 24 19 25 26" fill="none" stroke="#F2B84B" stroke-width="1.6" stroke-linecap="round"/></svg>
+<span style="font-size: 11px; color: #9AA6B5">Avatar</span>
+</div>
+<div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 600">Breakout Bot</h1>
+<span style="padding: 3px 9px; border-radius: 999px; background: rgba(67,217,160,.14); color: #43D9A0; font-size: 12px; font-weight: 600">Active</span>
+</div>
+<p style="margin: 4px 0 0; color: #9AA6B5">Breakout momentum on the Nasdaq 100. 2,000 USD budget, target 1:3, time stop 10 days.</p>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button style="min-height: 44px; padding: 0 18px; border: 1px solid #3A4656; border-radius: 8px; background: transparent; color: #E8ECF1; font-weight: 500; font-size: 14px">Pause bot</button>
+<button style="min-height: 44px; padding: 0 18px; border: 1px solid #3A4656; border-radius: 8px; background: transparent; color: #E8ECF1; font-weight: 500; font-size: 14px">Download report</button>
+</div>
+</section>
+
+<!-- KPIs -->
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px">
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px"><div style="color: #9AA6B5; font-size: 12px">Return</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px; color: #43D9A0">+4.2%</div><div style="color: #9AA6B5; font-size: 13px; margin-top: 4px">+$84 on $2,000</div></div>
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px"><div style="color: #9AA6B5; font-size: 12px">Average per trade</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px">+0.21R</div><div style="color: #9AA6B5; font-size: 13px; margin-top: 4px">After costs and slippage</div></div>
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px"><div style="color: #9AA6B5; font-size: 12px">Win rate</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px">30%</div><div style="color: #9AA6B5; font-size: 13px; margin-top: 4px">6 of 20 trades. Break-even at 1:3 is 25%</div></div>
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px"><div style="color: #9AA6B5; font-size: 12px">Profit factor</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px">1.3</div><div style="color: #9AA6B5; font-size: 13px; margin-top: 4px">Gate: at least 1.3</div></div>
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px"><div style="color: #9AA6B5; font-size: 12px">Max drawdown</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px">-6.1%</div><div style="color: #9AA6B5; font-size: 13px; margin-top: 4px">Gate: within 20% of budget</div></div>
+</section>
+
+<!-- Charts -->
+<section style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+<div style="flex: 999 1 600px; min-width: 0; background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div>
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Paper results against the backtest</h2>
+<div style="color: #9AA6B5; font-size: 13px">Return on the bot's budget, percent</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 3px; border-radius: 2px; background: #F2B84B"></span>Paper</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 0; border-top: 2px dashed #9AA6B5"></span>Backtest expectation</span>
+</div>
+</div>
+<div style="display: flex; gap: 10px">
+<div style="height: 240px; display: flex; flex-direction: column; justify-content: space-between; color: #9AA6B5; font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-align: right; width: 34px">
+<span>+6%</span><span>+4%</span><span>+2%</span><span>0%</span><span>-2%</span>
+</div>
+<div style="flex: 1; min-width: 0">
+<svg viewBox="0 0 800 240" preserveAspectRatio="none" width="100%" height="240" role="img" aria-label="Paper return against the backtest expectation over eight weeks" style="display: block">
+<line x1="0" y1="0" x2="800" y2="0" stroke="#232C38"/><line x1="0" y1="60" x2="800" y2="60" stroke="#232C38"/><line x1="0" y1="120" x2="800" y2="120" stroke="#232C38"/><line x1="0" y1="180" x2="800" y2="180" stroke="#4A5668" stroke-dasharray="4 4"/><line x1="0" y1="239" x2="800" y2="239" stroke="#232C38"/>
+<path d="{{expect}}" fill="none" stroke="#9AA6B5" stroke-width="1.75" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"></path>
+<path d="{{paper}}" fill="none" stroke="#F2B84B" stroke-width="2.75" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+</svg>
+<div style="display: flex; justify-content: space-between; color: #9AA6B5; font-size: 12px; margin-top: 8px"><span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span><span>Week 5</span><span>Week 6</span><span>Week 7</span><span>Week 8</span></div>
+</div>
+</div>
+</div>
+
+<div style="flex: 1 1 340px; min-width: 0; background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Result of each trade, in R</h2>
+<div style="color: #9AA6B5; font-size: 13px; margin-bottom: 16px">Number of trades per result</div>
+<div style="display: flex; align-items: flex-end; gap: 10px; height: 190px; border-bottom: 1px solid #4A5668">
+<sc-for list="{{bins}}" as="h" hint-placeholder-count="7">
+<div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px">
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">{{h.n}}</span>
+<div style="width: 100%; height: {{h.px}}; border-radius: 4px 4px 0 0; background: {{h.color}}"></div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 10px; margin-top: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #9AA6B5">
+<sc-for list="{{bins}}" as="h" hint-placeholder-count="7"><span style="flex: 1; text-align: center">{{h.label}}</span></sc-for>
+</div>
+<p style="margin: 14px 0 0; color: #9AA6B5; font-size: 13px">Most trades lose 1R. A few reach 3R and pay for the rest.</p>
+</div>
+</section>
+
+<!-- Go-live checklist + setups -->
+<section style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<div style="flex: 1 1 480px; min-width: 0; background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div>
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Go-live checklist</h2>
+<div style="color: #9AA6B5; font-size: 13px">Decided per bot, by you, after the paper run</div>
+</div>
+<sc-for list="{{gates}}" as="g" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid #232C38">
+<div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap"><span style="font-weight: 500">{{g.name}}</span><span style="font-weight: 600; font-size: 13px; color: {{g.color}}">{{g.status}}</span></div>
+<div style="height: 6px; border-radius: 3px; background: #232C38"><div style="width: {{g.pct}}; height: 6px; border-radius: 3px; background: {{g.color}}"></div></div>
+<div style="color: #9AA6B5; font-size: 12px">{{g.detail}}</div>
+</div>
+</sc-for>
+<div style="margin-top: 4px; padding: 14px; border-radius: 10px; background: rgba(242,184,75,.1); border: 1px solid rgba(242,184,75,.35)">
+<div style="font-weight: 600; color: #F2B84B">Not yet</div>
+<div style="font-size: 13px; margin-top: 2px">Every rule except trade count is met. Keep paper trading until 100 closed trades, then decide go or no-go.</div>
+</div>
+</div>
+
+<div style="flex: 1 1 480px; min-width: 0; background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px">
+<h2 style="margin: 0 0 4px; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Results by setup</h2>
+<div style="color: #9AA6B5; font-size: 13px; margin-bottom: 14px">A setup is blocked once its average is below zero after 15 trades</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 440px; border-collapse: collapse; font-size: 13px">
+<thead><tr style="color: #9AA6B5; text-align: left; font-size: 12px"><th style="padding: 8px 6px; font-weight: 500">Setup</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">Trades</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">Win rate</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">Avg R</th><th style="padding: 8px 6px; font-weight: 500">Memory screen</th></tr></thead>
+<tbody>
+<sc-for list="{{setups}}" as="s" hint-placeholder-count="3">
+<tr style="border-top: 1px solid #232C38"><td style="padding: 12px 6px">{{s.name}}</td><td style="padding: 12px 6px; text-align: right; font-family: 'IBM Plex Mono', monospace">{{s.n}}</td><td style="padding: 12px 6px; text-align: right; font-family: 'IBM Plex Mono', monospace">{{s.win}}</td><td style="padding: 12px 6px; text-align: right; font-family: 'IBM Plex Mono', monospace; color: {{s.color}}">{{s.avg}}</td><td style="padding: 12px 6px; color: #9AA6B5">{{s.state}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- Trades -->
+<section style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px">
+<h2 style="margin: 0 0 4px; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Recent trades with analyst verdicts</h2>
+<div style="color: #9AA6B5; font-size: 13px; margin-bottom: 14px">Verdict and confidence from each analyst at the time of the call</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 640px; border-collapse: collapse; font-size: 13px">
+<thead><tr style="color: #9AA6B5; text-align: left; font-size: 12px"><th style="padding: 8px 6px; font-weight: 500">Date</th><th style="padding: 8px 6px; font-weight: 500">Stock</th><th style="padding: 8px 6px; font-weight: 500">Fundamental</th><th style="padding: 8px 6px; font-weight: 500">Technical</th><th style="padding: 8px 6px; font-weight: 500">Exit</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">Result</th></tr></thead>
+<tbody>
+<sc-for list="{{trades}}" as="t" hint-placeholder-count="6">
+<tr style="border-top: 1px solid #232C38"><td style="padding: 12px 6px; color: #9AA6B5">{{t.d}}</td><td style="padding: 12px 6px; font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{t.t}}</td><td style="padding: 12px 6px">{{t.f}}</td><td style="padding: 12px 6px">{{t.tech}}</td><td style="padding: 12px 6px; color: #9AA6B5">{{t.exit}}</td><td style="padding: 12px 6px; text-align: right; font-family: 'IBM Plex Mono', monospace; color: {{t.color}}">{{t.r}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<footer style="color: #9AA6B5; font-size: 12px; padding-top: 8px; border-top: 1px solid #232C38">All figures are sample data for a screen mockup. Paper trading only; past results do not predict live results.</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":2000}}'>
+class Component extends DCLogic {
+renderVals() {
+const N = 40, W = 800, H = 240, YMIN = -2, YMAX = 6;
+const GAIN = '#43D9A0', LOSS = '#FF7A7A', WARN = '#F2B84B', MUTE = '#7C8798';
+const env = (i) => Math.sin(Math.PI * i / (N - 1));
+const series = (end, amp, f) => Array.from({ length: N }, (_, i) => end * i / (N - 1) + amp * Math.sin(i * f) * env(i));
+const px = (i) => (i / (N - 1) * W).toFixed(1);
+const py = (p) => (H - (p - YMIN) / (YMAX - YMIN) * H).toFixed(1);
+const path = (s) => s.map((p, i) => (i ? 'L' : 'M') + px(i) + ' ' + py(p)).join(' ');
+const bins = [['-1', 10], ['-0.5', 2], ['0', 2], ['+0.5', 0], ['+1', 1], ['+2', 1], ['+3', 4]].map(([label, n]) => ({
+label, n, px: (n / 10 * 150) + 'px', color: label[0] === '-' ? LOSS : (label === '0' ? MUTE : GAIN)
+}));
+const v = (t) => t;
+return {
+paper: path(series(4.2, 1.1, 0.9)),
+expect: path(series(5.6, 0.2, 0.5)),
+bins,
+gates: [
+{ name: 'Closed trades, at least 100', status: '20 of 100', color: WARN, pct: '20%', detail: 'About 80 more trades. At one or two a day, that is two to four more months.' },
+{ name: 'Average per trade, at least +0.15R', status: 'Met: +0.21R', color: GAIN, pct: '100%', detail: 'After costs and slippage.' },
+{ name: 'Profit factor, at least 1.3', status: 'Met: 1.3', color: GAIN, pct: '100%', detail: 'Right on the line; a few more losses would break it.' },
+{ name: 'Largest drawdown, within 20% of budget', status: 'Met: 6.1%', color: GAIN, pct: '30%', detail: 'Measured from the bot\'s own equity peak.' },
+{ name: 'Profitable weeks, at least 60%', status: 'Met: 5 of 8', color: GAIN, pct: '63%', detail: 'Weeks with a net gain since the paper run began.' },
+{ name: 'Paper close to backtest, within 0.15R', status: 'Met: gap 0.07R', color: GAIN, pct: '47%', detail: 'Backtest +0.28R per trade against +0.21R on paper.' }
+],
+setups: [
+{ name: '55-day high, volume above 1.5x', n: '9', win: '44%', avg: '+0.6R', color: GAIN, state: 'Active' },
+{ name: 'Gap-up breakout', n: '6', win: '17%', avg: '-0.2R', color: LOSS, state: 'Watching, 9 trades to go' },
+{ name: 'Late-session breakout', n: '5', win: '20%', avg: '0.0R', color: MUTE, state: 'Watching, 10 trades to go' }
+],
+trades: [
+{ d: 'Oct 6', t: 'DRFT', f: 'Buy 71', tech: 'Buy 66', exit: 'Target', r: '+3.0R', color: GAIN },
+{ d: 'Oct 2', t: 'BRLK', f: 'Buy 58', tech: 'Buy 62', exit: 'Stop', r: '-1.0R', color: LOSS },
+{ d: 'Sep 29', t: 'CNDL', f: 'Hold 49', tech: 'Buy 64', exit: 'Stop', r: '-1.0R', color: LOSS },
+{ d: 'Sep 24', t: 'WRNT', f: 'Buy 77', tech: 'Buy 70', exit: 'Target', r: '+3.0R', color: GAIN },
+{ d: 'Sep 22', t: 'FRGE', f: 'Buy 63', tech: 'Buy 59', exit: 'Breakeven stop', r: '0.0R', color: MUTE },
+{ d: 'Sep 18', t: 'AXLR', f: 'Buy 52', tech: 'Buy 61', exit: 'Stop', r: '-1.0R', color: LOSS }
+]
+};
+}
+}
+</script>
+</body>
+</html>

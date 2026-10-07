@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Overview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D1117;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#E8ECF1}
+a{color:#9AA6B5;text-decoration:none}a:hover{color:#E8ECF1}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="max-width: 1280px; margin: 0 auto; padding: 20px 32px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px; font-size: 14px; line-height: 1.45">
+
+<!-- Header -->
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #232C38">
+<div style="display: flex; align-items: center; gap: 12px">
+<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="8" fill="#151B23" stroke="#2B3644"/><path d="M7 21 L13 14 L18 18 L25 9" fill="none" stroke="#43D9A0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 20px">Tradebots</span>
+</div>
+<nav style="display: flex; flex-wrap: wrap; gap: 4px; font-weight: 500">
+<a href="Main.dc.html" style="padding: 8px 14px; border-radius: 8px; background: #1B2330; color: #E8ECF1">Overview</a>
+<a href="BotDetail.dc.html" style="padding: 8px 14px; border-radius: 8px">Bots</a>
+<a href="Main.dc.html" style="padding: 8px 14px; border-radius: 8px">Trades</a>
+<a href="Main.dc.html" style="padding: 8px 14px; border-radius: 8px">Reports</a>
+<a href="Main.dc.html" style="padding: 8px 14px; border-radius: 8px">Settings</a>
+</nav>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<span style="padding: 5px 10px; border-radius: 999px; background: rgba(91,184,255,.14); color: #8CCBFF; font-size: 12px; font-weight: 600">Paper trading</span>
+<span style="padding: 5px 10px; border-radius: 999px; border: 1px dashed #4A5668; color: #9AA6B5; font-size: 12px">Sample data</span>
+<div style="width: 36px; height: 36px; border-radius: 50%; border: 1px dashed #4A5668; display: flex; align-items: center; justify-content: center; color: #9AA6B5; font-size: 12px" aria-label="Your avatar goes here">You</div>
+</div>
+</header>
+
+<!-- Title row -->
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px">
+<div>
+<h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 600">Performance overview</h1>
+<p style="margin: 4px 0 0; color: #9AA6B5">Week 8 of the paper run. Three bots, 5,000 USD starting capital.</p>
+</div>
+<div style="display: flex; gap: 8px">
+<span style="padding: 8px 12px; border-radius: 8px; background: #1B2330; font-weight: 500">8 weeks</span>
+<span style="padding: 8px 12px; border-radius: 8px; border: 1px solid #232C38; color: #9AA6B5">All time</span>
+</div>
+</div>
+
+<!-- KPI tiles -->
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px">
+<div style="color: #9AA6B5; font-size: 12px">Equity</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px">$5,127</div>
+<div style="color: #43D9A0; font-size: 13px; margin-top: 4px">▲ +2.5% since start</div>
+</div>
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px">
+<div style="color: #9AA6B5; font-size: 12px">Today</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px">+$14</div>
+<div style="color: #43D9A0; font-size: 13px; margin-top: 4px">▲ +0.3% of equity</div>
+</div>
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px">
+<div style="color: #9AA6B5; font-size: 12px">Open risk (limit 4%)</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px">2.1%</div>
+<div style="height: 6px; border-radius: 3px; background: #232C38; margin-top: 10px"><div style="width: 52%; height: 6px; border-radius: 3px; background: #F2B84B"></div></div>
+</div>
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px">
+<div style="color: #9AA6B5; font-size: 12px">Trades today (cap 10)</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; margin-top: 6px">2</div>
+<div style="height: 6px; border-radius: 3px; background: #232C38; margin-top: 10px"><div style="width: 20%; height: 6px; border-radius: 3px; background: #5BB8FF"></div></div>
+</div>
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 18px">
+<div style="color: #9AA6B5; font-size: 12px">Kill switch</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 600; margin-top: 8px; color: #43D9A0">Armed, normal</div>
+<div style="color: #9AA6B5; font-size: 13px; margin-top: 4px">Drawdown -1.8% of -10%</div>
+</div>
+</section>
+
+<!-- Chart + approvals -->
+<section style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+<div style="flex: 999 1 600px; min-width: 0; background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div>
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Return since start</h2>
+<div style="color: #9AA6B5; font-size: 13px">Percent of each bot's own budget</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px">
+<sc-for list="{{legend}}" as="l" hint-placeholder-count="4">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; height: 3px; border-radius: 2px; background: {{l.color}}"></span>{{l.name}}</span>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; gap: 10px">
+<div style="height: 240px; display: flex; flex-direction: column; justify-content: space-between; color: #9AA6B5; font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-align: right; width: 34px">
+<span>+6%</span><span>+4%</span><span>+2%</span><span>0%</span><span>-2%</span>
+</div>
+<div style="flex: 1; min-width: 0">
+<svg viewBox="0 0 800 240" preserveAspectRatio="none" width="100%" height="240" role="img" aria-label="Return since start for each bot and the total over eight weeks" style="display: block">
+<line x1="0" y1="0" x2="800" y2="0" stroke="#232C38"/><line x1="0" y1="60" x2="800" y2="60" stroke="#232C38"/><line x1="0" y1="120" x2="800" y2="120" stroke="#232C38"/><line x1="0" y1="180" x2="800" y2="180" stroke="#4A5668" stroke-dasharray="4 4"/><line x1="0" y1="239" x2="800" y2="239" stroke="#232C38"/>
+<sc-for list="{{lines}}" as="ln" hint-placeholder-count="4">
+<path d="{{ln.d}}" fill="none" stroke="{{ln.color}}" stroke-width="{{ln.w}}" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+</sc-for>
+</svg>
+<div style="display: flex; justify-content: space-between; color: #9AA6B5; font-size: 12px; margin-top: 8px"><span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span><span>Week 5</span><span>Week 6</span><span>Week 7</span><span>Week 8</span></div>
+</div>
+</div>
+</div>
+
+<div style="flex: 1 1 340px; min-width: 0; background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Awaiting your approval</h2>
+<span style="padding: 3px 9px; border-radius: 999px; background: rgba(242,184,75,.16); color: #F2B84B; font-size: 12px; font-weight: 600">2 plans</span>
+</div>
+<sc-for list="{{pending}}" as="p" hint-placeholder-count="2">
+<div style="background: #0F141B; border: 1px solid #232C38; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px"><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 16px">{{p.t}}</span><span style="width: 8px; height: 8px; border-radius: 50%; background: {{p.color}}"></span><span style="color: #9AA6B5; font-size: 13px">{{p.s}}</span></div>
+<span style="font-size: 12px; color: #9AA6B5">Reward to risk {{p.rr}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">
+<div><div style="color: #9AA6B5; font-size: 11px; font-family: 'IBM Plex Sans', sans-serif">Entry</div>{{p.entry}}</div>
+<div><div style="color: #9AA6B5; font-size: 11px; font-family: 'IBM Plex Sans', sans-serif">Stop</div>{{p.stop}}</div>
+<div><div style="color: #9AA6B5; font-size: 11px; font-family: 'IBM Plex Sans', sans-serif">Target</div>{{p.target}}</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px">
+<span style="padding: 3px 8px; border-radius: 6px; background: #1B2330">Fundamental: {{p.fund}}</span>
+<span style="padding: 3px 8px; border-radius: 6px; background: #1B2330">Technical: {{p.tech}}</span>
+<sc-if value="{{p.split}}" hint-placeholder-val="{{ false }}"><span style="padding: 3px 8px; border-radius: 6px; background: rgba(255,138,138,.16); color: #FF9A9A; font-weight: 600">Split verdict</span></sc-if>
+</div>
+<div style="color: #9AA6B5; font-size: 12px">{{p.note}} · {{p.size}}</div>
+<div style="display: flex; gap: 8px">
+<button style="flex: 1; min-height: 44px; border: 0; border-radius: 8px; background: #43D9A0; color: #07120D; font-weight: 600; font-size: 14px">Approve plan</button>
+<button style="flex: 1; min-height: 44px; border: 1px solid #3A4656; border-radius: 8px; background: transparent; color: #E8ECF1; font-weight: 500; font-size: 14px">Reject</button>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<!-- Bot cards -->
+<section style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 600">The three bots</h2>
+<span style="color: #9AA6B5; font-size: 13px">Go-live is decided per bot, after at least 100 paper trades</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px">
+<sc-for list="{{bots}}" as="b" hint-placeholder-count="3">
+<div style="background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 14px">
+<div style="width: 64px; height: 64px; border-radius: 50%; border: 2px dashed {{b.color}}; display: flex; align-items: center; justify-content: center; flex: none" aria-label="Avatar placeholder">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="11" r="5" fill="none" stroke="{{b.color}}" stroke-width="1.8"/><path d="M5 26 C6 19 24 19 25 26" fill="none" stroke="{{b.color}}" stroke-width="1.8" stroke-linecap="round"/></svg>
+</div>
+<div style="min-width: 0">
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">{{b.name}}</div>
+<div style="color: #9AA6B5; font-size: 13px">{{b.strat}}</div>
+</div>
+<span style="margin-left: auto; padding: 3px 9px; border-radius: 999px; background: rgba(67,217,160,.14); color: #43D9A0; font-size: 12px; font-weight: 600">{{b.status}}</span>
+</div>
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px">
+<div>
+<div style="color: #9AA6B5; font-size: 12px">Return on {{b.sleeve}} budget</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; color: {{b.retColor}}">{{b.ret}}</div>
+</div>
+<svg viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><path d="{{b.spark}}" fill="none" stroke="{{b.color}}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding-top: 14px; border-top: 1px solid #232C38">
+<div><div style="color: #9AA6B5; font-size: 11px">Win rate</div><div style="font-family: 'IBM Plex Mono', monospace">{{b.win}}</div></div>
+<div><div style="color: #9AA6B5; font-size: 11px">Avg R</div><div style="font-family: 'IBM Plex Mono', monospace">{{b.avgR}}</div></div>
+<div><div style="color: #9AA6B5; font-size: 11px">Profit factor</div><div style="font-family: 'IBM Plex Mono', monospace">{{b.pf}}</div></div>
+<div><div style="color: #9AA6B5; font-size: 11px">Trades</div><div style="font-family: 'IBM Plex Mono', monospace">{{b.trades}}</div></div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #9AA6B5">
+<span>Target {{b.rr}} · {{b.open}} open</span>
+<a href="BotDetail.dc.html" style="color: #E8ECF1; font-weight: 500; padding: 10px 0">View report →</a>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<!-- Positions and trades -->
+<section style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<div style="flex: 1 1 520px; min-width: 0; background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px">
+<h2 style="margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Open positions</h2>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 480px; border-collapse: collapse; font-size: 13px">
+<thead><tr style="color: #9AA6B5; text-align: left; font-size: 12px"><th style="padding: 8px 6px; font-weight: 500">Stock</th><th style="padding: 8px 6px; font-weight: 500">Bot</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">Entry</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">Last</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">Stop</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">Result</th></tr></thead>
+<tbody style="font-family: 'IBM Plex Mono', monospace">
+<sc-for list="{{positions}}" as="r" hint-placeholder-count="4">
+<tr style="border-top: 1px solid #232C38"><td style="padding: 12px 6px; font-weight: 500">{{r.t}}</td><td style="padding: 12px 6px; font-family: 'IBM Plex Sans', sans-serif"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: {{r.color}}; margin-right: 6px"></span>{{r.s}}</td><td style="padding: 12px 6px; text-align: right">{{r.entry}}</td><td style="padding: 12px 6px; text-align: right">{{r.last}}</td><td style="padding: 12px 6px; text-align: right">{{r.stop}}</td><td style="padding: 12px 6px; text-align: right; color: {{r.color2}}">{{r.r}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+
+<div style="flex: 1 1 520px; min-width: 0; background: #151B23; border: 1px solid #232C38; border-radius: 12px; padding: 20px">
+<h2 style="margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600">Recently closed</h2>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 480px; border-collapse: collapse; font-size: 13px">
+<thead><tr style="color: #9AA6B5; text-align: left; font-size: 12px"><th style="padding: 8px 6px; font-weight: 500">Date</th><th style="padding: 8px 6px; font-weight: 500">Stock</th><th style="padding: 8px 6px; font-weight: 500">Bot</th><th style="padding: 8px 6px; font-weight: 500">Exit</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">R</th><th style="padding: 8px 6px; font-weight: 500; text-align: right">USD</th></tr></thead>
+<tbody style="font-family: 'IBM Plex Mono', monospace">
+<sc-for list="{{closed}}" as="c" hint-placeholder-count="6">
+<tr style="border-top: 1px solid #232C38"><td style="padding: 12px 6px; color: #9AA6B5">{{c.d}}</td><td style="padding: 12px 6px; font-weight: 500">{{c.t}}</td><td style="padding: 12px 6px; font-family: 'IBM Plex Sans', sans-serif"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: {{c.color}}; margin-right: 6px"></span>{{c.s}}</td><td style="padding: 12px 6px; font-family: 'IBM Plex Sans', sans-serif; color: #9AA6B5">{{c.exit}}</td><td style="padding: 12px 6px; text-align: right; color: {{c.color2}}">{{c.r}}</td><td style="padding: 12px 6px; text-align: right; color: {{c.color2}}">{{c.usd}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<footer style="color: #9AA6B5; font-size: 12px; padding-top: 8px; border-top: 1px solid #232C38">All figures are sample data for a screen mockup. Paper trading only; past results do not predict live results.</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1900}}'>
+class Component extends DCLogic {
+renderVals() {
+const N = 40, W = 800, H = 240, YMIN = -2, YMAX = 6;
+const GAIN = '#43D9A0', LOSS = '#FF7A7A';
+const env = (i) => Math.sin(Math.PI * i / (N - 1));
+const series = (end, amp, f) => Array.from({ length: N }, (_, i) => end * i / (N - 1) + amp * Math.sin(i * f) * env(i));
+const brk = series(4.2, 1.1, 0.9), pb = series(2.9, 0.9, 0.65), mr = series(-0.6, 1.0, 1.1);
+const tot = brk.map((v, i) => (2000 * v + 1750 * pb[i] + 1250 * mr[i]) / 5000);
+const px = (i) => (i / (N - 1) * W).toFixed(1);
+const py = (p) => (H - (p - YMIN) / (YMAX - YMIN) * H).toFixed(1);
+const path = (s) => s.map((p, i) => (i ? 'L' : 'M') + px(i) + ' ' + py(p)).join(' ');
+const spark = (s) => { const lo = Math.min(...s), hi = Math.max(...s); return s.map((p, i) => (i ? 'L' : 'M') + (i / (N - 1) * 120).toFixed(1) + ' ' + (36 - (p - lo) / (hi - lo || 1) * 32).toFixed(1)).join(' '); };
+const C = { brk: '#F2B84B', pb: '#5BB8FF', mr: '#B49CFF', tot: '#E8ECF1' };
+const bots = [
+{ name: 'Breakout Bot', strat: 'Breakout momentum', color: C.brk, status: 'Active', sleeve: '$2,000', ret: '+4.2%', retColor: GAIN, win: '30%', avgR: '+0.21R', pf: '1.3', trades: '20', rr: '1:3', open: '1', spark: spark(brk) },
+{ name: 'Pullback Bot', strat: 'Trend pullback', color: C.pb, status: 'Active', sleeve: '$1,750', ret: '+2.9%', retColor: GAIN, win: '28%', avgR: '+0.16R', pf: '1.2', trades: '18', rr: '1:3', open: '2', spark: spark(pb) },
+{ name: 'Reversion Bot', strat: 'Mean reversion', color: C.mr, status: 'Active', sleeve: '$1,250', ret: '-0.6%', retColor: LOSS, win: '33%', avgR: '-0.05R', pf: '0.9', trades: '12', rr: '1:2', open: '1', spark: spark(mr) }
+];
+return {
+legend: [{ name: 'Total', color: C.tot }, { name: 'Breakout', color: C.brk }, { name: 'Pullback', color: C.pb }, { name: 'Reversion', color: C.mr }],
+lines: [
+{ d: path(mr), color: C.mr, w: 1.75 }, { d: path(pb), color: C.pb, w: 1.75 }, { d: path(brk), color: C.brk, w: 1.75 }, { d: path(tot), color: C.tot, w: 2.75 }
+],
+bots,
+pending: [
+{ t: 'ORNX', s: 'Breakout', color: C.brk, rr: '1:3', entry: '48.20', stop: '45.90', target: '55.10', fund: 'Buy 74', tech: 'Buy 68', split: false, note: '55-day high on 1.9x volume', size: '8 shares, $386' },
+{ t: 'KLVR', s: 'Mean reversion', color: C.mr, rr: '1:2', entry: '22.40', stop: '20.90', target: '25.40', fund: 'Buy 61', tech: 'Avoid 55', split: true, note: 'RSI(2) at 6, above 200-day', size: '8 shares, $179' }
+],
+positions: [
+{ t: 'TMPL', s: 'Pullback', color: C.pb, entry: '112.40', last: '118.05', stop: '108.20', r: '+1.3R', color2: GAIN },
+{ t: 'HLIX', s: 'Pullback', color: C.pb, entry: '64.00', last: '66.40', stop: '60.80', r: '+0.8R', color2: GAIN },
+{ t: 'QRTZ', s: 'Reversion', color: C.mr, entry: '18.75', last: '19.50', stop: '17.25', r: '+0.5R', color2: GAIN },
+{ t: 'VELA', s: 'Breakout', color: C.brk, entry: '36.10', last: '35.40', stop: '34.40', r: '-0.4R', color2: LOSS }
+],
+closed: [
+{ d: 'Oct 6', t: 'DRFT', s: 'Breakout', color: C.brk, exit: 'Target', r: '+3.0R', usd: '+$60', color2: GAIN },
+{ d: 'Oct 5', t: 'MNRL', s: 'Reversion', color: C.mr, exit: 'Stop', r: '-1.0R', usd: '-$13', color2: LOSS },
+{ d: 'Oct 5', t: 'PLSM', s: 'Pullback', color: C.pb, exit: 'Target', r: '+3.0R', usd: '+$53', color2: GAIN },
+{ d: 'Oct 2', t: 'BRLK', s: 'Breakout', color: C.brk, exit: 'Stop', r: '-1.0R', usd: '-$20', color2: LOSS },
+{ d: 'Oct 1', t: 'SOLV', s: 'Pullback', color: C.pb, exit: 'Time stop', r: '+1.4R', usd: '+$25', color2: GAIN },
+{ d: 'Sep 30', t: 'KDEN', s: 'Reversion', color: C.mr, exit: 'Target', r: '+2.0R', usd: '+$25', color2: GAIN }
+]
+};
+}
+}
+</script>
+</body>
+</html>
