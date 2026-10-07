@@ -58,6 +58,15 @@ describe('FirestoreDataService against the seeded emulator', () => {
     expect(breakout.map((t) => t.id)).toEqual(MOCK_TRADES.filter((t) => t.botId === 'breakout').slice(0, 10).map((t) => t.id));
   });
 
+  it('reads trade history once, newest first, for everyone or one bot', async () => {
+    const all = await first(service.getTradeHistory({ limit: 100 }));
+    expect(all.map((t) => t.id)).toEqual(MOCK_TRADES.map((t) => t.id));
+    const some = await first(service.getTradeHistory({ limit: 7 }));
+    expect(some.map((t) => t.id)).toEqual(MOCK_TRADES.slice(0, 7).map((t) => t.id));
+    const pullback = await first(service.getTradeHistory({ limit: 100, botId: 'pullback' }));
+    expect(pullback.map((t) => t.id)).toEqual(MOCK_TRADES.filter((t) => t.botId === 'pullback').map((t) => t.id));
+  });
+
   it('reads every rollup for All time and every bot report', async () => {
     expect(await first(service.getRollups('all'))).toEqual(MOCK_ROLLUPS);
     const reports = await first(service.getBotReports());

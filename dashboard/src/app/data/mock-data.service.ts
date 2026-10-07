@@ -43,6 +43,11 @@ export class MockDataService extends DataService {
     return of(trades.slice(0, limit));
   }
 
+  getTradeHistory(options: { limit: number; botId?: BotId }): Observable<Trade[]> {
+    const trades = options.botId ? this.data.trades.filter((t) => t.botId === options.botId) : this.data.trades;
+    return of(trades.slice(0, options.limit));
+  }
+
   getSetupStats(botId: BotId): Observable<SetupStat[]> {
     return of(this.data.setups.filter((s) => s.botId === botId));
   }

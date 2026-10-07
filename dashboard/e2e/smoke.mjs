@@ -40,7 +40,7 @@ async function open(path, width) {
 }
 
 // 1. Every page: no errors, a heading, no sideways scroll, no accessibility violations.
-const routes = ['/', '/bots/breakout', '/bots/pullback', '/bots/reversion', '/bots/nope', '/signed-out', '/styleguide', '/?scenario=backtest', '/bots/breakout?scenario=backtest'];
+const routes = ['/', '/bots/breakout', '/bots/pullback', '/bots/reversion', '/bots/nope', '/signed-out', '/styleguide', '/?scenario=backtest', '/bots/breakout?scenario=backtest', '/trades', '/trades?bot=pullback&result=win'];
 for (const width of [1360, 390]) {
   for (const route of routes) {
     const { page, errors } = await open(route, width);
@@ -90,6 +90,22 @@ for (const width of [1360, 390]) {
   await new Promise((r) => setTimeout(r, 400));
   check((await pressed()) === '8 weeks=false All time=true', 'Enter on All time switches the range');
   check(errors.length === 0, 'switching the range causes no errors');
+  await page.close();
+}
+
+// 3b2. Trades page: typing in the search box filters the table and the URL, Clear filters undoes it.
+{
+  const { page, errors } = await open('/trades', 1360);
+  const rowCount = () => page.$$eval('tbody tr', (r) => r.length);
+  check((await rowCount()) === 50, 'Trades page lists all 50 sample trades');
+  await page.type('input[type="search"]', 'drft');
+  await new Promise((r) => setTimeout(r, 500));
+  check((await rowCount()) === 1, 'typing a ticker narrows the table to that trade');
+  check(new URL(page.url()).search === '?q=drft', 'the filter is in the URL, so the view can be shared');
+  await page.click('.filters .clear');
+  await new Promise((r) => setTimeout(r, 500));
+  check((await rowCount()) === 50 && new URL(page.url()).search === '', 'Clear filters brings every trade back');
+  check(errors.length === 0, 'filtering causes no errors');
   await page.close();
 }
 

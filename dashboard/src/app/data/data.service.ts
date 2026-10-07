@@ -27,6 +27,11 @@ export abstract class DataService {
   abstract getPlans(): Observable<Plan[]>;
   abstract getOpenPositions(): Observable<Position[]>;
   abstract getRecentTrades(limit: number, botId?: BotId): Observable<Trade[]>;
+  /**
+   * The latest `limit` closed trades, newest first, optionally for one bot. One-shot: it emits once and
+   * completes, because the Trades page must not refresh on a timer (it can read hundreds of documents).
+   */
+  abstract getTradeHistory(options: { limit: number; botId?: BotId }): Observable<Trade[]>;
   abstract getSetupStats(botId: BotId): Observable<SetupStat[]>;
   abstract getBotReport(botId: BotId): Observable<BotReport | undefined>;
   /** Every bot's report, for pages that compare bots (backtest-only Overview). */

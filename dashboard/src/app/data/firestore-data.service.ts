@@ -1,7 +1,7 @@
 import {
   Firestore, collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, where,
 } from 'firebase/firestore';
-import { Observable, filter, from, shareReplay, switchMap, timer } from 'rxjs';
+import { Observable, defer, filter, from, shareReplay, switchMap, timer } from 'rxjs';
 import { DataService } from './data.service';
 import {
   Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemStatus, Trade,
@@ -12,6 +12,8 @@ import {
  * Everything except the rollups is a handful of documents, so one minute is cheap.
  */
 export const REFRESH_MS = 60_000;
+/** The most trades one Trades page request will read. */
+export const TRADE_HISTORY_CAP = 1000;
 /** The most rollup documents 'all time' will read: about four years of trading days. */
 export const ALL_ROLLUPS_CAP = 1000;
 /** Rollups are up to 60 documents and change once a day, so they refresh slowly. */
@@ -93,6 +95,21 @@ export class FirestoreDataService extends DataService {
         : query(trades, orderBy('closedAt', 'desc'), limit(count));
       return (await getDocs(q)).docs.map((d) => ({ ...d.data(), id: d.id }) as Trade);
     });
+  }
+
+  getTradeHistory(options: { limit: number; botId?: BotId }): Observable<Trade[]> {
+    return defer(() =>
+      from(
+        (async () => {
+          const trades = collection(this.db, 'trades');
+          const count = Math.min(options.limit, TRADE_HISTORY_CAP);
+          const q = options.botId
+            ? query(trades, where('botId', '==', options.botId), orderBy('closedAt', 'desc'), limit(count))
+            : query(trades, orderBy('closedAt', 'desc'), limit(count));
+          return (await getDocs(q)).docs.map((d) => ({ ...d.data(), id: d.id }) as Trade);
+        })(),
+      ),
+    );
   }
 
   getSetupStats(botId: BotId): Observable<SetupStat[]> {

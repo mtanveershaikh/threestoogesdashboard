@@ -93,7 +93,7 @@ Dependency sketch: D10-1 to D10-3 are independent. D10-4 to D10-6 each need the 
 
 ### New pages (about 3.5 days)
 
-- [ ] D10-4 Trades page at `/trades`. Every closed trade, newest first, with filters for bot, win or loss, exit type, date range and stock search, a result summary for the filtered set, and a CSV download. Paged reads, never a listener. Done when: filters combine, the URL keeps the filter state so a view can be shared, and the page has loading, empty and error states.
+- [x] D10-4 Trades page at `/trades`. Every closed trade, newest first, with filters for bot, win or loss, exit type, date range and stock search, a result summary for the filtered set, and a CSV download. Paged reads, never a listener. Done when: filters combine, the URL keeps the filter state so a view can be shared, and the page has loading, empty and error states.
 - [ ] D10-5 Reports page at `/reports`. Weekly and monthly summaries computed from rollups and trades: return, trades, win rate, average R, best and worst bot. Done when: totals match the Overview for the same period (test), and the period picker works with the keyboard.
 - [ ] D10-6 Per-bot trades link: "See all trades" on each bot report opens `/trades` filtered to that bot.
 - [ ] D10-7 Settings page at `/settings`, read-only: limits, go-live gates, costs and each strategy's budget, universe, reward to risk, time stop and parameters. The bots publish `system/config`, whose format is in `docs/BOT-DATA-CONTRACT.md`. Add `SystemConfig` to `models.ts`, `DataService` and the mock fixtures first. Done when: the page shows only what the document holds, says when the document is missing, secrets can never appear (the contract forbids them), and nothing on it is editable.
