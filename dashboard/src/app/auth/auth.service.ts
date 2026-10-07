@@ -22,7 +22,7 @@ export class AuthService {
   readonly canRead = computed(() => {
     if (!this.enabled) return true;
     const u = this.current();
-    return !!u && !!u.email && environment.allowedEmails.includes(u.email) && u.emailVerified;
+    return !!u && !!u.email && environment.allowedEmails.includes(u.email.toLowerCase()) && u.emailVerified;
   });
 
   private readonly readyPromise: Promise<void>;

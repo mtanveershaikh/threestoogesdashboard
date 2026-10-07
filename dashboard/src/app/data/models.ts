@@ -59,6 +59,8 @@ export interface Bot {
   /** Where the bot looks for trades, for example "Nasdaq 100". */
   universe: string;
   timeStopDays: number;
+  /** Average days a closed trade was held. */
+  avgHoldDays: number;
 }
 
 /** `daily_rollups/{yyyy-mm-dd}` */
@@ -156,11 +158,30 @@ export interface HistogramBin {
   count: number;
 }
 
+/** Result of a strategy backtest, from the bots' backtest harness. */
+export interface BacktestSummary {
+  /** yyyy-mm-dd */
+  periodStart: string;
+  periodEnd: string;
+  trades: number;
+  winRatePct: number;
+  avgR: number;
+  profitFactor: number;
+  /** Largest drop from the equity peak, in percent of budget (positive number). */
+  maxDrawdownPct: number;
+  avgHoldDays: number;
+  returnPct: number;
+  /** Cost and slippage charged per trade, in R. */
+  costR: number;
+}
+
 /** Everything the bot report page needs beyond the bot, trades and setups. */
 export interface BotReport {
   botId: BotId;
   gates: Gate[];
   rHistogram: HistogramBin[];
-  /** Backtest expectation curve, in percent, one value per rollup day. */
+  /** Backtest curve, in percent of budget, one value per rollup day. */
   backtestReturnPct: number[];
+  /** Backtest statistics. Absent until the bots have run a backtest. */
+  backtest?: BacktestSummary;
 }

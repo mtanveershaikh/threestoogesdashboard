@@ -8,7 +8,7 @@ service cloud.firestore {
     // which bypasses these rules.
     match /{document=**} {
       allow read: if request.auth != null
-                  && request.auth.token.email in ['m.tanveer.shaikh@gmail.com']
+                  && request.auth.token.email.lower() in ['m.tanveer.shaikh@gmail.com', 'gulfam886@gmail.com', 'er.waseemhyder@gmail.com', 'wasif.fmukadam@gmail.com']
                   && request.auth.token.email_verified == true;
       allow write: if false;
     }

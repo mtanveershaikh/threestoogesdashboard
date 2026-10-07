@@ -12,6 +12,11 @@ export const environment: Environment = {
     messagingSenderId: '621130941023',
     appId: '1:621130941023:web:7c6aacd70a9ddb5e2191ea',
   },
-  allowedEmails: ['m.tanveer.shaikh@gmail.com'],
+  allowedEmails: [
+    'm.tanveer.shaikh@gmail.com',
+    'gulfam886@gmail.com',
+    'er.waseemhyder@gmail.com',
+    'wasif.fmukadam@gmail.com',
+  ],
   telegramUrl: 'https://t.me/',
 };
