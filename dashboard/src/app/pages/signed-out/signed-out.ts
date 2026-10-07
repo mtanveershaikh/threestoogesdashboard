@@ -8,7 +8,7 @@ import { EmptyState } from '../../shared/empty-state';
   imports: [EmptyState],
   template: `
     @if (auth.user(); as u) {
-      <app-empty-state [level]="1" title="This account cannot view the dashboard" [message]="u.email + ' is not the account this dashboard is set up for. Sign out and try another account.'">
+      <app-empty-state [level]="1" title="This account cannot view the dashboard" [message]="u.email + ' is not on the list of accounts allowed to view this dashboard. Sign out and try another account.'">
         <button type="button" class="button" (click)="signOut()">Sign out</button>
       </app-empty-state>
     } @else {

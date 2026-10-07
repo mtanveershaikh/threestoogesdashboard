@@ -1,7 +1,7 @@
 import { assertFails, assertSucceeds, initializeTestEnvironment, RulesTestEnvironment } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { doc, getDoc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 const OWNER_EMAIL = 'm.tanveer.shaikh@gmail.com';
@@ -39,6 +39,18 @@ describe('firestore rules', () => {
   it('denies reads when the owner email is not verified', async () => {
     const db = env.authenticatedContext('owner', { email: OWNER_EMAIL, email_verified: false }).firestore();
     await assertFails(getDoc(doc(db, 'system/status')));
+  });
+
+  it('reads the allowed list from the rules file, so every listed account can read and nobody else', async () => {
+    const rules = readFileSync(resolve(__dirname, '../../firestore.rules'), 'utf8');
+    const listed = [...(rules.match(/token\.email in \[([^\]]*)\]/)?.[1].matchAll(/'([^']+)'/g) ?? [])].map((m) => m[1]);
+    expect(listed).toContain(OWNER_EMAIL);
+    for (const email of listed) {
+      const db = env.authenticatedContext('u', { email, email_verified: true }).firestore();
+      await assertSucceeds(getDoc(doc(db, 'system/status')));
+    }
+    const stranger = env.authenticatedContext('s', { email: 'stranger@example.com', email_verified: true }).firestore();
+    await assertFails(getDoc(doc(stranger, 'system/status')));
   });
 
   it('allows the owner to read', async () => {

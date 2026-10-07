@@ -16,8 +16,8 @@ export interface Environment {
   useEmulator: boolean;
   /** Public web config: Firebase console, Project settings, Your apps. Not a secret. */
   firebase: FirebaseWebConfig;
-  /** The one account allowed in. The Firestore rules enforce this; the app only uses it to pick a screen. */
-  allowedEmail: string;
+  /** Accounts allowed in. Keep in step with firestore.rules, which is what actually enforces it; the app only uses this to pick a screen. */
+  allowedEmails: string[];
   /** Where plan approvals happen. Replace with your bot's chat link, for example https://t.me/<your_bot>. */
   telegramUrl: string;
 }
