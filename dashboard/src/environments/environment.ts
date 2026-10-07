@@ -17,6 +17,7 @@ export const environment: Environment = {
     'gulfam886@gmail.com',
     'er.waseemhyder@gmail.com',
     'wasif.fmukadam@gmail.com',
+    'herman.shafiq@gmail.com',
   ],
   telegramUrl: 'https://t.me/',
 };
