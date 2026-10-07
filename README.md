@@ -72,7 +72,7 @@ npm run seed:emulator    # fills them with the sample data
 npm run start:emulator   # serves the app at http://localhost:4200
 ```
 
-Sign in with the pop-up from the Auth emulator. To get past the allow-list, use an address that appears in `allowedEmails` in `src/environments/environment.ts`.
+Sign in with the pop-up from the Auth emulator. To get past the allow-list, use an address that appears in `allowedEmails` in `src/environments/environment.base.ts`.
 
 ### Checks
 
@@ -112,7 +112,7 @@ CI deploys only the real site (`target: app`), so the demo is updated by hand.
 Access is an allow-list of Google accounts, kept in two places that must match:
 
 - `firestore.rules`, which enforces it, and
-- `allowedEmails` in `dashboard/src/environments/environment.ts`, which only chooses which screen to show.
+- `allowedEmails` in `dashboard/src/environments/environment.base.ts`, which only chooses which screen to show.
 
 To add or remove someone, edit both, run the rules tests, then deploy rules and hosting.
 

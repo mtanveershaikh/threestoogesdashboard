@@ -5,7 +5,7 @@ Everything below that touches your Google account is done by you. Nothing here i
 ## One-time setup
 
 1. **Register the web app.** Firebase console, project `the-three-stooges`, Project settings, Your apps, Web (`</>`). Name it `dashboard`; leave Hosting unticked.
-2. **Paste the config** into `dashboard/src/environments/environment.ts` (`apiKey`, `messagingSenderId`, `appId`; the other fields are already set). It is public, so it is safe to commit.
+2. **Paste the config** into `dashboard/src/environments/environment.base.ts` (`apiKey`, `messagingSenderId`, `appId`; the other fields are already set). It is public, so it is safe to commit.
 3. **Turn on Google sign-in.** Authentication, Sign-in method, Google. Under Settings, Authorized domains, make sure the Hosting domain (`the-three-stooges.web.app`) is listed.
 4. **Sign in to the CLI:** `firebase login`.
 5. **Deploy the rules and indexes first:** `firebase deploy --only firestore`. Until you do, the database keeps its old rules.

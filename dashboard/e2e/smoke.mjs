@@ -64,6 +64,16 @@ for (const width of [1360, 390]) {
   await page.close();
 }
 
+// 2b. The Approve in Telegram link opens the real bot chat in a new tab, and is safe to open.
+{
+  const { page } = await open('/', 1360);
+  const links = await page.$$eval('a.approve', (a) => a.map((x) => ({ href: x.href, target: x.target, rel: x.rel })));
+  check(links.length === 2, 'both plans have an Approve in Telegram link');
+  check(links.every((l) => l.href === 'https://t.me/thethreestoogesbot'), 'the link opens the bot chat, not Telegram home');
+  check(links.every((l) => l.target === '_blank' && l.rel.includes('noopener')), 'it opens in a new tab with noopener');
+  await page.close();
+}
+
 // 3. Clicking through: card name, switcher, current-bot marker, back link.
 {
   const { page } = await open('/', 1360);

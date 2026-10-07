@@ -114,7 +114,7 @@ service cloud.firestore {
 }
 ```
 
-Test these rules in the emulator (`npm run test:rules`): signed out is denied, another account is denied, an unverified address is denied, every listed account can read regardless of letter case, nobody can write. The allow-list lives in two places that must match: `firestore.rules` (enforces) and `allowedEmails` in `dashboard/src/environments/environment.ts` (only chooses which screen to show).
+Test these rules in the emulator (`npm run test:rules`): signed out is denied, another account is denied, an unverified address is denied, every listed account can read regardless of letter case, nobody can write. The allow-list lives in two places that must match: `firestore.rules` (enforces) and `allowedEmails` in `dashboard/src/environments/environment.base.ts` (only chooses which screen to show).
 
 ## 10. Avatars
 
