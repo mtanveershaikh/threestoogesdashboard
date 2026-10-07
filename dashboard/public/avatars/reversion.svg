@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Reversion Bot">
+  <rect width="256" height="256" fill="#14101f"/>
+  <circle cx="128" cy="128" r="118" fill="#1f1832"/>
+  <line x1="36" y1="128" x2="220" y2="128" stroke="#B49CFF" stroke-opacity=".5" stroke-width="3" stroke-dasharray="8 8"/>
+  <path d="M36 128 C56 60, 76 60, 96 128 S136 196, 156 128 S196 76, 220 128" fill="none" stroke="#B49CFF" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="66" cy="76" r="9" fill="#B49CFF"/>
+  <circle cx="126" cy="180" r="9" fill="#B49CFF"/>
+  <circle cx="190" cy="92" r="9" fill="#B49CFF"/>
+</svg>

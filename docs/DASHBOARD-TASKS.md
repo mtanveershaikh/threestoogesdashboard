@@ -64,7 +64,7 @@ Done when: `ng serve` shows the starter page and CI is green.
 - [x] D7-1 Responsive pass at 1360, 768 and 390; tables scroll inside their own box.
 - [x] D7-2 Loading, empty and error states on every page; stale-data banner from the heartbeat.
 - [x] D7-3 Accessibility pass: keyboard order, labels on icon-only controls, contrast.
-- [ ] D7-4 Your avatar pictures wired in through `avatarUrl`.
+- [x] D7-4 Your avatar pictures wired in through `avatarUrl`.
 
 ## D8: Deploy (1d)
 
