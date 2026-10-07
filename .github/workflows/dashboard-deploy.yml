@@ -1,0 +1,41 @@
+name: dashboard-deploy
+
+# Live deploy on merge to main; a preview channel for each pull request.
+# Needs one repository secret, FIREBASE_SERVICE_ACCOUNT: a service account with only the
+# "Firebase Hosting Admin" role. Do not reuse the bots' service account.
+on:
+  push:
+    branches: [main]
+    paths: ['dashboard/**', 'firebase.json', '.github/workflows/dashboard-deploy.yml']
+  pull_request:
+    paths: ['dashboard/**', 'firebase.json', '.github/workflows/dashboard-deploy.yml']
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Forks cannot read the secret, so skip them.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - run: npm ci
+        working-directory: dashboard
+      - run: npm run check:config
+        working-directory: dashboard
+      - run: npm run build
+        working-directory: dashboard
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: the-three-stooges
+          channelId: ${{ github.event_name == 'push' && 'live' || '' }}

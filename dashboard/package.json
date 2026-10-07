@@ -11,7 +11,8 @@
     "test:rules": "firebase emulators:exec --config ../firebase.json --only firestore --project demo-tradebots-rules \"vitest run --config rules-tests/vitest.config.mts\"",
     "start:emulator": "ng serve --configuration emulator",
     "emulators": "firebase emulators:start --config ../firebase.json --only firestore,auth --project demo-tradebots",
-    "seed:emulator": "tsx scripts/seed-emulator.ts"
+    "seed:emulator": "tsx scripts/seed-emulator.ts",
+    "check:config": "node scripts/check-config.mjs"
   },
   "private": true,
   "packageManager": "npm@11.19.1",

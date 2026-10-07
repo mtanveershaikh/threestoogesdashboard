@@ -1,14 +1,19 @@
 import {
   Firestore, collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, where,
 } from 'firebase/firestore';
-import { Observable, from, shareReplay, switchMap, timer } from 'rxjs';
+import { Observable, filter, from, shareReplay, switchMap, timer } from 'rxjs';
 import { DataService } from './data.service';
 import {
   Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemStatus, Trade,
 } from './models';
 
-/** One-shot reads refresh this often. The read budget on the free plan is 50,000 a day. */
+/**
+ * One-shot reads refresh this often. The free plan allows 50,000 reads a day.
+ * Everything except the rollups is a handful of documents, so one minute is cheap.
+ */
 export const REFRESH_MS = 60_000;
+/** Rollups are up to 60 documents and change once a day, so they refresh slowly. */
+export const ROLLUP_REFRESH_MS = 10 * 60_000;
 
 /**
  * Reads the collections in DASHBOARD-DESIGN.md section 7. Read-only: it only imports read functions.
@@ -54,7 +59,7 @@ export class FirestoreDataService extends DataService {
     return this.poll(async () => {
       const snap = await getDocs(query(collection(this.db, 'daily_rollups'), orderBy('date', 'desc'), limit(days)));
       return snap.docs.map((d) => d.data() as DailyRollup).reverse();
-    });
+    }, ROLLUP_REFRESH_MS);
   }
 
   getPlans(): Observable<Plan[]> {
@@ -99,7 +104,11 @@ export class FirestoreDataService extends DataService {
     });
   }
 
-  private poll<T>(read: () => Promise<T>): Observable<T> {
-    return timer(0, REFRESH_MS).pipe(switchMap(() => from(read())));
+  /** Reads now, then again every `everyMs`. Refreshes are skipped while the tab is hidden. */
+  private poll<T>(read: () => Promise<T>, everyMs = REFRESH_MS): Observable<T> {
+    return timer(0, everyMs).pipe(
+      filter((tick) => tick === 0 || typeof document === 'undefined' || !document.hidden),
+      switchMap(() => from(read())),
+    );
   }
 }
