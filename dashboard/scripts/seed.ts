@@ -1,6 +1,6 @@
 import { Firestore, doc, writeBatch } from 'firebase/firestore';
 import {
-  MOCK_BOTS, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
+  MOCK_BOTS, MOCK_CONFIG, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
 } from '../src/app/data/mock-fixtures';
 
 /** Writes the mock fixtures into Firestore using the collection names from the data contract. */
@@ -9,6 +9,7 @@ export async function seedFirestore(db: Firestore): Promise<void> {
   const put = (path: string, data: object) => batch.set(doc(db, path), data);
 
   put('system/status', MOCK_STATUS);
+  put('system/config', MOCK_CONFIG);
   for (const b of MOCK_BOTS) put(`bots/${b.id}`, b);
   for (const r of MOCK_ROLLUPS) put(`daily_rollups/${r.date}`, r);
   for (const p of MOCK_PLANS) put(`plans/${p.id}`, p);

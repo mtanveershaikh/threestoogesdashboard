@@ -1,7 +1,7 @@
 import { Observable, of } from 'rxjs';
 import { DataService } from './data.service';
 import {
-  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemStatus, Trade,
+  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemConfig, SystemStatus, Trade,
 } from './models';
 import { MockDataset, Scenario, datasetFor } from './mock-scenarios';
 
@@ -16,6 +16,10 @@ export class MockDataService extends DataService {
 
   getSystemStatus(): Observable<SystemStatus> {
     return of(this.data.status);
+  }
+
+  getConfig(): Observable<SystemConfig | undefined> {
+    return of(this.data.config);
   }
 
   getBots(): Observable<Bot[]> {

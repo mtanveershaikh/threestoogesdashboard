@@ -137,6 +137,54 @@ export interface SetupStat {
   tradesToGo?: number;
 }
 
+export type StrategyStatus = 'backtest_only' | 'paper' | 'live' | 'paused';
+
+/** One strategy in `system/config`, as the bots run it. */
+export interface StrategyConfig {
+  /** The bots' own id, for example "breakout_v1". */
+  id: string;
+  botId: BotId;
+  /** The bot's name in the bots' config, for example "wasif". */
+  bot: string;
+  status: StrategyStatus;
+  /** The bots' own universe name, for example "nasdaq100". */
+  universe: string;
+  budgetUsd: number;
+  rewardToRisk: number;
+  timeStopDays: number;
+  /** The strategy's own settings, shown as they are. */
+  params: Record<string, string | number | boolean>;
+}
+
+/**
+ * `system/config`: the settings the bots are running. Everything except `strategies` is optional, and the
+ * Settings page shows only what is present. Never put secrets here: every allowed viewer can read it.
+ */
+export interface SystemConfig {
+  configVersion?: string;
+  /** ISO timestamp. */
+  updatedAt?: string;
+  mode?: TradingMode;
+  startingCapital?: number;
+  limits?: {
+    riskPerTradePct?: number;
+    openRiskLimitPct?: number;
+    tradeCapPerDay?: number;
+    dailyLossLimitPct?: number;
+    killSwitchDrawdownPct?: number;
+  };
+  costs?: { costR?: number };
+  goLiveGates?: {
+    minClosedTrades?: number;
+    minAvgR?: number;
+    minProfitFactor?: number;
+    maxDrawdownPct?: number;
+    minProfitableWeeksPct?: number;
+    maxPaperBacktestGapR?: number;
+  };
+  strategies: StrategyConfig[];
+}
+
 /** One go-live acceptance gate, driven by the thresholds in config. */
 export interface Gate {
   id: string;

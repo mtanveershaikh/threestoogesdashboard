@@ -7,10 +7,11 @@ import {
   Plan,
   Position,
   SetupStat,
+  SystemConfig,
   SystemStatus,
   Trade,
 } from './models';
-import { BacktestParams, simulateBacktest } from './backtest-sample';
+import { BacktestParams, COST_R, simulateBacktest } from './backtest-sample';
 import { generatePaperTrades } from './paper-trades-sample';
 
 /**
@@ -258,3 +259,45 @@ export const MOCK_REPORTS: Record<BotId, BotReport> = {
     backtest: MOCK_BACKTESTS.reversion.summary,
   },
 };
+
+/**
+ * The settings the bots publish in `system/config`: limits that match `system/status`, the go-live thresholds
+ * the checklist is measured against, and each strategy. Strategy settings are the ones in the bots' config.
+ */
+const STRATEGY_PARAMS: Record<BotId, { id: string; bot: string; params: Record<string, number> }> = {
+  breakout: { id: 'breakout_v1', bot: 'wasif', params: { high_lookback: 55, volume_ratio: 1.5, trend_sma: 200, stop_atr: 1.5, breakeven_at_r: 1.0 } },
+  pullback: { id: 'pullback_v1', bot: 'waseem', params: { fast_sma: 50, slow_sma: 200, rsi_len: 14, rsi_dip: 45, stop_atr: 1.5, breakeven_at_r: 1.0 } },
+  reversion: { id: 'meanrev_v1', bot: 'nawaz', params: { rsi_len: 2, rsi_max: 10, trend_sma: 200, stop_atr: 2.0 } },
+};
+
+export function buildConfig(mode: SystemConfig['mode'], strategyStatus: 'paper' | 'backtest_only'): SystemConfig {
+  return {
+    configVersion: '9f3c2a1',
+    updatedAt: '2026-10-07T12:00:00Z',
+    mode,
+    startingCapital: STARTING_CAPITAL,
+    limits: {
+      riskPerTradePct: RISK_PER_TRADE_PCT,
+      openRiskLimitPct: MOCK_STATUS.openRiskLimitPct,
+      tradeCapPerDay: MOCK_STATUS.tradeCap,
+      dailyLossLimitPct: 2,
+      killSwitchDrawdownPct: MOCK_STATUS.killSwitch.limitPct,
+    },
+    costs: { costR: COST_R },
+    goLiveGates: { minClosedTrades: 100, minAvgR: 0.15, minProfitFactor: 1.3, maxDrawdownPct: 20, minProfitableWeeksPct: 60, maxPaperBacktestGapR: GAP_LIMIT_R },
+    strategies: MOCK_BOTS.map((b) => ({
+      id: STRATEGY_PARAMS[b.id].id,
+      botId: b.id,
+      bot: STRATEGY_PARAMS[b.id].bot,
+      status: strategyStatus,
+      universe: 'nasdaq100',
+      budgetUsd: b.budget,
+      rewardToRisk: b.targetRR,
+      timeStopDays: b.timeStopDays,
+      params: STRATEGY_PARAMS[b.id].params,
+    })),
+  };
+}
+
+const RISK_PER_TRADE_PCT = 1;
+export const MOCK_CONFIG: SystemConfig = buildConfig('paper', 'paper');

@@ -4,7 +4,7 @@ import {
 import { Observable, defer, filter, from, shareReplay, switchMap, timer } from 'rxjs';
 import { DataService } from './data.service';
 import {
-  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemStatus, Trade,
+  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemConfig, SystemStatus, Trade,
 } from './models';
 
 /**
@@ -51,6 +51,14 @@ export class FirestoreDataService extends DataService {
   getBots(): Observable<Bot[]> {
     // Firestore returns documents in id order, so the display name can change without reshuffling the cards.
     return this.poll(async () => (await getDocs(collection(this.db, 'bots'))).docs.map((d) => ({ ...d.data(), id: d.id }) as Bot));
+  }
+
+  /** Settings change rarely, so they refresh slowly. */
+  getConfig(): Observable<SystemConfig | undefined> {
+    return this.poll(async () => {
+      const snap = await getDoc(doc(this.db, 'system', 'config'));
+      return snap.exists() ? (snap.data() as SystemConfig) : undefined;
+    }, ROLLUP_REFRESH_MS);
   }
 
   getBot(id: BotId): Observable<Bot | undefined> {

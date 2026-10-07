@@ -1,8 +1,8 @@
 import {
-  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemStatus, Trade,
+  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemConfig, SystemStatus, Trade,
 } from './models';
 import {
-  MOCK_BACKTESTS, MOCK_BOTS, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
+  MOCK_BACKTESTS, MOCK_BOTS, MOCK_CONFIG, buildConfig, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
   STARTING_CAPITAL,
 } from './mock-fixtures';
 
@@ -11,6 +11,7 @@ export type Scenario = 'paper' | 'backtest';
 
 export interface MockDataset {
   status: SystemStatus;
+  config: SystemConfig | undefined;
   bots: Bot[];
   rollups: DailyRollup[];
   plans: Plan[];
@@ -23,6 +24,7 @@ export interface MockDataset {
 /** The paper run the mockups show (the default). */
 export const PAPER_DATASET: MockDataset = {
   status: MOCK_STATUS,
+  config: MOCK_CONFIG,
   bots: MOCK_BOTS,
   rollups: MOCK_ROLLUPS,
   plans: MOCK_PLANS,
@@ -37,6 +39,7 @@ export const PAPER_DATASET: MockDataset = {
  * plans, positions or rollups yet (see docs/BOT-DATA-CONTRACT.md, "Backtest-only bots").
  */
 export const BACKTEST_DATASET: MockDataset = {
+  config: buildConfig('backtest', 'backtest_only'),
   status: {
     mode: 'backtest',
     week: 0,

@@ -7,6 +7,7 @@ import {
   Plan,
   Position,
   SetupStat,
+  SystemConfig,
   SystemStatus,
   Trade,
 } from './models';
@@ -21,6 +22,8 @@ export abstract class DataService {
 
   abstract getSystemStatus(): Observable<SystemStatus>;
   abstract getBots(): Observable<Bot[]>;
+  /** The settings the bots publish, or undefined when they have not published any yet. */
+  abstract getConfig(): Observable<SystemConfig | undefined>;
   abstract getBot(id: BotId): Observable<Bot | undefined>;
   /** The latest `days` trading days, oldest first, or every day on record for 'all'. */
   abstract getRollups(days: number | 'all'): Observable<DailyRollup[]>;
