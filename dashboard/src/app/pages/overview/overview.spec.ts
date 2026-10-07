@@ -45,6 +45,15 @@ describe('Overview', () => {
     expect(buttons.filter((t) => /approve|reject/i.test(t ?? ''))).toEqual([]);
   });
 
+  it('uses the bot names in the chart legend, the cards and the tables', async () => {
+    const el = await render();
+    const legend = Array.from(el.querySelectorAll('app-line-chart .legend li')).map((l) => l.textContent?.trim());
+    expect(legend).toEqual(['Wasif', 'Waseem', 'Nawaz', 'Total']);
+    expect(Array.from(el.querySelectorAll('app-bot-card h3')).map((h) => h.textContent)).toEqual(['Wasif', 'Waseem', 'Nawaz']);
+    expect(el.querySelector('.tables')?.textContent).toContain('Nawaz');
+    expect(el.textContent).not.toMatch(/Breakout Bot|Pullback Bot|Reversion Bot/);
+  });
+
   it('shows three bot cards with a link to each report', async () => {
     const el = await render();
     const cards = Array.from(el.querySelectorAll('app-bot-card'));

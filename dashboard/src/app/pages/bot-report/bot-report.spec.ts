@@ -8,6 +8,7 @@ import { MockDataService } from '../../data/mock-data.service';
 import { BotReport } from './bot-report';
 
 async function render(id: string): Promise<HTMLElement> {
+  TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       provideZonelessChangeDetection(),
@@ -24,7 +25,7 @@ async function render(id: string): Promise<HTMLElement> {
 describe('BotReport', () => {
   it('shows the header and the five KPI tiles for the breakout bot', async () => {
     const el = await render('breakout');
-    expect(el.querySelector('h1')?.textContent).toBe('Breakout Bot');
+    expect(el.querySelector('h1')?.textContent).toBe('Wasif');
     expect(el.querySelector('.head')?.textContent).toContain('2,000 USD budget, target 1:3, time stop 10 days');
     const kpis = el.querySelector('.kpis')!.textContent!;
     expect(kpis).toContain('+4.2%');
@@ -49,6 +50,14 @@ describe('BotReport', () => {
     expect(row('Average per trade').textContent).toContain('+0.21R');
     expect(row('Average per trade').textContent).toContain('+0.28R');
     expect(card.querySelectorAll('tbody tr')).toHaveLength(7);
+  });
+
+  it('names each bot as in the config, with its strategy underneath', async () => {
+    const wasif = await render('breakout');
+    expect(wasif.querySelector('h1')?.textContent).toBe('Wasif');
+    expect(wasif.querySelector('.head')?.textContent).toContain('Breakout momentum');
+    expect((await render('pullback')).querySelector('h1')?.textContent).toBe('Waseem');
+    expect((await render('reversion')).querySelector('h1')?.textContent).toBe('Nawaz');
   });
 
   it('has no write controls', async () => {
