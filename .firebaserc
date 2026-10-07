@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "the-three-stooges"
+  },
+  "targets": {
+    "the-three-stooges": {
+      "hosting": {
+        "app": [
+          "the-three-stooges"
+        ],
+        "demo": [
+          "the-three-stooges-demo"
+        ]
+      }
+    }
   }
 }
