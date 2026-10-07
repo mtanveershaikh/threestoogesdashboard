@@ -7,6 +7,8 @@ export interface Column {
   align?: 'left' | 'right';
   /** Figures in the mono font. */
   mono?: boolean;
+  /** Keep each value on one line (dates, tickers); the table scrolls sideways instead. */
+  nowrap?: boolean;
 }
 
 export interface CellContext {
@@ -37,7 +39,7 @@ export interface CellContext {
             @for (row of rows(); track $index) {
               <tr>
                 @for (c of columns(); track c.key) {
-                  <td [class.right]="c.align === 'right'" [class.mono]="c.mono">
+                  <td [class.right]="c.align === 'right'" [class.mono]="c.mono" [class.nowrap]="c.nowrap">
                     @if (cell(); as tpl) {
                       <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row, column: c }" />
                     } @else {
@@ -75,6 +77,7 @@ export interface CellContext {
     }
     .right { text-align: right; }
     .mono { font-family: var(--font-mono); }
+    .nowrap { white-space: nowrap; }
     .empty { margin: 0; padding: 16px 6px; color: var(--text-muted); }
   `,
 })

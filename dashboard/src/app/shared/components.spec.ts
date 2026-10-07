@@ -129,6 +129,17 @@ describe('DataTable', () => {
     expect(el.textContent).toContain('-0.4R');
   });
 
+  it('can keep a column on one line', () => {
+    const { el } = render(DataTable, {
+      caption: 'Dates',
+      columns: [{ key: 'd', label: 'Date', nowrap: true }, { key: 'x', label: 'Other' }],
+      rows: [{ d: 'Sep 15', x: 'a long note that may wrap' }],
+    });
+    const cells = el.querySelectorAll('tbody td');
+    expect(cells[0].classList.contains('nowrap')).toBe(true);
+    expect(cells[1].classList.contains('nowrap')).toBe(false);
+  });
+
   it('shows the empty text when there are no rows', () => {
     const { el } = render(DataTable, { caption: 'Open positions', columns, rows: [], emptyText: 'No open positions.' });
     expect(el.querySelector('table')).toBeNull();

@@ -59,7 +59,15 @@
 
   <section class="card list">
     @if (rows().length) {
-      <app-data-table caption="Closed trades" [columns]="columns" [rows]="rows()" [cell]="cellTpl" />
+      <app-data-table [caption]="'Closed trades, page ' + pageInfo().page + ' of ' + pageInfo().pages" [columns]="columns" [rows]="rows()" [cell]="cellTpl" />
+      <app-pager
+        [page]="pageInfo().page"
+        [pageSize]="pageSize()"
+        [total]="pageInfo().total"
+        noun="trades"
+        (pageChange)="setPage($event)"
+        (sizeChange)="setPageSize($event)"
+      />
     } @else {
       <app-empty-state
         [level]="2"
@@ -74,7 +82,7 @@
 
     <div class="foot">
       <p class="muted" role="status">
-        Showing {{ shown().length }} of the latest {{ loaded().length }} trades{{ filters().bot ? ' for ' + botName(filters().bot!) : '' }}.
+        {{ shown().length }} of the latest {{ loaded().length }} loaded trades match{{ filters().bot ? ' for ' + botName(filters().bot!) : '' }}.
         @if (canLoadMore()) {
           Older trades are not loaded yet.
         }
@@ -84,10 +92,10 @@
       </p>
       <div class="actions">
         @if (canLoadMore()) {
-          <button type="button" class="button" (click)="loadMore()">Load 100 more</button>
+          <button type="button" class="button" (click)="loadMore()">Load 100 older trades</button>
         }
         <button type="button" class="button" (click)="refresh()">Refresh</button>
-        <button type="button" class="button" (click)="downloadCsv()" [disabled]="!rows().length">Download CSV</button>
+        <button type="button" class="button" (click)="downloadCsv()" [disabled]="!rows().length" [attr.aria-label]="'Download all ' + shown().length + ' matching trades as CSV'">Download CSV</button>
       </div>
     </div>
   </section>

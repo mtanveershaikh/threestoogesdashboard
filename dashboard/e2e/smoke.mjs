@@ -116,15 +116,36 @@ for (const width of [1360, 390]) {
 {
   const { page, errors } = await open('/trades', 1360);
   const rowCount = () => page.$$eval('tbody tr', (r) => r.length);
-  check((await rowCount()) === 50, 'Trades page lists all 50 sample trades');
+  check((await rowCount()) === 25, 'Trades page shows the first 25 of the 50 sample trades');
   await page.type('input[type="search"]', 'drft');
   await new Promise((r) => setTimeout(r, 500));
   check((await rowCount()) === 1, 'typing a ticker narrows the table to that trade');
   check(new URL(page.url()).search === '?q=drft', 'the filter is in the URL, so the view can be shared');
   await page.click('.filters .clear');
   await new Promise((r) => setTimeout(r, 500));
-  check((await rowCount()) === 50 && new URL(page.url()).search === '', 'Clear filters brings every trade back');
+  check((await rowCount()) === 25 && new URL(page.url()).search === '', 'Clear filters brings back the full list, on its first page');
   check(errors.length === 0, 'filtering causes no errors');
+  await page.close();
+}
+
+// 3b2b. Trades pagination: Next moves to the second page (from the keyboard), Previous returns, and the rows per page change the length.
+{
+  const { page, errors } = await open('/trades', 1360);
+  const rowCount = () => page.$$eval('tbody tr', (r) => r.length);
+  const range = () => page.$eval('app-pager .range', (e) => e.textContent.trim());
+  check((await range()) === 'Showing 1–25 of 50 trades', 'the pager says which trades are on screen');
+  await page.focus('app-pager .pages li:last-child button');
+  await page.keyboard.press('Enter');
+  await new Promise((r) => setTimeout(r, 500));
+  check(new URL(page.url()).search === '?page=2' && (await range()) === 'Showing 26–50 of 50 trades', 'Next, pressed from the keyboard, opens page 2 and puts it in the URL');
+  check((await rowCount()) === 25, 'page 2 has the other 25 trades');
+  await page.select('app-pager select', '10');
+  await new Promise((r) => setTimeout(r, 500));
+  check((await rowCount()) === 10 && new URL(page.url()).search === '?size=10', 'choosing 10 rows per page shows 10 and returns to page 1');
+  await page.click('app-pager button[aria-label="Page 3 of 5"]');
+  await new Promise((r) => setTimeout(r, 500));
+  check((await range()) === 'Showing 21–30 of 50 trades', 'a numbered page button opens that page');
+  check(errors.length === 0, 'paging causes no errors');
   await page.close();
 }
 
