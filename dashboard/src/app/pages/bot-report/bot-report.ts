@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
 import { combineLatest, map, switchMap } from 'rxjs';
 import { axisRange } from '../../charts/chart-math';
 import { HistogramBars } from '../../charts/histogram-bars';
+import { histogramCaption } from '../../charts/histogram-caption';
 import { LineChart, LineSeries } from '../../charts/line-chart';
 import { DataService } from '../../data/data.service';
 import { AnalystVerdict, BotId } from '../../data/models';
@@ -141,6 +142,12 @@ export class BotReport {
     this.backtestOnly() ? `Backtest return for ${this.vm()?.bot?.name}` : `Paper return against the backtest expectation for ${this.vm()?.bot?.name}`,
   );
   protected readonly yRange = computed(() => axisRange(this.series().flatMap((s) => s.values)));
+
+  /** One sentence about the histogram, from the numbers. */
+  protected readonly histogramNote = computed(() => {
+    const vm = this.vm();
+    return vm?.bot && vm.report ? histogramCaption(vm.report.rHistogram, vm.bot.targetRR) : '';
+  });
 
   // Paper and backtest side by side
   protected readonly compareColumns: Column[] = [

@@ -112,6 +112,11 @@ describe('BotReport', () => {
     expect(saved[0].text).toContain('PLSM');
   });
 
+  it('writes a caption under the histogram from the numbers', async () => {
+    expect((await render('breakout')).querySelector('.histogram .caption')?.textContent).toBe('Most trades lose 1R. A few reach 3R and pay for the rest.');
+    expect((await render('pullback')).querySelector('.histogram .caption')?.textContent).toBe('The most common result is -1R: 8 of 18 trades.');
+  });
+
   it('has no write controls', async () => {
     const el = await render('breakout');
     const labels = Array.from(el.querySelectorAll('button')).map((b) => b.textContent);

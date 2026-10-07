@@ -49,6 +49,9 @@
           <app-empty-state title="No paper trades yet" message="The R histogram fills in once paper trading starts." />
         } @else if (vm.report; as report) {
           <app-histogram-bars [bins]="report.rHistogram" />
+          @if (histogramNote(); as note) {
+            <p class="muted caption">{{ note }}</p>
+          }
         } @else {
           <app-empty-state title="No results to show" message="The R histogram appears once this bot has a report." />
         }
