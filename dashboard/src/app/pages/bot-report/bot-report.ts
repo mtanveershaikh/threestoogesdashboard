@@ -63,7 +63,7 @@ export class BotReport {
   private readonly title = inject(Title);
   private readonly setTitle = effect(() => {
     const name = this.vm()?.bot?.name;
-    if (name) this.title.setTitle(`${name} · Tradebots`);
+    if (name) this.title.setTitle(`${name} · The Three Stooges`);
   });
 
   // Header and KPI tiles
