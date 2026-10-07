@@ -1,11 +1,11 @@
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Sparkline } from '../charts/sparkline';
-import { Bot } from '../data/models';
+import { BacktestSummary, Bot } from '../data/models';
 import { Avatar } from './avatar';
-import { arrowOf, ratio, signedPct, signedR, toneOf, usd } from './format';
+import { arrowOf, ratio, signedPct, signedR, statusLabel, toneOf, usd } from './format';
 
-/** Summary of one bot with its trend and a link to its report. */
+/** Summary of one bot with its trend and a link to its report. A backtest-only bot shows its backtest instead. */
 @Component({
   selector: 'app-bot-card',
   imports: [Avatar, Sparkline, RouterLink],
@@ -16,23 +16,23 @@ import { arrowOf, ratio, signedPct, signedR, toneOf, usd } from './format';
         <h3><a class="name" [routerLink]="['/bots', bot().id]">{{ bot().name }}</a></h3>
         <div class="muted">{{ bot().strategy }}</div>
       </div>
-      <span class="status">{{ status() }}</span>
+      <span class="status" [class.backtest]="backtestOnly()">{{ status() }}</span>
     </div>
     <div class="ret">
       <div>
-        <div class="muted small">Return on {{ budget() }} budget</div>
-        <div class="big" [class]="tone()">{{ arrow() }} {{ ret() }}</div>
+        <div class="muted small">{{ view().caption }}</div>
+        <div class="big" [class]="view().tone">{{ view().arrow }} {{ view().ret }}</div>
       </div>
-      <app-sparkline [values]="trend()" [color]="bot().color" [ariaLabel]="bot().name + ' return since start'" />
+      <app-sparkline [values]="trend()" [color]="bot().color" [ariaLabel]="bot().name + (backtestOnly() ? ' backtest return' : ' return since start')" />
     </div>
     <dl class="stats">
-      <div><dt>Win rate</dt><dd>{{ bot().winRatePct }}%</dd></div>
-      <div><dt>Avg R</dt><dd>{{ avgR() }}</dd></div>
-      <div><dt>Profit factor</dt><dd>{{ bot().profitFactor.toFixed(1) }}</dd></div>
-      <div><dt>Trades</dt><dd>{{ bot().tradeCount }}</dd></div>
+      <div><dt>Win rate</dt><dd>{{ view().win }}</dd></div>
+      <div><dt>Avg R</dt><dd>{{ view().avgR }}</dd></div>
+      <div><dt>Profit factor</dt><dd>{{ view().pf }}</dd></div>
+      <div><dt>Trades</dt><dd>{{ view().trades }}</dd></div>
     </dl>
     <div class="foot">
-      <span class="muted">Target {{ rr() }} · {{ bot().openCount }} open</span>
+      <span class="muted">{{ view().foot }}</span>
       <a [routerLink]="['/bots', bot().id]" [attr.aria-label]="'View report for ' + bot().name">View report →</a>
     </div>
   `,
@@ -66,6 +66,11 @@ import { arrowOf, ratio, signedPct, signedR, toneOf, usd } from './format';
       color: var(--gain);
       font-size: 12px;
       font-weight: 600;
+      white-space: nowrap;
+    }
+    .status.backtest {
+      background: rgba(91, 184, 255, 0.14);
+      color: #8cccff;
     }
     .ret { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
     .big { font-family: var(--font-mono); font-size: 30px; font-weight: 500; }
@@ -99,17 +104,43 @@ import { arrowOf, ratio, signedPct, signedR, toneOf, usd } from './format';
 })
 export class BotCard {
   readonly bot = input.required<Bot>();
-  /** Return since start per day, for the sparkline. */
+  /** Return since start per day, for the sparkline. For a backtest-only bot, the backtest curve. */
   readonly trend = input<number[]>([]);
+  /** The bot's backtest. Used instead of paper results while the bot is backtest-only. */
+  readonly backtest = input<BacktestSummary>();
 
-  protected readonly budget = computed(() => usd(this.bot().budget));
-  protected readonly ret = computed(() => signedPct(this.bot().returnPct));
-  protected readonly tone = computed(() => toneOf(this.bot().returnPct));
-  protected readonly arrow = computed(() => arrowOf(this.bot().returnPct));
-  protected readonly avgR = computed(() => signedR(this.bot().avgR, 2));
-  protected readonly rr = computed(() => ratio(this.bot().targetRR));
-  protected readonly status = computed(() => {
-    const s = this.bot().status;
-    return s.charAt(0) + s.slice(1).toLowerCase();
+  protected readonly backtestOnly = computed(() => this.bot().status === 'BACKTEST_ONLY');
+  protected readonly status = computed(() => statusLabel(this.bot().status));
+
+  /** Paper numbers, or backtest numbers when the bot has not started paper trading. */
+  protected readonly view = computed(() => {
+    const b = this.bot();
+    const bt = this.backtest();
+    const budget = usd(b.budget);
+    const target = ratio(b.targetRR);
+    if (this.backtestOnly() && bt) {
+      return {
+        caption: `Backtest return on ${budget} budget`,
+        ret: signedPct(bt.returnPct),
+        tone: toneOf(bt.returnPct),
+        arrow: arrowOf(bt.returnPct),
+        win: `${bt.winRatePct}%`,
+        avgR: signedR(bt.avgR, 2),
+        pf: bt.profitFactor.toFixed(1),
+        trades: `${bt.trades}`,
+        foot: `Target ${target} · no paper trades yet`,
+      };
+    }
+    return {
+      caption: `Return on ${budget} budget`,
+      ret: signedPct(b.returnPct),
+      tone: toneOf(b.returnPct),
+      arrow: arrowOf(b.returnPct),
+      win: `${b.winRatePct}%`,
+      avgR: signedR(b.avgR, 2),
+      pf: b.profitFactor.toFixed(1),
+      trades: `${b.tradeCount}`,
+      foot: `Target ${target} · ${b.openCount} open`,
+    };
   });
 }

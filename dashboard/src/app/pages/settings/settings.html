@@ -1,0 +1,82 @@
+<div class="title">
+  <h1>Settings</h1>
+  <p class="muted">What the bots are running right now. This page only shows the settings; they are changed in the bots' own config.</p>
+</div>
+
+@if (status() === 'ready') {
+  @if (config(); as c) {
+    @if (meta()) {
+      <p class="meta muted">{{ meta() }}</p>
+    }
+    @if (notice(); as n) {
+      <div class="notice" role="note"><strong>Check the config.</strong> {{ n }}</div>
+    }
+
+    <section class="two">
+      @if (limits().length) {
+        <div class="card">
+          <h2>Account and limits</h2>
+          <dl class="facts">
+            @for (l of limits(); track l.label) {
+              <div><dt>{{ l.label }}</dt><dd>{{ l.value }}</dd></div>
+            }
+          </dl>
+        </div>
+      }
+      @if (gates().length) {
+        <div class="card">
+          <h2>Go-live checklist</h2>
+          <p class="muted sub">A bot is measured against these before you decide whether it goes live.</p>
+          <dl class="facts">
+            @for (g of gates(); track g.label) {
+              <div><dt>{{ g.label }}</dt><dd>{{ g.rule }}</dd></div>
+            }
+          </dl>
+        </div>
+      }
+    </section>
+
+    <section class="strategies" aria-label="Strategies">
+      <h2>Strategies</h2>
+      <div class="grid">
+        @for (s of strategies(); track s.id) {
+          <article class="card strategy">
+            <div class="head">
+              <span class="dot" [style.background]="s.color"></span>
+              <h3><a [routerLink]="['/bots', s.botId]">{{ s.name }}</a></h3>
+              <span class="status" [class.backtest]="s.backtestOnly">{{ s.status }}</span>
+            </div>
+            <p class="muted id">{{ s.id }}</p>
+            <dl class="facts">
+              @for (f of s.facts; track f.label) {
+                <div><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>
+              }
+            </dl>
+            @if (s.params.length) {
+              <h4>Strategy settings</h4>
+              <dl class="facts params">
+                @for (p of s.params; track p.label) {
+                  <div><dt>{{ p.label }}</dt><dd>{{ p.value }}</dd></div>
+                }
+              </dl>
+            }
+          </article>
+        } @empty {
+          <app-empty-state [level]="3" title="No strategies listed" message="The settings do not list any strategies yet." />
+        }
+      </div>
+    </section>
+  } @else {
+    <app-empty-state
+      [level]="2"
+      title="Settings are not published yet"
+      message="The bots publish the settings they run in the system/config document. Once they do, they appear here."
+    />
+  }
+} @else if (status() === 'error') {
+  <app-empty-state [level]="2" title="Settings could not load" [message]="errorMessage()">
+    <button type="button" class="button" (click)="refresh()">Try again</button>
+  </app-empty-state>
+} @else {
+  <app-empty-state [level]="2" title="Loading settings" message="Fetching the bots' settings." />
+}

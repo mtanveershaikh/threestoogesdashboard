@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { FirestoreDataService } from '../src/app/data/firestore-data.service';
 import {
-  MOCK_BOTS, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
+  MOCK_BOTS, MOCK_CONFIG, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
 } from '../src/app/data/mock-fixtures';
 import { seedFirestore } from '../scripts/seed';
 
@@ -53,7 +53,33 @@ describe('FirestoreDataService against the seeded emulator', () => {
     expect(recent.map((t) => t.closedAt)).toEqual([...recent.map((t) => t.closedAt)].sort().reverse());
     const breakout = await first(service.getRecentTrades(10, 'breakout'));
     expect(breakout.every((t) => t.botId === 'breakout')).toBe(true);
-    expect(breakout).toHaveLength(MOCK_TRADES.filter((t) => t.botId === 'breakout').length);
+    // The limit applies: the newest ten of this bot's twenty.
+    expect(breakout).toHaveLength(10);
+    expect(breakout.map((t) => t.id)).toEqual(MOCK_TRADES.filter((t) => t.botId === 'breakout').slice(0, 10).map((t) => t.id));
+  });
+
+  it('reads the published settings, and nothing when they are not published', async () => {
+    expect(await first(service.getConfig())).toEqual(MOCK_CONFIG);
+    const empty = await initializeTestEnvironment({ projectId: 'demo-tradebots-noconfig', firestore: { rules: readFileSync(resolve(__dirname, '../../firestore.rules'), 'utf8') } });
+    const owner = empty.authenticatedContext('owner', { email: 'm.tanveer.shaikh@gmail.com', email_verified: true });
+    expect(await first(new FirestoreDataService(owner.firestore()).getConfig())).toBeUndefined();
+    await empty.cleanup();
+  });
+
+  it('reads trade history once, newest first, for everyone or one bot', async () => {
+    const all = await first(service.getTradeHistory({ limit: 100 }));
+    expect(all.map((t) => t.id)).toEqual(MOCK_TRADES.map((t) => t.id));
+    const some = await first(service.getTradeHistory({ limit: 7 }));
+    expect(some.map((t) => t.id)).toEqual(MOCK_TRADES.slice(0, 7).map((t) => t.id));
+    const pullback = await first(service.getTradeHistory({ limit: 100, botId: 'pullback' }));
+    expect(pullback.map((t) => t.id)).toEqual(MOCK_TRADES.filter((t) => t.botId === 'pullback').map((t) => t.id));
+  });
+
+  it('reads every rollup for All time and every bot report', async () => {
+    expect(await first(service.getRollups('all'))).toEqual(MOCK_ROLLUPS);
+    const reports = await first(service.getBotReports());
+    expect(reports.map((r) => r.botId).sort()).toEqual(['breakout', 'pullback', 'reversion']);
+    expect(reports.find((r) => r.botId === 'breakout')).toEqual(MOCK_REPORTS.breakout);
   });
 
   it('returns undefined for an unknown bot', async () => {

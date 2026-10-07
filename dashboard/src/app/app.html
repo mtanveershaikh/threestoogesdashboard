@@ -12,11 +12,14 @@
     <nav aria-label="Main">
       <a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Overview</a>
       <a routerLink="/bots/breakout" routerLinkActive="active" ariaCurrentWhenActive="page">Bots</a>
+      <a routerLink="/trades" routerLinkActive="active" ariaCurrentWhenActive="page">Trades</a>
+      <a routerLink="/reports" routerLinkActive="active" ariaCurrentWhenActive="page">Reports</a>
+      <a routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page">Settings</a>
     </nav>
 
     <div class="chips">
       @if (status(); as s) {
-        <span class="chip mode">{{ s.mode === 'paper' ? 'Paper trading' : 'Live trading' }}</span>
+        <span class="chip mode">{{ modeLabel(s.mode) }}</span>
       }
       <app-sample-data-badge />
       @if (auth.user(); as u) {

@@ -5,6 +5,7 @@ import { catchError, of, switchMap } from 'rxjs';
 import { AuthService } from './auth/auth.service';
 import { DataService } from './data/data.service';
 import { Avatar } from './shared/avatar';
+import { modeLabel } from './shared/format';
 import { SampleDataBadge } from './shared/sample-data-badge';
 import { StaleDataBanner } from './shared/stale-data-banner';
 
@@ -16,6 +17,7 @@ import { StaleDataBanner } from './shared/stale-data-banner';
 })
 export class App {
   protected readonly auth = inject(AuthService);
+  protected readonly modeLabel = modeLabel;
   private readonly data = inject(DataService);
   protected readonly isSample = this.data.isSample;
 

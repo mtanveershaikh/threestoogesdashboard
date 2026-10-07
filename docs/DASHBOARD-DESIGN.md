@@ -30,6 +30,8 @@ tradebots/
 
 `TASKS.md` task S0-1 assumed the Python project at the repo root; place it in `bot/` instead. Everything else in that file still applies.
 
+As built (October 2026): this repo holds only the dashboard so far, so there is no `bot/` folder or `scripts/check_prereqs.sh`. `firebase.json` has two Hosting sites: `the-three-stooges` (the real dashboard) and `the-three-stooges-demo` (sample data, no sign-in). Deploys run from `.github/workflows/dashboard-deploy.yml`.
+
 ## 3. Stack decisions
 
 | Area | Choice | Why |
@@ -37,8 +39,8 @@ tradebots/
 | Framework | Current Angular, standalone components, signals, built-in control flow | No NgModules; simple reactive state |
 | Styling | SCSS with CSS custom properties from the tokens below | Matches the mockup; no UI library to fight |
 | Charts | Small hand-written SVG components (line, bars, sparkline, progress) | The data is tiny and the mockup is already SVG |
-| Data | `@angular/fire` reading Firestore | Same database as the bots |
-| Auth | Firebase Auth, Google sign-in, one allowed account | Single user; rules enforce it |
+| Data | The `firebase` JS SDK (modular) reading Firestore | Same database as the bots. `@angular/fire` is not used: it does not support Angular 22. |
+| Auth | Firebase Auth, Google sign-in, an allow-list of accounts | Private group; the rules enforce it, the app only picks a screen |
 | Hosting | Firebase Hosting | Same project, free tier |
 | Tests | The default Angular test runner, plus Firestore emulator tests for rules | Keep tooling default |
 
@@ -79,17 +81,20 @@ The dashboard reads documents the bots already write. Names below are proposed; 
 | `daily_rollups/{yyyy-mm-dd}` | Return chart, per-bot daily equity, weekly results | One-shot query, last 60 days |
 | `bots/{botId}` | Name, strategy, budget, status, avatar URL, headline stats | One-shot |
 | `plans` where status is PROPOSED or ARMED | Awaiting-approval cards | One-shot, refresh every 60 s |
-| `positions` where open | Open positions table | One-shot, refresh every 60 s |
+| `positions` where `open == true` | Open positions table | One-shot, refresh every 60 s |
 | `trades` ordered by close time, limit 20 | Recent trades, with analyst verdicts | One-shot |
-| `setup_stats/{botId}_{setupId}` | Results by setup, memory-screen state | One-shot |
+| `setup_stats/{botId}_{setupId}` | Results by setup, memory-screen state | One-shot, queried by `botId` |
+| `bot_reports/{botId}` | Go-live gates, R histogram, backtest curve and summary | One-shot |
 
-Read budget: the free Spark plan allows 50,000 reads a day. Use one-shot reads and a 60-second refresh, and a single listener on `system/status` only. Never listen to `trades` or `plans`.
+Read budget: the free Spark plan allows 50,000 reads a day. Use one-shot reads and a 60-second refresh, and a single listener on `system/status` only. Never listen to `trades` or `plans`. Rollups are up to 60 documents that change once a day, so they refresh every 10 minutes, and all refreshes pause while the tab is hidden.
+
+Shapes: `dashboard/src/app/data/models.ts` is the source of truth. Bot document ids are `breakout`, `pullback` and `reversion`; a bot's display name (Wasif, Waseem, Nawaz) is a field, so renaming never changes the id or the card order. `bot_reports/{botId}` is new and is not written by the bots yet.
 
 Staleness: if `system/status.lastHeartbeat` is older than 10 minutes during market hours, show the stale-data banner.
 
 ## 8. Mock data mode
 
-Build the UI before the bots exist. Define a `DataService` interface and two implementations: `MockDataService` (JSON fixtures that match the contract exactly, taken from the mockup numbers) and `FirestoreDataService`. A flag in `environment.ts` picks one. In mock mode, always show the Sample data badge so sample numbers are never mistaken for results.
+Build the UI before the bots exist. Define a `DataService` interface and two implementations: `MockDataService` (JSON fixtures that match the contract exactly, taken from the mockup numbers) and `FirestoreDataService`. A flag in `environment.ts` picks one. In mock mode, always show the Sample data badge so sample numbers are never mistaken for results. The same mock build is published as a public demo site (no database, no sign-in, `noindex`) with `npm run build:demo`.
 
 ## 9. Auth and rules
 
@@ -101,18 +106,19 @@ service cloud.firestore {
   match /databases/{db}/documents {
     match /{doc=**} {
       allow read: if request.auth != null
-                  && request.auth.token.email == '<YOUR_EMAIL>';
+                  && request.auth.token.email.lower() in ['<EMAIL_1>', '<EMAIL_2>']
+                  && request.auth.token.email_verified == true;
       allow write: if false;
     }
   }
 }
 ```
 
-Test these rules in the emulator: signed out is denied, another account is denied, your account can read, nobody can write.
+Test these rules in the emulator (`npm run test:rules`): signed out is denied, another account is denied, an unverified address is denied, every listed account can read regardless of letter case, nobody can write. The allow-list lives in two places that must match: `firestore.rules` (enforces) and `allowedEmails` in `dashboard/src/environments/environment.ts` (only chooses which screen to show).
 
 ## 10. Avatars
 
-Each bot has an `avatarUrl` on its `bots/{botId}` document. When it is empty, show the dashed circle placeholder in the bot's color. Your picks go in `dashboard/src/assets/avatars/` (or Firebase Storage later) and are referenced by name; no code change needed.
+Each bot has an `avatarUrl` on its `bots/{botId}` document. When it is empty, show the dashed circle placeholder in the bot's color. Your picks go in `dashboard/public/avatars/` (or Firebase Storage later) and are referenced as `avatars/<file>`; no code change needed. Placeholder SVGs are in use until real pictures are added.
 
 ## 11. Definition of done for any screen
 

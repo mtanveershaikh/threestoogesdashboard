@@ -1,0 +1,117 @@
+<div class="title">
+  <h1>Trades</h1>
+  <p class="muted">Every closed trade, newest first.</p>
+</div>
+
+@if (status() === 'ready') {
+  <form class="filters card" (submit)="$event.preventDefault()" aria-label="Filter trades">
+    <label>
+      <span>Bot</span>
+      <select (change)="setFilter('bot', $any($event.target).value)">
+        <option value="" [selected]="!filters().bot">All bots</option>
+        @for (b of bots(); track b.id) {
+          <option [value]="b.id" [selected]="filters().bot === b.id">{{ b.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Result</span>
+      <select (change)="setFilter('result', $any($event.target).value)">
+        <option value="" [selected]="!filters().result">All results</option>
+        @for (o of resultOptions; track o.value) {
+          <option [value]="o.value" [selected]="filters().result === o.value">{{ o.label }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Exit</span>
+      <select (change)="setFilter('exit', $any($event.target).value)">
+        <option value="" [selected]="!filters().exit">All exits</option>
+        @for (o of exitOptions; track o.value) {
+          <option [value]="o.value" [selected]="filters().exit === o.value">{{ o.label }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>From</span>
+      <input type="date" [value]="filters().from ?? ''" (change)="setFilter('from', $any($event.target).value)" />
+    </label>
+    <label>
+      <span>To</span>
+      <input type="date" [value]="filters().to ?? ''" (change)="setFilter('to', $any($event.target).value)" />
+    </label>
+    <label class="search">
+      <span>Stock</span>
+      <input type="search" placeholder="Ticker, for example DRFT" [value]="filters().q ?? ''" (input)="setFilter('q', $any($event.target).value)" />
+    </label>
+    @if (filtered()) {
+      <button type="button" class="button clear" (click)="clearFilters()">Clear filters</button>
+    }
+  </form>
+
+  <section class="summary" aria-label="Summary of the trades shown">
+    <app-stat-tile label="Trades shown" [value]="'' + summary().count" [delta]="'of ' + loaded().length + ' loaded'" />
+    <app-stat-tile label="Win rate" [value]="summaryTiles().winRate" [delta]="summaryTiles().winNote" />
+    <app-stat-tile label="Total result (R)" [value]="summaryTiles().totalR.value" [tone]="summaryTiles().totalR.tone" />
+    <app-stat-tile label="Average per trade (R)" [value]="summaryTiles().avgR.value" [tone]="summaryTiles().avgR.tone" />
+    <app-stat-tile label="Net result (USD)" [value]="summaryTiles().net.value" [tone]="summaryTiles().net.tone" />
+  </section>
+
+  <section class="card list">
+    @if (rows().length) {
+      <app-data-table caption="Closed trades" [columns]="columns" [rows]="rows()" [cell]="cellTpl" />
+    } @else {
+      <app-empty-state
+        [level]="2"
+        title="No trades match"
+        [message]="loaded().length ? 'None of the loaded trades match these filters.' : 'No trades have closed yet.'"
+      >
+        @if (filtered()) {
+          <button type="button" class="button" (click)="clearFilters()">Clear filters</button>
+        }
+      </app-empty-state>
+    }
+
+    <div class="foot">
+      <p class="muted" role="status">
+        Showing {{ shown().length }} of the latest {{ loaded().length }} trades{{ filters().bot ? ' for ' + botName(filters().bot!) : '' }}.
+        @if (canLoadMore()) {
+          Older trades are not loaded yet.
+        }
+        @if (filtered() && canLoadMore()) {
+          Filters apply to the loaded trades only.
+        }
+      </p>
+      <div class="actions">
+        @if (canLoadMore()) {
+          <button type="button" class="button" (click)="loadMore()">Load 100 more</button>
+        }
+        <button type="button" class="button" (click)="refresh()">Refresh</button>
+        <button type="button" class="button" (click)="downloadCsv()" [disabled]="!rows().length">Download CSV</button>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #cellTpl let-row let-col="column">
+    @switch (col.key) {
+      @case ('bot') {
+        <span class="bot"><span class="dot" [style.background]="row['botColor']"></span>{{ row['botName'] }}</span>
+      }
+      @case ('r') {
+        <span [class]="row['tone']">{{ row['r'] }}</span>
+      }
+      @case ('usd') {
+        <span [class]="row['tone']">{{ row['usd'] }}</span>
+      }
+      @default {
+        {{ row[col.key] }}
+      }
+    }
+  </ng-template>
+} @else if (status() === 'error') {
+  <app-empty-state [level]="2" title="Trades could not load" [message]="errorMessage()">
+    <button type="button" class="button" (click)="refresh()">Try again</button>
+  </app-empty-state>
+} @else {
+  <app-empty-state [level]="2" title="Loading trades" message="Fetching the latest trades." />
+}

@@ -78,6 +78,26 @@ describe('mock fixtures', () => {
     }
   });
 
+  it('the trade list matches each bot card: count, win rate, average R and dollar return', () => {
+    for (const bot of MOCK_BOTS) {
+      const trades = MOCK_TRADES.filter((t) => t.botId === bot.id);
+      expect(trades).toHaveLength(bot.tradeCount);
+      expect(Math.round((100 * trades.filter((t) => t.rMultiple > 0).length) / trades.length)).toBe(bot.winRatePct);
+      expect(trades.reduce((s, t) => s + t.rMultiple, 0) / trades.length).toBeCloseTo(bot.avgR, 2);
+      expect((trades.reduce((s, t) => s + t.pnlUsd, 0) / bot.budget) * 100).toBeCloseTo(bot.returnPct, 1);
+    }
+  });
+
+  it('every trade id is unique and every exit matches its result', () => {
+    expect(new Set(MOCK_TRADES.map((t) => t.id)).size).toBe(MOCK_TRADES.length);
+    for (const t of MOCK_TRADES) {
+      const rr = MOCK_BOTS.find((b) => b.id === t.botId)!.targetRR;
+      if (t.exitReason === 'TARGET') expect(t.rMultiple).toBeGreaterThanOrEqual(rr - 0.001);
+      if (t.exitReason === 'STOP') expect(t.rMultiple).toBeLessThanOrEqual(-0.999);
+      if (t.exitReason === 'BREAKEVEN_STOP') expect(t.rMultiple).toBe(0);
+    }
+  });
+
   it('every bot has a backtest summary with the same window as the rollups', () => {
     for (const bot of MOCK_BOTS) {
       const bt = MOCK_REPORTS[bot.id].backtest!;

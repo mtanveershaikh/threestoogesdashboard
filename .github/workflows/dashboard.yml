@@ -24,6 +24,8 @@ jobs:
       - run: npm run lint
       - run: npm test -- --no-watch
       - run: npm run build
+      # Real Chrome walks every page of the sample-data build: errors, overflow, accessibility, click-through, keyboard.
+      - run: npm run e2e
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

@@ -2,7 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StaleDataBanner } from './stale-data-banner';
-import { ageText, isMarketHours, isStale } from './staleness';
+import { MARKET_EARLY_CLOSES, MARKET_HOLIDAYS, ageText, isMarketHours, isStale } from './staleness';
 
 // 2026-10-07 is a Wednesday; New York is on daylight time (UTC-4).
 const noon = new Date('2026-10-07T16:00:00Z'); // 12:00 in New York
@@ -20,6 +20,34 @@ describe('market hours', () => {
   it('is closed at night and on weekends', () => {
     expect(isMarketHours(night)).toBe(false);
     expect(isMarketHours(saturday)).toBe(false);
+  });
+});
+
+describe('market holidays and early closes', () => {
+  it('is closed all day on a holiday that falls on a weekday', () => {
+    // Thanksgiving 2026, 12:00 in New York (UTC-5 in November).
+    expect(isMarketHours(new Date('2026-11-26T17:00:00Z'))).toBe(false);
+    // Independence Day is observed on Friday 3 July 2026, 12:00 in New York (UTC-4).
+    expect(isMarketHours(new Date('2026-07-03T16:00:00Z'))).toBe(false);
+    // The day before it is a normal trading day.
+    expect(isMarketHours(new Date('2026-07-02T16:00:00Z'))).toBe(true);
+  });
+
+  it('closes at 13:00 on an early-close day', () => {
+    expect(isMarketHours(new Date('2026-11-27T17:30:00Z'))).toBe(true); // 12:30
+    expect(isMarketHours(new Date('2026-11-27T18:00:00Z'))).toBe(false); // 13:00
+  });
+
+  it('lists only weekdays, so no weekend date is needed in the table', () => {
+    for (const d of [...MARKET_HOLIDAYS, ...MARKET_EARLY_CLOSES]) {
+      const day = new Date(`${d}T12:00:00Z`).getUTCDay();
+      expect([0, 6], d).not.toContain(day);
+    }
+  });
+
+  it('does not warn about an old heartbeat on a holiday', () => {
+    const holidayNoon = new Date('2026-11-26T17:00:00Z');
+    expect(isStale('2026-11-25T21:00:00Z', holidayNoon)).toBe(false);
   });
 });
 

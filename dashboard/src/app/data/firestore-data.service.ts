@@ -1,10 +1,10 @@
 import {
   Firestore, collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, where,
 } from 'firebase/firestore';
-import { Observable, filter, from, shareReplay, switchMap, timer } from 'rxjs';
+import { Observable, defer, filter, from, shareReplay, switchMap, timer } from 'rxjs';
 import { DataService } from './data.service';
 import {
-  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemStatus, Trade,
+  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemConfig, SystemStatus, Trade,
 } from './models';
 
 /**
@@ -12,6 +12,10 @@ import {
  * Everything except the rollups is a handful of documents, so one minute is cheap.
  */
 export const REFRESH_MS = 60_000;
+/** The most trades one Trades page request will read. */
+export const TRADE_HISTORY_CAP = 1000;
+/** The most rollup documents 'all time' will read: about four years of trading days. */
+export const ALL_ROLLUPS_CAP = 1000;
 /** Rollups are up to 60 documents and change once a day, so they refresh slowly. */
 export const ROLLUP_REFRESH_MS = 10 * 60_000;
 
@@ -49,6 +53,14 @@ export class FirestoreDataService extends DataService {
     return this.poll(async () => (await getDocs(collection(this.db, 'bots'))).docs.map((d) => ({ ...d.data(), id: d.id }) as Bot));
   }
 
+  /** Settings change rarely, so they refresh slowly. */
+  getConfig(): Observable<SystemConfig | undefined> {
+    return this.poll(async () => {
+      const snap = await getDoc(doc(this.db, 'system', 'config'));
+      return snap.exists() ? (snap.data() as SystemConfig) : undefined;
+    }, ROLLUP_REFRESH_MS);
+  }
+
   getBot(id: BotId): Observable<Bot | undefined> {
     return this.poll(async () => {
       const snap = await getDoc(doc(this.db, 'bots', id));
@@ -56,9 +68,11 @@ export class FirestoreDataService extends DataService {
     });
   }
 
-  getRollups(days: number): Observable<DailyRollup[]> {
+  getRollups(days: number | 'all'): Observable<DailyRollup[]> {
     return this.poll(async () => {
-      const snap = await getDocs(query(collection(this.db, 'daily_rollups'), orderBy('date', 'desc'), limit(days)));
+      const rollups = collection(this.db, 'daily_rollups');
+      // 'all' is capped so a runaway collection cannot cost an unbounded number of reads.
+      const snap = await getDocs(query(rollups, orderBy('date', 'desc'), limit(days === 'all' ? ALL_ROLLUPS_CAP : days)));
       return snap.docs.map((d) => d.data() as DailyRollup).reverse();
     }, ROLLUP_REFRESH_MS);
   }
@@ -91,6 +105,21 @@ export class FirestoreDataService extends DataService {
     });
   }
 
+  getTradeHistory(options: { limit: number; botId?: BotId }): Observable<Trade[]> {
+    return defer(() =>
+      from(
+        (async () => {
+          const trades = collection(this.db, 'trades');
+          const count = Math.min(options.limit, TRADE_HISTORY_CAP);
+          const q = options.botId
+            ? query(trades, where('botId', '==', options.botId), orderBy('closedAt', 'desc'), limit(count))
+            : query(trades, orderBy('closedAt', 'desc'), limit(count));
+          return (await getDocs(q)).docs.map((d) => ({ ...d.data(), id: d.id }) as Trade);
+        })(),
+      ),
+    );
+  }
+
   getSetupStats(botId: BotId): Observable<SetupStat[]> {
     return this.poll(async () => {
       const snap = await getDocs(query(collection(this.db, 'setup_stats'), where('botId', '==', botId)));
@@ -106,6 +135,10 @@ export class FirestoreDataService extends DataService {
   }
 
   /** Reads now, then again every `everyMs`. Refreshes are skipped while the tab is hidden. */
+  getBotReports(): Observable<BotReport[]> {
+    return this.poll(async () => (await getDocs(collection(this.db, 'bot_reports'))).docs.map((d) => d.data() as BotReport), ROLLUP_REFRESH_MS);
+  }
+
   private poll<T>(read: () => Promise<T>, everyMs = REFRESH_MS): Observable<T> {
     return timer(0, everyMs).pipe(
       filter((tick) => tick === 0 || typeof document === 'undefined' || !document.hidden),

@@ -19,11 +19,13 @@ h2 { font-size: 18px; }
 
 .head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
+  gap: 16px 20px;
 
   p { margin: 4px 0 0; }
 }
+.head .download { margin: 0 0 0 auto; }
 .name { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .status {
   padding: 3px 9px;
@@ -32,6 +34,11 @@ h2 { font-size: 18px; }
   color: var(--gain);
   font-size: 12px;
   font-weight: 600;
+}
+
+.status.backtest {
+  background: rgba(91, 184, 255, 0.14);
+  color: #8cccff;
 }
 
 .kpis {
@@ -113,3 +120,18 @@ footer {
   height: 8px;
   border-radius: 50%;
 }
+
+.caption {
+  margin: 14px 0 0;
+  font-size: 13px;
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+  margin-top: 8px;
+  color: var(--text);
+  font-weight: 500;
+}
+.more:hover { text-decoration: underline; }

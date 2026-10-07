@@ -6,6 +6,7 @@ import { DataService } from './data/data.service';
 import { firestoreDb } from './data/firebase';
 import { FirestoreDataService } from './data/firestore-data.service';
 import { MockDataService } from './data/mock-data.service';
+import { scenarioFromSearch } from './data/mock-scenarios';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     {
       provide: DataService,
       useFactory: () =>
-        environment.dataSource === 'mock' ? new MockDataService() : new FirestoreDataService(firestoreDb(), environment.useEmulator),
+        environment.dataSource === 'mock' ? new MockDataService(scenarioFromSearch(location.search)) : new FirestoreDataService(firestoreDb(), environment.useEmulator),
     },
   ],
 };

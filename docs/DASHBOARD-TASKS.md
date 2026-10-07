@@ -68,13 +68,76 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D8: Deploy (1d)
 
-- [ ] D8-1 `ng build` production; deploy to Firebase Hosting; confirm sign-in on the live URL.
-- [ ] D8-2 CI deploy on merge to main (preview channel for pull requests).
+- [x] D8-1 `ng build` production; deploy to Firebase Hosting; confirm sign-in on the live URL. (Live at https://the-three-stooges.web.app; sign-in confirmed by the owner.)
+- [x] D8-2 CI deploy on merge to main (preview channel for pull requests). (First live deploy from CI succeeded on the merge of PR #2.)
 - [ ] D8-3 Check the day's read count in the Firebase console stays well under 50,000.
 
 ## D9: Later
 
-- [ ] D9-1 Trades list with filters; weekly and monthly report pages.
-- [ ] D9-2 Read-only Settings page showing the live config.
+- [x] D9-1 Trades list with filters; weekly and monthly report pages. (Done as D10-4 and D10-5.)
+- [x] D9-2 Read-only Settings page showing the live config. (Done as D10-7.)
 - [ ] D9-3 Phone-first approvals view (decide first whether web approvals are allowed at all).
 - [ ] D9-4 Optional: pause or halt from the web through a guarded control document the bots poll.
+
+## D10: Features the mockups show that are not built yet (about 5 days) (all done, on `develop`, not yet deployed)
+
+Found by rendering the two mockups next to the app on 7 October 2026. Look and feel was judged fine; these are missing features. Work in this order. Each page ships with unit tests, a demo-build entry in `e2e/smoke.mjs`, and sample data in the mock service. All of it stays read-only.
+
+Dependency sketch: D10-1 to D10-3 are independent. D10-4 to D10-6 each need the Trades or Rollups queries. D10-7 needs your bots to publish a config document. D10-8 comes last, as each page appears.
+
+### Quick wins (about 1 day)
+
+- [x] D10-1 "8 weeks / All time" toggle on the Overview. Default stays the last 8 weeks; "All time" fetches every rollup once, on click, and refreshes slowly. The chart axis labels switch from weeks to months when the range is long. Done when: both ranges render from mock data, the toggle is keyboard-operable and announces the current choice, and a test shows "All time" is not fetched until clicked (read budget).
+- [x] D10-2 Download report on the bot page. A button that saves a CSV made in the browser: bot stats, paper against backtest, go-live gates and recent trades. No server call and no write. Done when: the file opens in a spreadsheet, numbers carry their signs, and a test checks the CSV content for each bot.
+- [x] D10-3 Caption under the R histogram, written from the data (for example "Most trades lose 1R. A few reach 3R and pay for the rest."). Done when: the sentence follows the data (most common result, share of trades at the target) and an empty histogram shows no caption.
+
+### New pages (about 3.5 days)
+
+- [x] D10-4 Trades page at `/trades`. Every closed trade, newest first, with filters for bot, win or loss, exit type, date range and stock search, a result summary for the filtered set, and a CSV download. Paged reads, never a listener. Done when: filters combine, the URL keeps the filter state so a view can be shared, and the page has loading, empty and error states.
+- [x] D10-5 Reports page at `/reports`. Weekly and monthly summaries computed from rollups and trades: return, trades, win rate, average R, best and worst bot. Done when: totals match the Overview for the same period (test), and the period picker works with the keyboard.
+- [x] D10-6 Per-bot trades link: "See all trades" on each bot report opens `/trades` filtered to that bot.
+- [x] D10-7 Settings page at `/settings`, read-only: limits, go-live gates, costs and each strategy's budget, universe, reward to risk, time stop and parameters. The bots publish `system/config`, whose format is in `docs/BOT-DATA-CONTRACT.md`. Add `SystemConfig` to `models.ts`, `DataService` and the mock fixtures first. Done when: the page shows only what the document holds, says when the document is missing, secrets can never appear (the contract forbids them), and nothing on it is editable.
+- [x] D10-9 Understand backtest-only bots. Add `backtest` to the system mode and `BACKTEST_ONLY` to the bot status; show "Backtest only" instead of "Active" and "Paper trading"; hide the paper sections and show the backtest summary and curve when a bot has no paper trades yet. Done when: a bot with a backtest and no paper trades has a complete, honest page (test with a new mock bot state), and the Overview explains that paper trading has not started. See "Backtest-only bots" in `docs/BOT-DATA-CONTRACT.md`. (Done. Try it locally or on the demo with `?scenario=backtest`, for example https://the-three-stooges-demo.web.app/?scenario=backtest once the demo is redeployed.)
+- [x] D10-8 Add Trades, Reports and Settings to the main nav, one at a time as each page ships, with `aria-current` on the active link. Done when: the nav matches the mockup and the keyboard order test in `e2e/smoke.mjs` still passes.
+
+### Decided against (not tasks)
+
+- Approve plan and Reject buttons: replaced by the "Approve in Telegram" link. See D9-3 if this is ever revisited.
+- Pause bot button: it would write to the database. See D9-4.
+
+## Open items (as of 7 October 2026)
+
+What is still outstanding after D0 to D8. Items marked "owner" need you; the rest I can do.
+
+### Before the data is real
+
+- [ ] O-1 Configure the bots to write what the dashboard reads (full format in `docs/BOT-DATA-CONTRACT.md`): `system/status`, `bots/{id}`, `daily_rollups/{date}`, `plans`, `positions` (with `open: true`), `trades`, `setup_stats`, and `bot_reports/{id}`. The last one is new and was proposed by the dashboard; nothing writes it yet. (owner, with the bots)
+- [ ] O-2 Reconcile field names with the bots' real documents. D1-1 was done against section 7 of the design doc; `DESIGN.md` section 12 is not in this repo, so the match is unverified. Bot document ids must be `breakout`, `pullback` and `reversion`, or the ids in the dashboard change.
+- [ ] O-3 Open the live site as each of the five accounts and confirm the data loads (the empty states and error messages were tested, but only the owner has signed in). (owner and friends)
+- [ ] O-4 Replace the Telegram placeholder: `telegramUrl` in `dashboard/src/environments/environment.ts` is `https://t.me/`. (owner: send the bot link)
+- [ ] O-5 Check the day's real Firestore read count after a full day of use (this is D8-3). Estimate is about 30,000 against a 50,000 limit; if it goes above about 25,000, slow `REFRESH_MS`. (owner: console, Firestore, Usage)
+
+### Housekeeping
+
+- [ ] O-6 Merge `develop` into `main` (commit `5afdabd`: demo site, README, two-site hosting config). Merging does not change the live site.
+- [ ] O-7 Delete the merged branch `feature/threestooges` on GitHub, and the local `backup/before-trailer-removal`.
+- [ ] O-8 Delete `~/.secrets/dashboard-deploy.json` now that the GitHub secret is set. The deploy key appeared in a chat session; it can only deploy Hosting, but delete it and rotate it if you want to be tidy.
+- [x] O-9 Update `docs/DASHBOARD-DESIGN.md`: it still says `@angular/fire` (the app uses the `firebase` SDK, because Angular Fire does not support Angular 22), puts avatars in `src/assets/avatars/` (they are in `dashboard/public/avatars/`), and lists one allowed email (it is a list of five). (Done: design doc now matches the build.)
+- [x] O-10 Replace the default Angular text in `dashboard/README.md` with a pointer to the root README. (Done.)
+- [ ] O-11 Replace the three placeholder avatar SVGs in `dashboard/public/avatars/` with your own pictures.
+- [x] O-12 Optional: deploy the demo site from CI as well (today it is published by hand with `npm run build:demo` and `firebase deploy --only hosting:demo`). (Done in `dashboard-deploy.yml`; it first runs on the next merge to `main`.)
+
+### Quality gaps found along the way
+
+- [ ] O-13 Screen-reader test (VoiceOver or NVDA). Keyboard order, focus rings, accessible names and axe are now automated in `npm run e2e`; a human listening pass is still not done.
+- [x] O-14 The stale-data banner uses weekdays 9:30 to 16:00 New York time and ignores market holidays, so it can warn on a holiday. (Done: NYSE holidays and early closes for 2026 and 2027 are in `staleness.ts`; check the dates against the NYSE calendar and extend yearly.)
+- [ ] O-15 Try the Firestore emulator in a browser end to end (sign in with the Auth emulator pop-up). The rules and service were tested in the emulator, but the pop-up flow was not.
+- [ ] O-16 The nav "Bots" link always opens Wasif. Decide whether to add a Bots overview page, or point it at the Overview's bot cards.
+- [x] O-17 The mockup's "8 weeks / All time" toggle on the overview was left out. (Done as D10-1.)
+- [x] O-18 Page components are not yet covered by an end-to-end browser test; checks so far are unit tests plus manual runs in headless Chrome. (Done: `npm run e2e` drives real Chrome over the demo build and runs in CI.)
+
+### Decisions kept (not tasks)
+
+- The old bot service-account key was shown in an earlier session and is not rotated, by choice. If the bots' service account is ever shared, rotate it.
+- The sample data keeps the 5,000 dollar total budget and "Nasdaq 100" for all three bots, though the bots' config has budgets of 1,000, 1,500 and 1,500 dollars and different universes. Real data will show the true figures.
+- The real site shows only real data. The sample-data version runs locally (`npm start`) and on the demo site.

@@ -2,6 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { FileDownload } from '../../shared/file-download';
 import { of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { DataService } from '../../data/data.service';
@@ -86,6 +87,42 @@ describe('BotReport', () => {
     expect(active[0].getAttribute('aria-current')).toBe('page');
   });
 
+  it('downloads the report as a CSV named after the bot, without sending anything', async () => {
+    const saved: { filename: string; text: string }[] = [];
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        { provide: DataService, useClass: MockDataService },
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'pullback' })) } },
+        { provide: FileDownload, useValue: { save: (filename: string, text: string) => saved.push({ filename, text }) } },
+      ],
+    });
+    const fixture = TestBed.createComponent(BotReport);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    const button = el.querySelector<HTMLButtonElement>('button.download')!;
+    expect(button.textContent?.trim()).toBe('Download report');
+    button.click();
+    expect(saved).toHaveLength(1);
+    expect(saved[0].filename).toMatch(/^waseem-report-\d{4}-\d{2}-\d{2}\.csv$/);
+    expect(saved[0].text).toContain('Report,Waseem');
+    expect(saved[0].text).toContain('Budget (USD),1750');
+    expect(saved[0].text).toContain('PLSM');
+  });
+
+  it('writes a caption under the histogram from the numbers', async () => {
+    expect((await render('breakout')).querySelector('.histogram .caption')?.textContent).toBe('Most trades lose 1R. A few reach 3R and pay for the rest.');
+    expect((await render('pullback')).querySelector('.histogram .caption')?.textContent).toBe('The most common result is -1R: 8 of 18 trades.');
+  });
+
+  it('links to every trade for this bot, already filtered', async () => {
+    const link = (await render('pullback')).querySelector<HTMLAnchorElement>('a.more')!;
+    expect(link.textContent?.trim()).toBe('See all trades for Waseem →');
+    expect(link.getAttribute('href')).toBe('/trades?bot=pullback');
+  });
+
   it('has no write controls', async () => {
     const el = await render('breakout');
     const labels = Array.from(el.querySelectorAll('button')).map((b) => b.textContent);
@@ -112,7 +149,8 @@ describe('BotReport', () => {
     const trades = table('Recent trades');
     expect(setups.querySelectorAll('tbody tr')).toHaveLength(3);
     expect(setups.textContent).toContain('Watching, 9 trades to go');
-    expect(trades.querySelectorAll('tbody tr')).toHaveLength(6);
+    // The page shows a bot's latest ten trades.
+    expect(trades.querySelectorAll('tbody tr')).toHaveLength(10);
     expect(trades.textContent).toContain('Buy 71');
     expect(trades.textContent).toContain('Hold 49');
     expect(trades.textContent).toContain('▲ +3.0R');
@@ -148,5 +186,54 @@ describe('BotReport', () => {
     expect(el.textContent).toContain('The report could not load');
     expect(el.textContent).toContain('could not be reached');
     expect(el.querySelector('button')?.textContent).toContain('Try again');
+  });
+
+  describe('backtest only', () => {
+    async function renderBacktest(id: string): Promise<HTMLElement> {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideZonelessChangeDetection(),
+          provideRouter([]),
+          { provide: DataService, useValue: new MockDataService('backtest') },
+          { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id })) } },
+        ],
+      });
+      const fixture = TestBed.createComponent(BotReport);
+      await fixture.whenStable();
+      return fixture.nativeElement as HTMLElement;
+    }
+
+    it('shows the Backtest only pill and backtest figures in the tiles', async () => {
+      const el = await renderBacktest('breakout');
+      expect(el.querySelector('.status')?.textContent).toBe('Backtest only');
+      const kpis = el.querySelector('.kpis')!.textContent!;
+      expect(kpis).toContain('Backtest return');
+      expect(kpis).toContain('+11.8%');
+      expect(kpis).toContain('Backtest, after costs and slippage');
+      expect(kpis).toContain('backtest trades');
+    });
+
+    it('draws one backtest line with dates, not a paper line', async () => {
+      const el = await renderBacktest('breakout');
+      expect(el.querySelector('.paper h2')?.textContent).toBe('Backtest results');
+      expect(el.querySelectorAll('app-line-chart svg path')).toHaveLength(1);
+      expect(el.querySelector('app-line-chart .xaxis')?.textContent).toContain('Aug 13');
+    });
+
+    it('puts dashes in the paper column and says there are no paper trades', async () => {
+      const el = await renderBacktest('breakout');
+      const trades = Array.from(el.querySelectorAll('.compare tbody tr')).find((r) => r.textContent?.includes('Trades'))!;
+      expect(trades.textContent).toContain('–');
+      expect(trades.textContent).toContain('42');
+      expect(el.querySelector('.histogram')?.textContent).toContain('No paper trades yet');
+      expect(el.textContent).toContain('No paper trades yet.');
+    });
+
+    it('keeps every gate pending, so the verdict is Not yet', async () => {
+      const el = await renderBacktest('pullback');
+      expect(el.querySelector('.verdict-title')?.textContent).toBe('Not yet');
+      expect(el.querySelector('.checklist')?.textContent).toContain('Not yet: 0 of 100');
+    });
   });
 });
