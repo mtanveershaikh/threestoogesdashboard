@@ -33,9 +33,9 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D3: Charts (1-2d)
 
-- [ ] D3-1 LineChart (multi-series, dashed baseline, optional dashed second line, axis labels, accessible label).
-- [ ] D3-2 Sparkline and HistogramBars.
-- [ ] D3-3 Tests: points map to the right coordinates; empty data renders an empty state.
+- [x] D3-1 LineChart (multi-series, dashed baseline, optional dashed second line, axis labels, accessible label).
+- [x] D3-2 Sparkline and HistogramBars.
+- [x] D3-3 Tests: points map to the right coordinates; empty data renders an empty state.
 
 ## D4: Overview page (2d)
 
