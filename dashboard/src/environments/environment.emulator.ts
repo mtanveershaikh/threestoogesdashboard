@@ -1,9 +1,9 @@
-import { environment as production } from './environment';
+import { BASE } from './environment.base';
 import { Environment } from './environment.model';
 
 /** `npm run start:emulator`: the real Firestore service against the local emulators, seeded with sample data. */
 export const environment: Environment = {
-  ...production,
+  ...BASE,
   dataSource: 'firestore',
   useEmulator: true,
   firebase: {

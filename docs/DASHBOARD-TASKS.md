@@ -115,7 +115,7 @@ What is still outstanding after D0 to D8. Items marked "owner" need you; the res
 - [ ] O-1 Configure the bots to write what the dashboard reads (full format in `docs/BOT-DATA-CONTRACT.md`): `system/status`, `bots/{id}`, `daily_rollups/{date}`, `plans`, `positions` (with `open: true`), `trades`, `setup_stats`, and `bot_reports/{id}`. The last one is new and was proposed by the dashboard; nothing writes it yet. (owner, with the bots)
 - [ ] O-2 Reconcile field names with the bots' real documents. D1-1 was done against section 7 of the design doc; `DESIGN.md` section 12 is not in this repo, so the match is unverified. Bot document ids must be `breakout`, `pullback` and `reversion`, or the ids in the dashboard change.
 - [ ] O-3 Open the live site as each of the five accounts and confirm the data loads (the empty states and error messages were tested, but only the owner has signed in). (owner and friends)
-- [ ] O-4 Replace the Telegram placeholder: `telegramUrl` in `dashboard/src/environments/environment.ts` is `https://t.me/`. (owner: send the bot link)
+- [ ] O-4 Replace the Telegram placeholder: `telegramUrl` in `dashboard/src/environments/environment.ts` was `https://t.me/` and is now `https://t.me/thethreestoogesbot` (in `environment.base.ts`). (Done; deploys with the next release.) (owner: send the bot link)
 - [ ] O-5 Check the day's real Firestore read count after a full day of use (this is D8-3). Estimate is about 30,000 against a 50,000 limit; if it goes above about 25,000, slow `REFRESH_MS`. (owner: console, Firestore, Usage)
 
 ### Housekeeping

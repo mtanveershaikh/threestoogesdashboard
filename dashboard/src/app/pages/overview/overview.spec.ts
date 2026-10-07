@@ -43,6 +43,8 @@ describe('Overview', () => {
     expect(el.querySelectorAll('app-verdict-chip.split')).toHaveLength(1);
     expect(el.querySelectorAll('a.approve')).toHaveLength(2);
     expect(el.querySelector('a.approve')?.getAttribute('rel')).toContain('noopener');
+    expect(el.querySelector('a.approve')?.getAttribute('href')).toBe('https://t.me/thethreestoogesbot');
+    expect(el.querySelector('a.approve')?.getAttribute('target')).toBe('_blank');
     const buttons = Array.from(el.querySelectorAll('button')).map((b) => b.textContent);
     expect(buttons.filter((t) => /approve|reject/i.test(t ?? ''))).toEqual([]);
   });
