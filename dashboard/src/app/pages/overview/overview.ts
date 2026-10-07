@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest, of, switchMap } from 'rxjs';
+import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { axisRange } from '../../charts/chart-math';
 import { LineChart, LineSeries } from '../../charts/line-chart';
@@ -24,7 +25,7 @@ const shortName = (b: Bot) => b.name.replace(/ Bot$/, '');
 
 @Component({
   selector: 'app-overview',
-  imports: [StatTile, ProgressRow, LineChart, PlanCard, BotCard, DataTable, EmptyState],
+  imports: [StatTile, ProgressRow, LineChart, PlanCard, BotCard, DataTable, EmptyState, RouterLink],
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
 })

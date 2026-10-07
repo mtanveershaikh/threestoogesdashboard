@@ -89,6 +89,7 @@
     <div class="card">
       <h2>Recently closed</h2>
       <app-data-table caption="Recently closed trades" [columns]="closedColumns" [rows]="closedRows()" [cell]="cellTpl" emptyText="No closed trades yet." />
+      <a class="more" routerLink="/trades">See all trades →</a>
     </div>
   </section>
 

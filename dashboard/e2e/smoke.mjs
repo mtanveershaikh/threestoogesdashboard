@@ -76,6 +76,11 @@ for (const width of [1360, 390]) {
   await click('app-bot-card h3 a', 'Nawaz'); check((await where()) === '/bots/reversion Nawaz', 'overview card name opens Nawaz');
   await click('nav.switcher a', 'Waseem'); check((await where()) === '/bots/pullback Waseem', 'switcher opens Waseem');
   check((await page.$eval('nav.switcher a.active', (e) => `${e.textContent.trim()} ${e.getAttribute('aria-current')}`)) === 'Waseem page', 'switcher marks only the current bot');
+  await click('a.more', 'See all trades for Waseem →');
+  check(new URL(page.url()).pathname + new URL(page.url()).search === '/trades?bot=pullback', 'See all trades opens the Trades page for that bot');
+  check((await page.$$eval('tbody tr', (r) => r.length)) === 18, 'and shows all 18 of that bot\'s trades, not just the latest ten');
+  await page.goBack();
+  await new Promise((r) => setTimeout(r, 500));
   await click('a.back', '← Back to overview'); check((await where()) === '/ Performance overview', 'back link returns to the overview');
   await page.close();
 }

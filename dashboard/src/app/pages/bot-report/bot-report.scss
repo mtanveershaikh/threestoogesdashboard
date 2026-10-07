@@ -125,3 +125,13 @@ footer {
   margin: 14px 0 0;
   font-size: 13px;
 }
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+  margin-top: 8px;
+  color: var(--text);
+  font-weight: 500;
+}
+.more:hover { text-decoration: underline; }

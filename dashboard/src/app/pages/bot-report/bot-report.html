@@ -96,6 +96,7 @@
       <h2>Recent trades with analyst verdicts</h2>
       <p class="muted sub">Verdict and confidence from each analyst at the time of the call</p>
       <app-data-table caption="Recent trades" [columns]="tradeColumns" [rows]="tradeRows()" [cell]="signTpl" [emptyText]="noTradesText()" />
+      <a class="more" routerLink="/trades" [queryParams]="{ bot: bot.id }">See all trades for {{ bot.name }} →</a>
     </section>
 
     <ng-template #signTpl let-row let-col="column">

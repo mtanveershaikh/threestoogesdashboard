@@ -77,6 +77,12 @@ describe('Overview', () => {
     expect(closed.textContent).toContain('Time stop');
   });
 
+  it('links the recently closed list to every trade', async () => {
+    const el = await render();
+    expect(el.querySelector<HTMLAnchorElement>('a.more')?.getAttribute('href')).toBe('/trades');
+    expect(el.querySelector('a.more')?.textContent?.trim()).toBe('See all trades →');
+  });
+
   it('labels sample data in the footer', async () => {
     const el = await render();
     expect(el.querySelector('footer')?.textContent).toContain('sample data');

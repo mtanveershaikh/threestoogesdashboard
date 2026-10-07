@@ -117,6 +117,12 @@ describe('BotReport', () => {
     expect((await render('pullback')).querySelector('.histogram .caption')?.textContent).toBe('The most common result is -1R: 8 of 18 trades.');
   });
 
+  it('links to every trade for this bot, already filtered', async () => {
+    const link = (await render('pullback')).querySelector<HTMLAnchorElement>('a.more')!;
+    expect(link.textContent?.trim()).toBe('See all trades for Waseem →');
+    expect(link.getAttribute('href')).toBe('/trades?bot=pullback');
+  });
+
   it('has no write controls', async () => {
     const el = await render('breakout');
     const labels = Array.from(el.querySelectorAll('button')).map((b) => b.textContent);
