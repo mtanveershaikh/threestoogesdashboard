@@ -44,6 +44,14 @@
       </div>
     </section>
 
+    @if (compare(); as c) {
+      <section class="card compare">
+        <h2>Paper and backtest, side by side</h2>
+        <p class="muted sub">{{ c.note }}</p>
+        <app-data-table caption="Paper and backtest, side by side" [columns]="compareColumns" [rows]="c.rows" />
+      </section>
+    }
+
     <section class="lower">
       <div class="card checklist">
         <div>

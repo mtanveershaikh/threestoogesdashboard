@@ -36,6 +36,21 @@ describe('BotReport', () => {
     expect(el.querySelectorAll('.kpis app-stat-tile')).toHaveLength(5);
   });
 
+  it('compares paper and backtest side by side with the same dates and costs', async () => {
+    const el = await render('breakout');
+    const card = el.querySelector('.compare')!;
+    expect(card.querySelector('h2')?.textContent).toContain('side by side');
+    const text = card.textContent!;
+    expect(text).toContain('no analyst filter');
+    expect(text).toContain('0.03R of cost and slippage');
+    const row = (label: string) => Array.from(card.querySelectorAll('tbody tr')).find((r) => r.textContent?.includes(label))!;
+    expect(row('Trades').textContent).toContain('20');
+    expect(row('Trades').textContent).toContain('42');
+    expect(row('Average per trade').textContent).toContain('+0.21R');
+    expect(row('Average per trade').textContent).toContain('+0.28R');
+    expect(card.querySelectorAll('tbody tr')).toHaveLength(7);
+  });
+
   it('has no write controls', async () => {
     const el = await render('breakout');
     const labels = Array.from(el.querySelectorAll('button')).map((b) => b.textContent);
@@ -56,14 +71,17 @@ describe('BotReport', () => {
 
   it('lists setups and recent trades with both analyst verdicts', async () => {
     const el = await render('breakout');
-    const tables = Array.from(el.querySelectorAll('app-data-table'));
-    expect(tables[0].querySelectorAll('tbody tr')).toHaveLength(3);
-    expect(tables[0].textContent).toContain('Watching, 9 trades to go');
-    expect(tables[1].querySelectorAll('tbody tr')).toHaveLength(6);
-    expect(tables[1].textContent).toContain('Buy 71');
-    expect(tables[1].textContent).toContain('Hold 49');
-    expect(tables[1].textContent).toContain('▲ +3.0R');
-    expect(tables[1].textContent).toContain('▼ -1.0R');
+    const table = (caption: string) =>
+      Array.from(el.querySelectorAll('app-data-table')).find((t) => t.querySelector(`[aria-label="${caption}"]`))!;
+    const setups = table('Results by setup');
+    const trades = table('Recent trades');
+    expect(setups.querySelectorAll('tbody tr')).toHaveLength(3);
+    expect(setups.textContent).toContain('Watching, 9 trades to go');
+    expect(trades.querySelectorAll('tbody tr')).toHaveLength(6);
+    expect(trades.textContent).toContain('Buy 71');
+    expect(trades.textContent).toContain('Hold 49');
+    expect(trades.textContent).toContain('▲ +3.0R');
+    expect(trades.textContent).toContain('▼ -1.0R');
   });
 
   it('says not ready for the reversion bot and shows its negative return with a sign', async () => {

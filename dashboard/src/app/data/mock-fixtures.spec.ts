@@ -78,6 +78,14 @@ describe('mock fixtures', () => {
     }
   });
 
+  it('every bot has a backtest summary with the same window as the rollups', () => {
+    for (const bot of MOCK_BOTS) {
+      const bt = MOCK_REPORTS[bot.id].backtest!;
+      expect(bt.periodStart).toBe(MOCK_ROLLUPS[0].date);
+      expect(bt.periodEnd).toBe(MOCK_ROLLUPS[MOCK_ROLLUPS.length - 1].date);
+    }
+  });
+
   it('each bot setups add up to its trade count', () => {
     for (const bot of MOCK_BOTS) {
       const total = MOCK_SETUPS.filter((s) => s.botId === bot.id).reduce((n, s) => n + s.trades, 0);

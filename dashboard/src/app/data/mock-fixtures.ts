@@ -3,12 +3,14 @@ import {
   BotId,
   BotReport,
   DailyRollup,
+  Gate,
   Plan,
   Position,
   SetupStat,
   SystemStatus,
   Trade,
 } from './models';
+import { BacktestParams, simulateBacktest } from './backtest-sample';
 
 /**
  * Sample data taken from the mockups (docs/mockups). Not real results.
@@ -26,19 +28,19 @@ export const MOCK_BOTS: Bot[] = [
     id: 'breakout', avatarUrl: 'avatars/breakout.svg', name: 'Breakout Bot', strategy: 'Breakout momentum', color: '#F2B84B',
     budget: 2000, status: 'ACTIVE', returnPct: BOT_END_RETURN.breakout,
     winRatePct: 30, avgR: 0.21, profitFactor: 1.3, tradeCount: 20, openCount: 1, targetRR: 3,
-    maxDrawdownPct: 6.1, universe: 'Nasdaq 100', timeStopDays: 10,
+    maxDrawdownPct: 6.1, universe: 'Nasdaq 100', timeStopDays: 10, avgHoldDays: 4.8,
   },
   {
     id: 'pullback', avatarUrl: 'avatars/pullback.svg', name: 'Pullback Bot', strategy: 'Trend pullback', color: '#5BB8FF',
     budget: 1750, status: 'ACTIVE', returnPct: BOT_END_RETURN.pullback,
     winRatePct: 28, avgR: 0.16, profitFactor: 1.2, tradeCount: 18, openCount: 2, targetRR: 3,
-    maxDrawdownPct: 4.8, universe: 'Nasdaq 100', timeStopDays: 15,
+    maxDrawdownPct: 4.8, universe: 'Nasdaq 100', timeStopDays: 15, avgHoldDays: 6.4,
   },
   {
     id: 'reversion', avatarUrl: 'avatars/reversion.svg', name: 'Reversion Bot', strategy: 'Mean reversion', color: '#B49CFF',
     budget: 1250, status: 'ACTIVE', returnPct: BOT_END_RETURN.reversion,
     winRatePct: 33, avgR: -0.05, profitFactor: 0.9, tradeCount: 12, openCount: 1, targetRR: 2,
-    maxDrawdownPct: 7.4, universe: 'Nasdaq 100', timeStopDays: 5,
+    maxDrawdownPct: 7.4, universe: 'Nasdaq 100', timeStopDays: 5, avgHoldDays: 2.6,
   },
 ];
 
@@ -147,6 +149,38 @@ export const MOCK_SETUPS: SetupStat[] = [
   { id: 'reversion_lower-band', botId: 'reversion', name: 'Close below the lower band', trades: 5, winRatePct: 40, avgR: 0.0, state: 'WATCHING', tradesToGo: 10 },
 ];
 
+/**
+ * Sample backtests: every signal taken, no analyst filter, over the same trading days as the paper run.
+ * The outcome mixes are chosen so each strategy lands near the expectancy the checklist quotes.
+ */
+const BACKTEST_PARAMS: Record<BotId, BacktestParams> = {
+  breakout: { targetRR: 3, wins: 12, stops: 24, partials: [0.4, -0.3, 0.9, 0.0, 0.6, -0.5], timeStopDays: 10, budget: 2000, seed: 11 },
+  pullback: { targetRR: 3, wins: 11, stops: 24, partials: [0.6, 1.4, -0.4, 0.2, 0.0], timeStopDays: 15, budget: 1750, seed: 22 },
+  reversion: { targetRR: 2, wins: 12, stops: 17, partials: [0.5, -0.4, 0.3], timeStopDays: 5, budget: 1250, seed: 33 },
+};
+const ROLLUP_DATES = MOCK_ROLLUPS.map((r) => r.date);
+export const MOCK_BACKTESTS = {
+  breakout: simulateBacktest(BACKTEST_PARAMS.breakout, ROLLUP_DATES),
+  pullback: simulateBacktest(BACKTEST_PARAMS.pullback, ROLLUP_DATES),
+  reversion: simulateBacktest(BACKTEST_PARAMS.reversion, ROLLUP_DATES),
+};
+
+const signedR2 = (n: number) => `${n > 0 ? '+' : n < 0 ? '-' : ''}${Math.abs(n).toFixed(2)}R`;
+const GAP_LIMIT_R = 0.15;
+
+/** Paper against backtest, computed from the two so the gate always agrees with the numbers beside it. */
+function backtestGapGate(botId: BotId): Gate {
+  const bot = MOCK_BOTS.find((b) => b.id === botId)!;
+  const bt = MOCK_BACKTESTS[botId].summary;
+  const gap = round2(Math.abs(bt.avgR - bot.avgR));
+  return {
+    id: 'backtest-gap', name: 'Paper close to backtest', rule: `within ${GAP_LIMIT_R}R`,
+    status: gap <= GAP_LIMIT_R ? 'MET' : 'FAILED', result: `gap ${gap.toFixed(2)}R`,
+    progressPct: Math.min(100, Math.round((gap / GAP_LIMIT_R) * 100)),
+    detail: `Backtest ${signedR2(bt.avgR)} per trade against ${signedR2(bot.avgR)} on paper.`,
+  };
+}
+
 const bins = (counts: number[]) =>
   ['-1', '-0.5', '0', '+0.5', '+1', '+2', '+3'].map((label, i) => ({ label, count: counts[i] }));
 
@@ -164,11 +198,11 @@ export const MOCK_REPORTS: Record<BotId, BotReport> = {
         detail: "Measured from the bot's own equity peak." },
       { id: 'weeks', name: 'Profitable weeks', rule: 'at least 60%', status: 'MET', result: '5 of 8', progressPct: 63,
         detail: 'Weeks with a net gain since the paper run began.' },
-      { id: 'backtest-gap', name: 'Paper close to backtest', rule: 'within 0.15R', status: 'MET', result: 'gap 0.07R', progressPct: 47,
-        detail: 'Backtest +0.28R per trade against +0.21R on paper.' },
+      backtestGapGate('breakout'),
     ],
     rHistogram: bins([10, 2, 2, 0, 1, 1, 4]),
-    backtestReturnPct: series(5.6, 0.2, 0.5),
+    backtestReturnPct: MOCK_BACKTESTS.breakout.curve,
+    backtest: MOCK_BACKTESTS.breakout.summary,
   },
   pullback: {
     botId: 'pullback',
@@ -183,11 +217,11 @@ export const MOCK_REPORTS: Record<BotId, BotReport> = {
         detail: "Measured from the bot's own equity peak." },
       { id: 'weeks', name: 'Profitable weeks', rule: 'at least 60%', status: 'MET', result: '5 of 8', progressPct: 63,
         detail: 'Weeks with a net gain since the paper run began.' },
-      { id: 'backtest-gap', name: 'Paper close to backtest', rule: 'within 0.15R', status: 'MET', result: 'gap 0.08R', progressPct: 53,
-        detail: 'Backtest +0.24R per trade against +0.16R on paper.' },
+      backtestGapGate('pullback'),
     ],
     rHistogram: bins([8, 2, 1, 1, 1, 1, 4]),
-    backtestReturnPct: series(4.4, 0.2, 0.5),
+    backtestReturnPct: MOCK_BACKTESTS.pullback.curve,
+    backtest: MOCK_BACKTESTS.pullback.summary,
   },
   reversion: {
     botId: 'reversion',
@@ -202,10 +236,10 @@ export const MOCK_REPORTS: Record<BotId, BotReport> = {
         detail: "Measured from the bot's own equity peak." },
       { id: 'weeks', name: 'Profitable weeks', rule: 'at least 60%', status: 'FAILED', result: '3 of 8', progressPct: 38,
         detail: 'Weeks with a net gain since the paper run began.' },
-      { id: 'backtest-gap', name: 'Paper close to backtest', rule: 'within 0.15R', status: 'FAILED', result: 'gap 0.25R', progressPct: 100,
-        detail: 'Backtest +0.20R per trade against -0.05R on paper.' },
+      backtestGapGate('reversion'),
     ],
     rHistogram: bins([5, 1, 1, 0, 1, 3, 1]),
-    backtestReturnPct: series(3.0, 0.2, 0.5),
+    backtestReturnPct: MOCK_BACKTESTS.reversion.curve,
+    backtest: MOCK_BACKTESTS.reversion.summary,
   },
 };

@@ -105,6 +105,30 @@ export class BotReport {
   );
   protected readonly yRange = computed(() => axisRange(this.series().flatMap((s) => s.values)));
 
+  // Paper and backtest side by side
+  protected readonly compareColumns: Column[] = [
+    { key: 'measure', label: 'Measure' },
+    { key: 'paper', label: 'Paper', align: 'right', mono: true },
+    { key: 'backtest', label: 'Backtest', align: 'right', mono: true },
+  ];
+  protected readonly compare = computed(() => {
+    const vm = this.vm();
+    const bot = vm?.bot;
+    const bt = vm?.report?.backtest;
+    if (!bot || !bt) return undefined;
+    const rows = [
+      { measure: 'Trades', paper: `${bot.tradeCount}`, backtest: `${bt.trades}` },
+      { measure: 'Win rate', paper: `${bot.winRatePct}%`, backtest: `${bt.winRatePct}%` },
+      { measure: 'Average per trade', paper: signedR(bot.avgR, 2), backtest: signedR(bt.avgR, 2) },
+      { measure: 'Profit factor', paper: bot.profitFactor.toFixed(1), backtest: bt.profitFactor.toFixed(1) },
+      { measure: 'Max drawdown', paper: `-${bot.maxDrawdownPct}%`, backtest: `-${bt.maxDrawdownPct}%` },
+      { measure: 'Average hold', paper: `${bot.avgHoldDays} days`, backtest: `${bt.avgHoldDays} days` },
+      { measure: 'Return on budget', paper: signedPct(bot.returnPct), backtest: signedPct(bt.returnPct) },
+    ];
+    const note = `Backtest over the same trading days (${shortDate(bt.periodStart)} to ${shortDate(bt.periodEnd)}): every signal taken, no analyst filter, after ${bt.costR}R of cost and slippage per trade.`;
+    return { rows, note };
+  });
+
   // Go-live checklist
   protected readonly gates = computed(() =>
     (this.vm()?.report?.gates ?? []).map((g) => ({
