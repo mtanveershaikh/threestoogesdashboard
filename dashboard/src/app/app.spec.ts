@@ -19,7 +19,7 @@ describe('App shell', () => {
 
   it('shows the brand, the nav links and the mode chip', async () => {
     const el = await render();
-    expect(el.textContent).toContain('Tradebots');
+    expect(el.textContent).toContain('The Three Stooges');
     const links = Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim());
     expect(links).toEqual(['Overview', 'Bots']);
     expect(el.querySelector('.mode')?.textContent).toContain('Paper trading');
@@ -48,7 +48,7 @@ describe('App shell', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Tradebots');
+    expect(el.textContent).toContain('The Three Stooges');
     expect(el.querySelector('main#main')).not.toBeNull();
     expect(el.querySelector('.mode')).toBeNull();
   });
