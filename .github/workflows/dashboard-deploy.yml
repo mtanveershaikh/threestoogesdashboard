@@ -40,3 +40,26 @@ jobs:
           projectId: the-three-stooges
           target: app
           channelId: ${{ github.event_name == 'push' && 'live' || '' }}
+
+  # The sample-data demo site. Only on merge to main; pull requests get a preview of the real site only.
+  deploy-demo:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - run: npm ci
+        working-directory: dashboard
+      - run: npm run build:demo
+        working-directory: dashboard
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: the-three-stooges
+          target: demo
+          channelId: live

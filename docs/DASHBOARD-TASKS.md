@@ -68,8 +68,8 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D8: Deploy (1d)
 
-- [ ] D8-1 `ng build` production; deploy to Firebase Hosting; confirm sign-in on the live URL.
-- [ ] D8-2 CI deploy on merge to main (preview channel for pull requests).
+- [x] D8-1 `ng build` production; deploy to Firebase Hosting; confirm sign-in on the live URL. (Live at https://the-three-stooges.web.app; sign-in confirmed by the owner.)
+- [x] D8-2 CI deploy on merge to main (preview channel for pull requests). (First live deploy from CI succeeded on the merge of PR #2.)
 - [ ] D8-3 Check the day's read count in the Firebase console stays well under 50,000.
 
 ## D9: Later
@@ -78,3 +78,40 @@ Done when: `ng serve` shows the starter page and CI is green.
 - [ ] D9-2 Read-only Settings page showing the live config.
 - [ ] D9-3 Phone-first approvals view (decide first whether web approvals are allowed at all).
 - [ ] D9-4 Optional: pause or halt from the web through a guarded control document the bots poll.
+
+## Open items (as of 7 October 2026)
+
+What is still outstanding after D0 to D8. Items marked "owner" need you; the rest I can do.
+
+### Before the data is real
+
+- [ ] O-1 Confirm the bots write the collections the dashboard reads: `system/status`, `bots/{id}`, `daily_rollups/{date}`, `plans`, `positions` (with `open: true`), `trades`, `setup_stats`, and `bot_reports/{id}`. The last one is new and was proposed by the dashboard; nothing writes it yet. (owner, with the bots)
+- [ ] O-2 Reconcile field names with the bots' real documents. D1-1 was done against section 7 of the design doc; `DESIGN.md` section 12 is not in this repo, so the match is unverified. Bot document ids must be `breakout`, `pullback` and `reversion`, or the ids in the dashboard change.
+- [ ] O-3 Open the live site as each of the five accounts and confirm the data loads (the empty states and error messages were tested, but only the owner has signed in). (owner and friends)
+- [ ] O-4 Replace the Telegram placeholder: `telegramUrl` in `dashboard/src/environments/environment.ts` is `https://t.me/`. (owner: send the bot link)
+- [ ] O-5 Check the day's real Firestore read count after a full day of use (this is D8-3). Estimate is about 30,000 against a 50,000 limit; if it goes above about 25,000, slow `REFRESH_MS`. (owner: console, Firestore, Usage)
+
+### Housekeeping
+
+- [ ] O-6 Merge `develop` into `main` (commit `5afdabd`: demo site, README, two-site hosting config). Merging does not change the live site.
+- [ ] O-7 Delete the merged branch `feature/threestooges` on GitHub, and the local `backup/before-trailer-removal`.
+- [ ] O-8 Delete `~/.secrets/dashboard-deploy.json` now that the GitHub secret is set. The deploy key appeared in a chat session; it can only deploy Hosting, but delete it and rotate it if you want to be tidy.
+- [x] O-9 Update `docs/DASHBOARD-DESIGN.md`: it still says `@angular/fire` (the app uses the `firebase` SDK, because Angular Fire does not support Angular 22), puts avatars in `src/assets/avatars/` (they are in `dashboard/public/avatars/`), and lists one allowed email (it is a list of five). (Done: design doc now matches the build.)
+- [x] O-10 Replace the default Angular text in `dashboard/README.md` with a pointer to the root README. (Done.)
+- [ ] O-11 Replace the three placeholder avatar SVGs in `dashboard/public/avatars/` with your own pictures.
+- [x] O-12 Optional: deploy the demo site from CI as well (today it is published by hand with `npm run build:demo` and `firebase deploy --only hosting:demo`). (Done in `dashboard-deploy.yml`; it first runs on the next merge to `main`.)
+
+### Quality gaps found along the way
+
+- [ ] O-13 Screen-reader test (VoiceOver or NVDA). Keyboard order, focus rings, accessible names and axe are now automated in `npm run e2e`; a human listening pass is still not done.
+- [x] O-14 The stale-data banner uses weekdays 9:30 to 16:00 New York time and ignores market holidays, so it can warn on a holiday. (Done: NYSE holidays and early closes for 2026 and 2027 are in `staleness.ts`; check the dates against the NYSE calendar and extend yearly.)
+- [ ] O-15 Try the Firestore emulator in a browser end to end (sign in with the Auth emulator pop-up). The rules and service were tested in the emulator, but the pop-up flow was not.
+- [ ] O-16 The nav "Bots" link always opens Wasif. Decide whether to add a Bots overview page.
+- [ ] O-17 The mockup's "8 weeks / All time" toggle on the overview was left out.
+- [x] O-18 Page components are not yet covered by an end-to-end browser test; checks so far are unit tests plus manual runs in headless Chrome. (Done: `npm run e2e` drives real Chrome over the demo build and runs in CI.)
+
+### Decisions kept (not tasks)
+
+- The old bot service-account key was shown in an earlier session and is not rotated, by choice. If the bots' service account is ever shared, rotate it.
+- The sample data keeps the 5,000 dollar total budget and "Nasdaq 100" for all three bots, though the bots' config has budgets of 1,000, 1,500 and 1,500 dollars and different universes. Real data will show the true figures.
+- The real site shows only real data. The sample-data version runs locally (`npm start`) and on the demo site.
