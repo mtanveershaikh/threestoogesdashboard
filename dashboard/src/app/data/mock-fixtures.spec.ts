@@ -1,0 +1,78 @@
+import { describe, expect, it } from 'vitest';
+import {
+  MOCK_BOTS, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
+  STARTING_CAPITAL,
+} from './mock-fixtures';
+
+describe('mock fixtures', () => {
+  const botIds = MOCK_BOTS.map((b) => b.id);
+
+  it('bot budgets add up to the starting capital', () => {
+    expect(MOCK_BOTS.reduce((s, b) => s + b.budget, 0)).toBe(STARTING_CAPITAL);
+    expect(MOCK_STATUS.startingCapital).toBe(STARTING_CAPITAL);
+  });
+
+  it('total return is the budget-weighted sum of the bot returns', () => {
+    const weighted = MOCK_BOTS.reduce((s, b) => s + (b.budget * b.returnPct) / STARTING_CAPITAL, 0);
+    expect(MOCK_STATUS.returnSinceStartPct).toBeCloseTo(weighted, 0);
+    expect(MOCK_STATUS.equity).toBe(Math.round(STARTING_CAPITAL * (1 + weighted / 100)));
+  });
+
+  it('the last rollup matches the bot cards and the status tile', () => {
+    const last = MOCK_ROLLUPS[MOCK_ROLLUPS.length - 1];
+    for (const bot of MOCK_BOTS) expect(last.botReturnPct[bot.id]).toBeCloseTo(bot.returnPct, 5);
+    expect(Math.round(last.equity)).toBe(MOCK_STATUS.equity);
+  });
+
+  it('every rollup total is the weighted sum of its bot returns', () => {
+    for (const r of MOCK_ROLLUPS) {
+      const weighted = MOCK_BOTS.reduce((s, b) => s + (b.budget * r.botReturnPct[b.id]) / STARTING_CAPITAL, 0);
+      expect(r.totalReturnPct).toBeCloseTo(weighted, 1);
+    }
+  });
+
+  it('rollups are 40 weekdays in order with no duplicates', () => {
+    expect(MOCK_ROLLUPS).toHaveLength(40);
+    const dates = MOCK_ROLLUPS.map((r) => r.date);
+    expect([...dates].sort()).toEqual(dates);
+    expect(new Set(dates).size).toBe(40);
+    for (const d of dates) expect([0, 6]).not.toContain(new Date(`${d}T00:00:00Z`).getUTCDay());
+  });
+
+  it('open positions per bot match the bot cards', () => {
+    for (const bot of MOCK_BOTS) {
+      expect(MOCK_POSITIONS.filter((p) => p.botId === bot.id)).toHaveLength(bot.openCount);
+    }
+  });
+
+  it('references point at real bots', () => {
+    for (const x of [...MOCK_PLANS, ...MOCK_POSITIONS, ...MOCK_TRADES, ...MOCK_SETUPS]) {
+      expect(botIds).toContain(x.botId);
+    }
+  });
+
+  it('split verdict is flagged exactly when the analysts disagree', () => {
+    for (const p of MOCK_PLANS) {
+      expect(p.splitVerdict).toBe(p.fundamental.verdict !== p.technical.verdict);
+    }
+  });
+
+  it('plans respect reward to risk and open risk stays inside its limit', () => {
+    for (const p of MOCK_PLANS) {
+      expect((p.target - p.entry) / (p.entry - p.stop)).toBeCloseTo(p.rewardToRisk, 0);
+    }
+    expect(MOCK_STATUS.openRiskPct).toBeLessThanOrEqual(MOCK_STATUS.openRiskLimitPct);
+    expect(MOCK_STATUS.tradesToday).toBeLessThanOrEqual(MOCK_STATUS.tradeCap);
+  });
+
+  it('trades are newest first', () => {
+    const dates = MOCK_TRADES.map((t) => t.closedAt);
+    expect([...dates].sort().reverse()).toEqual(dates);
+  });
+
+  it('breakout report histogram covers the closed trades and the curve has one point per day', () => {
+    const report = MOCK_REPORTS.breakout!;
+    expect(report.rHistogram.reduce((s, b) => s + b.count, 0)).toBe(20);
+    expect(report.backtestReturnPct).toHaveLength(MOCK_ROLLUPS.length);
+  });
+});

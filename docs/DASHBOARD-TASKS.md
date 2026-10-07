@@ -19,10 +19,10 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D1: Data contract and mock data (1d)
 
-- [ ] D1-1 Reconcile collection and field names with `DESIGN.md` section 12; write `models.ts` (TypeScript interfaces).
-- [ ] D1-2 `DataService` interface and `MockDataService` with fixtures that match the mockup numbers.
-- [ ] D1-3 Environment flag to choose mock or Firestore; Sample data badge shown in mock mode.
-- [ ] D1-4 Unit tests for fixtures (types, sums add up: bot returns match the total).
+- [x] D1-1 Reconcile collection and field names with `DESIGN.md` section 12; write `models.ts` (TypeScript interfaces).
+- [x] D1-2 `DataService` interface and `MockDataService` with fixtures that match the mockup numbers.
+- [x] D1-3 Environment flag to choose mock or Firestore; Sample data badge shown in mock mode.
+- [x] D1-4 Unit tests for fixtures (types, sums add up: bot returns match the total).
 
 ## D2: Design system (1-2d)
 
