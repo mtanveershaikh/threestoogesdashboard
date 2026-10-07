@@ -1,0 +1,66 @@
+.page {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 20px var(--page-pad) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.shell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--touch);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-weight: 500;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch);
+    padding: 0 14px;
+    border-radius: var(--radius-control);
+  }
+  a.active {
+    background: var(--bg-raised);
+    color: var(--text);
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.chip {
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+.mode {
+  background: rgba(91, 184, 255, 0.14);
+  color: #8cccff;
+}

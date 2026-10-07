@@ -1,1 +1,113 @@
-/* You can add global styles to this file, and also import other style files */
+/* Design tokens: docs/DASHBOARD-DESIGN.md section 4 */
+:root {
+  --bg-page: #0d1117;
+  --bg-card: #151b23;
+  --bg-inset: #0f141b;
+  --bg-raised: #1b2330;
+  --border: #232c38;
+  --border-strong: #3a4656;
+  --border-dashed: #4a5668;
+
+  --text: #e8ecf1;
+  --text-muted: #9aa6b5;
+
+  --gain: #43d9a0;
+  --loss: #ff7a7a;
+  --warn: #f2b84b;
+  --info: #5bb8ff;
+  --neutral: #7c8798;
+
+  --bot-breakout: #f2b84b;
+  --bot-pullback: #5bb8ff;
+  --bot-reversion: #b49cff;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --radius-pill: 999px;
+
+  --page-width: 1280px;
+  --page-pad: 32px;
+  --touch: 44px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--text);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 2px;
+}
+
+/* Figures line up in columns. */
+.mono {
+  font-family: var(--font-mono);
+}
+
+.gain {
+  color: var(--gain);
+}
+.loss {
+  color: var(--loss);
+}
+.neutral {
+  color: var(--neutral);
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 20px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --page-pad: 16px;
+  }
+}

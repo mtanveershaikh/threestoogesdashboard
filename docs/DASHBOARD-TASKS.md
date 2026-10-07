@@ -26,10 +26,10 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D2: Design system (1-2d)
 
-- [ ] D2-1 Tokens as CSS custom properties in `styles.scss`; load the three fonts.
-- [ ] D2-2 App shell: header, nav links, status chips, avatar slot for the signed-in user.
-- [ ] D2-3 Components: StatTile, VerdictChip, DataTable, ProgressRow, Avatar, SampleDataBadge, EmptyState.
-- [ ] D2-4 A hidden `/styleguide` route that shows every component with sample inputs.
+- [x] D2-1 Tokens as CSS custom properties in `styles.scss`; load the three fonts.
+- [x] D2-2 App shell: header, nav links, status chips, avatar slot for the signed-in user.
+- [x] D2-3 Components: StatTile, VerdictChip, DataTable, ProgressRow, Avatar, SampleDataBadge, EmptyState.
+- [x] D2-4 A hidden `/styleguide` route that shows every component with sample inputs.
 
 ## D3: Charts (1-2d)
 

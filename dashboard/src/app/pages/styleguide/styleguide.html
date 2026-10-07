@@ -1,0 +1,70 @@
+<h1>Styleguide</h1>
+<p class="lede">Every shared component with sample inputs. Gain and loss always carry a sign and an arrow.</p>
+
+<section>
+  <h2>StatTile</h2>
+  <div class="grid">
+    <app-stat-tile label="Equity" value="$5,127" delta="+2.5% since start" tone="gain" />
+    <app-stat-tile label="Today" value="-$14" delta="-0.3% of equity" tone="loss" />
+    <app-stat-tile label="Trades today (cap 10)" value="2">
+      <app-progress-row [value]="20" color="var(--info)" status="2 of 10" />
+    </app-stat-tile>
+    <app-stat-tile label="Kill switch" value="Armed, normal" tone="gain" [textValue]="true" delta="Drawdown -1.8% of -10%" />
+  </div>
+</section>
+
+<section>
+  <h2>VerdictChip</h2>
+  <div class="row">
+    <app-verdict-chip verdict="BUY" [score]="74" prefix="Fundamental" />
+    <app-verdict-chip verdict="AVOID" [score]="55" prefix="Technical" />
+    <app-verdict-chip verdict="HOLD" [score]="49" />
+    <app-verdict-chip verdict="SPLIT" />
+  </div>
+</section>
+
+<section>
+  <h2>ProgressRow</h2>
+  <div class="stack">
+    <app-progress-row label="Open risk (limit 4%)" status="2.1%" [value]="52" color="var(--warn)" />
+    <app-progress-row label="Closed trades, at least 100" status="20 of 100" [value]="20" color="var(--warn)" detail="About 80 more trades." />
+    <app-progress-row label="Average per trade, at least +0.15R" status="Met: +0.21R" [value]="100" color="var(--gain)" />
+  </div>
+</section>
+
+<section>
+  <h2>Avatar</h2>
+  <div class="row">
+    @for (b of bots; track b.id) {
+      <app-avatar [name]="b.name" [color]="b.color" />
+    }
+    <app-avatar name="You" [size]="36" />
+  </div>
+</section>
+
+<section>
+  <h2>SampleDataBadge</h2>
+  <app-sample-data-badge />
+</section>
+
+<section>
+  <h2>DataTable</h2>
+  <div class="card">
+    <app-data-table caption="Open positions" [columns]="columns" [rows]="rows" [cell]="cellTpl" />
+    <ng-template #cellTpl let-row let-col="column">
+      @switch (col.key) {
+        @case ('result') {
+          <span [class]="toneOf(row.resultNum)">{{ row.result }}</span>
+        }
+        @default {
+          {{ row[col.key] }}
+        }
+      }
+    </ng-template>
+  </div>
+</section>
+
+<section>
+  <h2>EmptyState</h2>
+  <app-empty-state title="No open positions" message="Positions appear here when a bot enters a trade." />
+</section>
