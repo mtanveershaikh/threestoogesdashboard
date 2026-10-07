@@ -143,7 +143,8 @@ describe('BotReport', () => {
     const trades = table('Recent trades');
     expect(setups.querySelectorAll('tbody tr')).toHaveLength(3);
     expect(setups.textContent).toContain('Watching, 9 trades to go');
-    expect(trades.querySelectorAll('tbody tr')).toHaveLength(6);
+    // The page shows a bot's latest ten trades.
+    expect(trades.querySelectorAll('tbody tr')).toHaveLength(10);
     expect(trades.textContent).toContain('Buy 71');
     expect(trades.textContent).toContain('Hold 49');
     expect(trades.textContent).toContain('▲ +3.0R');

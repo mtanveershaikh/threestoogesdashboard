@@ -11,6 +11,7 @@ import {
   Trade,
 } from './models';
 import { BacktestParams, simulateBacktest } from './backtest-sample';
+import { generatePaperTrades } from './paper-trades-sample';
 
 /**
  * Sample data taken from the mockups (docs/mockups). Not real results.
@@ -137,7 +138,19 @@ const TRADES_BY_ENTRY: Trade[] = [
     fundamental: { verdict: 'BUY', score: 52 }, technical: { verdict: 'BUY', score: 61 } },
 ];
 
-export const MOCK_TRADES: Trade[] = [...TRADES_BY_ENTRY].sort((a, b) => b.closedAt.localeCompare(a.closedAt));
+/**
+ * Every closed paper trade: the hand-written ones from the mockup, plus older generated ones so each bot has
+ * as many trades as its card says. The generated ones all close before the earliest shown trade, so the
+ * Overview's recent list does not change.
+ */
+const OLDER_DAYS = MOCK_ROLLUPS.map((r) => r.date).filter((d) => d <= '2026-09-29');
+const GENERATED_TRADES: Trade[] = MOCK_BOTS.flatMap((bot, i) =>
+  generatePaperTrades({ bot, existing: TRADES_BY_ENTRY.filter((t) => t.botId === bot.id), days: OLDER_DAYS, tickerOffset: i * 13 }),
+);
+
+export const MOCK_TRADES: Trade[] = [...TRADES_BY_ENTRY, ...GENERATED_TRADES].sort(
+  (a, b) => b.closedAt.localeCompare(a.closedAt) || a.id.localeCompare(b.id),
+);
 
 export const MOCK_SETUPS: SetupStat[] = [
   { id: 'breakout_55d-high', botId: 'breakout', name: '55-day high, volume above 1.5x', trades: 9, winRatePct: 44, avgR: 0.6, state: 'ACTIVE' },
