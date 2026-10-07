@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Pullback Bot">
+  <rect width="256" height="256" fill="#08141c"/>
+  <circle cx="128" cy="128" r="118" fill="#0f2331"/>
+  <path d="M36 190 L76 150 L106 170 L140 112 L170 140 L222 62" fill="none" stroke="#5BB8FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M36 168 L222 40" fill="none" stroke="#5BB8FF" stroke-opacity=".35" stroke-width="3" stroke-dasharray="8 8"/>
+  <circle cx="106" cy="170" r="11" fill="#08141c" stroke="#5BB8FF" stroke-width="6"/>
+  <circle cx="170" cy="140" r="11" fill="#08141c" stroke="#5BB8FF" stroke-width="6"/>
+</svg>

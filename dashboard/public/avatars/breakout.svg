@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Breakout Bot">
+  <rect width="256" height="256" fill="#1a1608"/>
+  <circle cx="128" cy="128" r="118" fill="#2a2210"/>
+  <line x1="40" y1="112" x2="216" y2="112" stroke="#F2B84B" stroke-opacity=".45" stroke-width="3" stroke-dasharray="8 8"/>
+  <g fill="#F2B84B">
+    <rect x="56" y="150" width="26" height="46" rx="4" fill-opacity=".45"/>
+    <rect x="94" y="136" width="26" height="60" rx="4" fill-opacity=".6"/>
+    <rect x="132" y="122" width="26" height="74" rx="4" fill-opacity=".8"/>
+    <rect x="170" y="64" width="26" height="132" rx="4"/>
+  </g>
+  <path d="M170 56 L183 40 L196 56" fill="none" stroke="#F2B84B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
