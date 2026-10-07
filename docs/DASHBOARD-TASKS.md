@@ -79,7 +79,7 @@ Done when: `ng serve` shows the starter page and CI is green.
 - [ ] D9-3 Phone-first approvals view (decide first whether web approvals are allowed at all).
 - [ ] D9-4 Optional: pause or halt from the web through a guarded control document the bots poll.
 
-## D10: Features the mockups show that are not built yet (about 5 days) (all done, on `develop`, not yet deployed)
+## D10: Features the mockups show that are not built yet (about 5 days) (all done; merged to `main` and deployed on 7 October 2026)
 
 Found by rendering the two mockups next to the app on 7 October 2026. Look and feel was judged fine; these are missing features. Work in this order. Each page ships with unit tests, a demo-build entry in `e2e/smoke.mjs`, and sample data in the mock service. All of it stays read-only.
 
@@ -98,6 +98,7 @@ Dependency sketch: D10-1 to D10-3 are independent. D10-4 to D10-6 each need the 
 - [x] D10-6 Per-bot trades link: "See all trades" on each bot report opens `/trades` filtered to that bot.
 - [x] D10-7 Settings page at `/settings`, read-only: limits, go-live gates, costs and each strategy's budget, universe, reward to risk, time stop and parameters. The bots publish `system/config`, whose format is in `docs/BOT-DATA-CONTRACT.md`. Add `SystemConfig` to `models.ts`, `DataService` and the mock fixtures first. Done when: the page shows only what the document holds, says when the document is missing, secrets can never appear (the contract forbids them), and nothing on it is editable.
 - [x] D10-9 Understand backtest-only bots. Add `backtest` to the system mode and `BACKTEST_ONLY` to the bot status; show "Backtest only" instead of "Active" and "Paper trading"; hide the paper sections and show the backtest summary and curve when a bot has no paper trades yet. Done when: a bot with a backtest and no paper trades has a complete, honest page (test with a new mock bot state), and the Overview explains that paper trading has not started. See "Backtest-only bots" in `docs/BOT-DATA-CONTRACT.md`. (Done. Try it locally or on the demo with `?scenario=backtest`, for example https://the-three-stooges-demo.web.app/?scenario=backtest once the demo is redeployed.)
+- [x] D10-10 (added later) Pagination on the Trades page: 25 rows a page by default (10, 25, 50 or 100), Previous and Next, numbered pages with gaps for long lists, and the page and size kept in the address. The summary and the CSV still cover every matching trade, a new filter goes back to page 1, and a page past the end shows the last page. Done on `develop`; not yet deployed.
 - [x] D10-8 Add Trades, Reports and Settings to the main nav, one at a time as each page ships, with `aria-current` on the active link. Done when: the nav matches the mockup and the keyboard order test in `e2e/smoke.mjs` still passes.
 
 ### Decided against (not tasks)
@@ -119,7 +120,7 @@ What is still outstanding after D0 to D8. Items marked "owner" need you; the res
 
 ### Housekeeping
 
-- [ ] O-6 Merge `develop` into `main` (commit `5afdabd`: demo site, README, two-site hosting config). Merging does not change the live site.
+- [x] O-6 Merge `develop` into `main`. (Done through PR #3, merge commit `7a0cd058`; CI deployed the real site and the demo.)
 - [ ] O-7 Delete the merged branch `feature/threestooges` on GitHub, and the local `backup/before-trailer-removal`.
 - [ ] O-8 Delete `~/.secrets/dashboard-deploy.json` now that the GitHub secret is set. The deploy key appeared in a chat session; it can only deploy Hosting, but delete it and rotate it if you want to be tidy.
 - [x] O-9 Update `docs/DASHBOARD-DESIGN.md`: it still says `@angular/fire` (the app uses the `firebase` SDK, because Angular Fire does not support Angular 22), puts avatars in `src/assets/avatars/` (they are in `dashboard/public/avatars/`), and lists one allowed email (it is a list of five). (Done: design doc now matches the build.)

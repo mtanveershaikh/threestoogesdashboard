@@ -65,11 +65,13 @@ describe('Trades page', () => {
   it('lists every closed trade, newest first, with signs and arrows on results', async () => {
     const { el, rows } = await open('/trades');
     expect(el().querySelector('h1')?.textContent).toBe('Trades');
-    expect(rows()).toHaveLength(50);
+    // 25 rows a page by default, of the 50 trades.
+    expect(rows()).toHaveLength(25);
     expect(rows()[0].textContent).toContain('DRFT');
     expect(rows()[0].textContent).toContain('▲ +3.0R');
     expect(rows()[0].textContent).toContain('▲ +$60');
-    expect(el().textContent).toContain('Showing 50 of the latest 50 trades.');
+    expect(el().querySelector('app-pager .range')?.textContent?.trim()).toBe('Showing 1–25 of 50 trades');
+    expect(el().querySelector('.foot p')?.textContent).toContain('50 of the latest 50 loaded trades match');
   });
 
   it('summarizes what is shown, matching the bot card for one bot', async () => {
@@ -129,7 +131,7 @@ describe('Trades page', () => {
     const clear = Array.from(el().querySelectorAll('.list button')).find((b) => b.textContent?.trim() === 'Clear filters') as HTMLButtonElement;
     clear.click();
     await settle();
-    expect(rows()).toHaveLength(50);
+    expect(rows()).toHaveLength(25);
   });
 
   it('clears every filter at once', async () => {
@@ -137,29 +139,31 @@ describe('Trades page', () => {
     (el().querySelector('.filters .clear') as HTMLButtonElement).click();
     await settle();
     expect(TestBed.inject(Router).url).toBe('/trades');
-    expect(rows()).toHaveLength(50);
+    expect(rows()).toHaveLength(25);
   });
 
   it('loads the first 100 once and does not refresh on a timer', async () => {
     const service = new HistoryService();
     const { el } = await open('/trades', service);
     expect(service.requests).toEqual([{ limit: 100, botId: undefined }]);
-    expect(el().querySelectorAll('tbody tr')).toHaveLength(100);
+    // 100 are loaded; the table shows the first page of them.
+    expect(el().querySelectorAll('tbody tr')).toHaveLength(25);
+    expect(el().querySelector('app-pager .range')?.textContent?.trim()).toBe('Showing 1–25 of 100 trades');
     expect(el().textContent).toContain('Older trades are not loaded yet.');
   });
 
-  it('loads 100 more on request, and stops offering it when there are no more', async () => {
+  it('loads 100 older trades on request, and stops offering it when there are no more', async () => {
     const service = new HistoryService();
     const { el, settle } = await open('/trades', service);
-    const more = () => Array.from(el().querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Load 100 more');
+    const more = () => Array.from(el().querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Load 100 older trades');
     more()!.click();
     await settle();
     expect(service.requests.map((r) => r.limit)).toEqual([100, 200]);
-    expect(el().querySelectorAll('tbody tr')).toHaveLength(200);
+    expect(el().querySelector('app-pager .range')?.textContent?.trim()).toBe('Showing 1–25 of 200 trades');
     more()!.click();
     await settle();
     expect(service.requests.map((r) => r.limit)).toEqual([100, 200, 300]);
-    expect(el().querySelectorAll('tbody tr')).toHaveLength(250);
+    expect(el().querySelector('app-pager .range')?.textContent?.trim()).toBe('Showing 1–25 of 250 trades');
     expect(more()).toBeUndefined();
     expect(el().textContent).not.toContain('Older trades are not loaded yet.');
   });
@@ -179,8 +183,102 @@ describe('Trades page', () => {
     expect(saved[0].filename).toMatch(/^trades-\d{4}-\d{2}-\d{2}\.csv$/);
     const lines = saved[0].text.trim().split('\r\n');
     expect(lines[0]).toContain('Date closed,Stock,Bot,Fundamental');
+    // All 12 matching losses, not only the ones on this page.
     expect(lines.length).toBeGreaterThan(1);
     expect(lines.slice(1).every((l) => l.includes('Wasif') && /,-\d/.test(l))).toBe(true);
+  });
+
+  describe('pagination', () => {
+    const pager = (el: HTMLElement) => el.querySelector('app-pager .range')?.textContent?.trim();
+    const click = (el: HTMLElement, text: string) =>
+      (Array.from(el.querySelectorAll('app-pager button')).find((b) => b.textContent?.trim() === text) as HTMLButtonElement).click();
+
+    it('moves to the next page, puts it in the URL, and shows the next trades', async () => {
+      const { el, rows, settle } = await open('/trades');
+      expect(rows()[0].textContent).toContain(MOCK_TRADES[0].symbol);
+      expect(rows()[24].textContent).toContain(MOCK_TRADES[24].symbol);
+      click(el(), 'Next');
+      await settle();
+      expect(TestBed.inject(Router).url).toBe('/trades?page=2');
+      expect(pager(el())).toBe('Showing 26–50 of 50 trades');
+      expect(rows()).toHaveLength(25);
+      // Page 2 starts at the 26th trade and ends at the 50th.
+      expect(rows()[0].textContent).toContain(MOCK_TRADES[25].symbol);
+      expect(rows()[24].textContent).toContain(MOCK_TRADES[49].symbol);
+    });
+
+    it('shows every trade exactly once across the pages, newest first', async () => {
+      const { el, rows, settle } = await open('/trades');
+      const seen: string[] = [];
+      for (let page = 1; page <= 2; page++) {
+        seen.push(...rows().map((r) => `${r.querySelector('td:nth-child(1)')?.textContent?.trim()} ${r.querySelector('td:nth-child(2)')?.textContent?.trim()}`));
+        if (page === 1) {
+          click(el(), 'Next');
+          await settle();
+        }
+      }
+      expect(seen).toHaveLength(50);
+      expect(new Set(seen).size).toBe(50);
+    });
+
+    it('opens straight to a page from a shared link, and names the page for screen readers', async () => {
+      const { el } = await open('/trades?page=2');
+      expect(pager(el())).toBe('Showing 26–50 of 50 trades');
+      expect(el().querySelector('app-pager button[aria-current="page"]')?.getAttribute('aria-label')).toBe('Page 2 of 2');
+      expect(el().querySelector('table caption')?.textContent).toBe('Closed trades, page 2 of 2');
+    });
+
+    it('disables Previous on the first page and Next on the last', async () => {
+      const first = await open('/trades');
+      const prev = Array.from(first.el().querySelectorAll('app-pager button')).find((b) => b.textContent?.trim() === 'Previous') as HTMLButtonElement;
+      expect(prev.disabled).toBe(true);
+      const last = await open('/trades?page=2');
+      const next = Array.from(last.el().querySelectorAll('app-pager button')).find((b) => b.textContent?.trim() === 'Next') as HTMLButtonElement;
+      expect(next.disabled).toBe(true);
+    });
+
+    it('changes the rows per page, and goes back to the first page', async () => {
+      const { el, rows, settle } = await open('/trades?page=2');
+      const select = el().querySelector('app-pager select') as HTMLSelectElement;
+      select.value = '10';
+      select.dispatchEvent(new Event('change'));
+      await settle();
+      expect(TestBed.inject(Router).url).toBe('/trades?size=10');
+      expect(rows()).toHaveLength(10);
+      expect(pager(el())).toBe('Showing 1–10 of 50 trades');
+      expect(el().querySelectorAll('app-pager button.num')).toHaveLength(5);
+    });
+
+    it('goes back to the first page when a filter changes, so you never land on an empty page', async () => {
+      const { el, rows, setByLabel } = await open('/trades?page=2');
+      await setByLabel('Bot', 'reversion');
+      expect(TestBed.inject(Router).url).toBe('/trades?bot=reversion');
+      expect(rows()).toHaveLength(12);
+      expect(pager(el())).toBe('Showing 1–12 of 12 trades');
+    });
+
+    it('shows the last page when the link asks for one past the end, and ignores nonsense', async () => {
+      const past = await open('/trades?page=99');
+      expect(pager(past.el())).toBe('Showing 26–50 of 50 trades');
+      const nonsense = await open('/trades?page=abc&size=7');
+      expect(pager(nonsense.el())).toBe('Showing 1–25 of 50 trades');
+      expect(nonsense.rows()).toHaveLength(25);
+    });
+
+    it('keeps the summary and the download for every matching trade, not only this page', async () => {
+      const saved: { filename: string; text: string }[] = [];
+      const { el, tile } = await open('/trades?page=2&size=10', new MockDataService(), saved);
+      expect(tile('Trades shown')).toContain('50');
+      const csv = Array.from(el().querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Download CSV') as HTMLButtonElement;
+      expect(csv.getAttribute('aria-label')).toBe('Download all 50 matching trades as CSV');
+      csv.click();
+      expect(saved[0].text.trim().split('\r\n')).toHaveLength(51);
+    });
+
+    it('shows no pager when nothing matches', async () => {
+      const { el } = await open('/trades?q=zzzz');
+      expect(el().querySelector('app-pager')).toBeNull();
+    });
   });
 
   it('shows a message and Try again when the trades cannot load', async () => {
