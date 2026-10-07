@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin, map, switchMap } from 'rxjs';
+import { combineLatest, map, switchMap } from 'rxjs';
 import { axisRange } from '../../charts/chart-math';
 import { HistogramBars } from '../../charts/histogram-bars';
 import { LineChart, LineSeries } from '../../charts/line-chart';
@@ -36,7 +36,7 @@ export class BotReport {
     inject(ActivatedRoute).paramMap.pipe(
       map((p) => p.get('id') as BotId),
       switchMap((id) =>
-        forkJoin({
+        combineLatest({
           bot: this.data.getBot(id),
           rollups: this.data.getRollups(DAYS),
           report: this.data.getBotReport(id),

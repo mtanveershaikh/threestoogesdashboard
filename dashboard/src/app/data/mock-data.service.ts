@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { DataService } from './data.service';
 import {
@@ -8,7 +7,6 @@ import {
   MOCK_BOTS, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
 } from './mock-fixtures';
 
-@Injectable()
 export class MockDataService extends DataService {
   readonly isSample = true;
 

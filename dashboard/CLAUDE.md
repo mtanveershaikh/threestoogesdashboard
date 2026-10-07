@@ -22,7 +22,8 @@ The read-only Angular dashboard for the three trading bots. Spec: `docs/DASHBOAR
 
 - `npm start` serves at localhost:4200 in mock mode.
 - `npm test` runs unit tests; `npm run lint` and `npm run build` must pass before a commit.
-- `firebase emulators:start --only firestore` runs the local database for real-data mode.
+- `npm run emulators` runs the local Firestore and Auth emulators; `npm run seed:emulator` fills them with the sample fixtures; `npm run start:emulator` serves the app against them (real-data mode, Sample data badge on).
+- `npm run test:rules` runs the Firestore rules and `FirestoreDataService` tests in the emulator.
 
 ## Definition of done
 
