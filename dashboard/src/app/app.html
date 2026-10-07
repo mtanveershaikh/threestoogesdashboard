@@ -18,8 +18,12 @@
         <span class="chip mode">{{ s.mode === 'paper' ? 'Paper trading' : 'Live trading' }}</span>
       }
       <app-sample-data-badge />
-      <!-- Signed-in user avatar arrives with Google sign-in in D6. -->
-      <app-avatar name="You" [size]="36" />
+      @if (auth.user(); as u) {
+        <app-avatar [name]="u.displayName ?? 'You'" [url]="u.photoURL ?? undefined" [size]="36" />
+        <button type="button" class="signout" (click)="auth.signOut()">Sign out</button>
+      } @else {
+        <app-avatar name="You" [size]="36" />
+      }
     </div>
   </header>
 

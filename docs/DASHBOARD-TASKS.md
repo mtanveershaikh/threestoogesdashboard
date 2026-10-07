@@ -54,10 +54,10 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D6: Real data, auth and rules (1-2d)
 
-- [ ] D6-1 `FirestoreDataService` with one-shot reads, 60-second refresh and one listener on `system/status`.
-- [ ] D6-2 Google sign-in guard and a signed-out page.
-- [ ] D6-3 `firestore.rules` (owner-only read, no web writes) and emulator tests for the four cases.
-- [ ] D6-4 Seed the emulator with the mock fixtures so the real service can be tried end to end.
+- [x] D6-1 `FirestoreDataService` with one-shot reads, 60-second refresh and one listener on `system/status`.
+- [x] D6-2 Google sign-in guard and a signed-out page.
+- [x] D6-3 `firestore.rules` (owner-only read, no web writes) and emulator tests for the four cases.
+- [x] D6-4 Seed the emulator with the mock fixtures so the real service can be tried end to end.
 
 ## D7: Polish (1-2d)
 

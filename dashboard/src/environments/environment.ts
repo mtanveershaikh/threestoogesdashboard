@@ -1,8 +1,17 @@
-export type DataSource = 'mock' | 'firestore';
+import { Environment } from './environment.model';
 
-export const environment = {
-  /** 'mock' serves fixtures and shows the Sample data badge; 'firestore' reads real data. */
-  dataSource: 'mock' as DataSource,
-  /** Where plan approvals happen. Replace with your bot's chat link, for example https://t.me/<your_bot>. */
+/** Production build: reads the real database. Fill in `firebase` from the console before deploying. */
+export const environment: Environment = {
+  dataSource: 'firestore',
+  useEmulator: false,
+  firebase: {
+    apiKey: '',
+    authDomain: 'the-three-stooges.firebaseapp.com',
+    projectId: 'the-three-stooges',
+    storageBucket: 'the-three-stooges.firebasestorage.app',
+    messagingSenderId: '',
+    appId: '',
+  },
+  allowedEmail: 'm.tanveer.shaikh@gmail.com',
   telegramUrl: 'https://t.me/',
 };

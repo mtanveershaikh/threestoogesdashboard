@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { of, switchMap } from 'rxjs';
+import { AuthService } from './auth/auth.service';
 import { DataService } from './data/data.service';
 import { Avatar } from './shared/avatar';
 import { SampleDataBadge } from './shared/sample-data-badge';
@@ -12,5 +14,11 @@ import { SampleDataBadge } from './shared/sample-data-badge';
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly status = toSignal(inject(DataService).getSystemStatus());
+  protected readonly auth = inject(AuthService);
+  private readonly data = inject(DataService);
+
+  /** Only reads once the account is allowed to, so a signed-out visit never hits the database. */
+  protected readonly status = toSignal(
+    toObservable(this.auth.canRead).pipe(switchMap((ok) => (ok ? this.data.getSystemStatus() : of(undefined)))),
+  );
 }
