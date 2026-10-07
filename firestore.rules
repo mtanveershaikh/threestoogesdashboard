@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Locked down until D6-3 adds owner-only reads. No web writes, ever.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
