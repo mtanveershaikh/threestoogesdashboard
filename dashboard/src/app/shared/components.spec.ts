@@ -62,14 +62,14 @@ describe('ProgressRow', () => {
 
 describe('Avatar', () => {
   it('shows a placeholder without a url', () => {
-    const { el } = render(Avatar, { name: 'Breakout Bot', color: '#F2B84B' });
+    const { el } = render(Avatar, { name: 'Wasif', color: '#F2B84B' });
     expect(el.querySelector('img')).toBeNull();
-    expect(el.querySelector('[role="img"]')?.getAttribute('aria-label')).toContain('Breakout Bot');
+    expect(el.querySelector('[role="img"]')?.getAttribute('aria-label')).toContain('Wasif');
   });
 
   it('shows the picture with alt text when there is a url', () => {
-    const { el } = render(Avatar, { name: 'Breakout Bot', url: '/a.png' });
-    expect(el.querySelector('img')?.getAttribute('alt')).toBe('Breakout Bot');
+    const { el } = render(Avatar, { name: 'Wasif', url: '/a.png' });
+    expect(el.querySelector('img')?.getAttribute('alt')).toBe('Wasif');
   });
 });
 

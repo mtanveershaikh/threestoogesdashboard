@@ -45,7 +45,8 @@ export class FirestoreDataService extends DataService {
   }
 
   getBots(): Observable<Bot[]> {
-    return this.poll(async () => (await getDocs(query(collection(this.db, 'bots'), orderBy('name')))).docs.map((d) => ({ ...d.data(), id: d.id }) as Bot));
+    // Firestore returns documents in id order, so the display name can change without reshuffling the cards.
+    return this.poll(async () => (await getDocs(collection(this.db, 'bots'))).docs.map((d) => ({ ...d.data(), id: d.id }) as Bot));
   }
 
   getBot(id: BotId): Observable<Bot | undefined> {

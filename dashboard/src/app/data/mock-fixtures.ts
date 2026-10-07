@@ -25,19 +25,19 @@ const BOT_END_RETURN: Record<BotId, number> = { breakout: 4.2, pullback: 2.9, re
 
 export const MOCK_BOTS: Bot[] = [
   {
-    id: 'breakout', avatarUrl: 'avatars/breakout.svg', name: 'Breakout Bot', strategy: 'Breakout momentum', color: '#F2B84B',
+    id: 'breakout', avatarUrl: 'avatars/breakout.svg', name: 'Wasif', strategy: 'Breakout momentum', color: '#F2B84B',
     budget: 2000, status: 'ACTIVE', returnPct: BOT_END_RETURN.breakout,
     winRatePct: 30, avgR: 0.21, profitFactor: 1.3, tradeCount: 20, openCount: 1, targetRR: 3,
     maxDrawdownPct: 6.1, universe: 'Nasdaq 100', timeStopDays: 10, avgHoldDays: 4.8,
   },
   {
-    id: 'pullback', avatarUrl: 'avatars/pullback.svg', name: 'Pullback Bot', strategy: 'Trend pullback', color: '#5BB8FF',
+    id: 'pullback', avatarUrl: 'avatars/pullback.svg', name: 'Waseem', strategy: 'Trend pullback', color: '#5BB8FF',
     budget: 1750, status: 'ACTIVE', returnPct: BOT_END_RETURN.pullback,
     winRatePct: 28, avgR: 0.16, profitFactor: 1.2, tradeCount: 18, openCount: 2, targetRR: 3,
     maxDrawdownPct: 4.8, universe: 'Nasdaq 100', timeStopDays: 15, avgHoldDays: 6.4,
   },
   {
-    id: 'reversion', avatarUrl: 'avatars/reversion.svg', name: 'Reversion Bot', strategy: 'Mean reversion', color: '#B49CFF',
+    id: 'reversion', avatarUrl: 'avatars/reversion.svg', name: 'Nawaz', strategy: 'Mean reversion', color: '#B49CFF',
     budget: 1250, status: 'ACTIVE', returnPct: BOT_END_RETURN.reversion,
     winRatePct: 33, avgR: -0.05, profitFactor: 0.9, tradeCount: 12, openCount: 1, targetRR: 2,
     maxDrawdownPct: 7.4, universe: 'Nasdaq 100', timeStopDays: 5, avgHoldDays: 2.6,
