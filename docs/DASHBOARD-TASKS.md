@@ -39,11 +39,11 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D4: Overview page (2d)
 
-- [ ] D4-1 KPI row (equity, today, open risk meter, trades-today meter, kill switch).
-- [ ] D4-2 Return-since-start chart with legend.
-- [ ] D4-3 Awaiting-approval cards, read-only, with SPLIT VERDICT flag and an "Approve in Telegram" link.
-- [ ] D4-4 Three BotCards with sparklines and link to the bot report.
-- [ ] D4-5 Open positions and recently closed tables.
+- [x] D4-1 KPI row (equity, today, open risk meter, trades-today meter, kill switch).
+- [x] D4-2 Return-since-start chart with legend.
+- [x] D4-3 Awaiting-approval cards, read-only, with SPLIT VERDICT flag and an "Approve in Telegram" link.
+- [x] D4-4 Three BotCards with sparklines and link to the bot report.
+- [x] D4-5 Open positions and recently closed tables.
 
 ## D5: Bot report page (2d)
 
