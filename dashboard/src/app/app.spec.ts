@@ -1,10 +1,15 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { provideRouter } from '@angular/router';
 import { throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { App } from './app';
 import { DataService } from './data/data.service';
 import { MockDataService } from './data/mock-data.service';
+
+@Component({ template: '' })
+class Dummy {}
 
 describe('App shell', () => {
   async function render(): Promise<HTMLElement> {
@@ -21,7 +26,7 @@ describe('App shell', () => {
     const el = await render();
     expect(el.textContent).toContain('The Three Stooges');
     const links = Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim());
-    expect(links).toEqual(['Overview', 'Bots']);
+    expect(links).toEqual(['Overview', 'Bots', 'Trades', 'Reports', 'Settings']);
     expect(el.querySelector('.mode')?.textContent).toContain('Paper trading');
   });
 
@@ -62,5 +67,28 @@ describe('App shell', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     expect((fixture.nativeElement as HTMLElement).querySelector('.mode')?.textContent).toContain('Backtest only');
+  });
+
+  it('marks only the page you are on in the nav, using the real router', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [
+        provideRouter([
+          { path: '', component: Dummy },
+          { path: 'trades', component: Dummy },
+          { path: 'reports', component: Dummy },
+          { path: 'settings', component: Dummy },
+        ]),
+        { provide: DataService, useClass: MockDataService },
+      ],
+    }).compileComponents();
+    const harness = await RouterTestingHarness.create();
+    const fixture = TestBed.createComponent(App);
+    await harness.navigateByUrl('/reports');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const current = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('nav a[aria-current="page"]')).map((a) => a.textContent?.trim());
+    expect(current).toEqual(['Reports']);
   });
 });

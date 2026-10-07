@@ -85,6 +85,20 @@ for (const width of [1360, 390]) {
   await page.close();
 }
 
+// 3a. Every nav link opens its page, and the nav marks where you are.
+for (const width of [1360, 390]) {
+  const { page, errors } = await open('/', width);
+  for (const [label, path, heading] of [['Trades', '/trades', 'Trades'], ['Reports', '/reports', 'Reports'], ['Settings', '/settings', 'Settings'], ['Bots', '/bots/breakout', 'Wasif'], ['Overview', '/', 'Performance overview']]) {
+    await page.evaluate((text) => [...document.querySelectorAll('nav[aria-label="Main"] a')].find((a) => a.textContent.trim() === text).click(), label);
+    await new Promise((r) => setTimeout(r, 500));
+    const current = await page.$$eval('nav[aria-label="Main"] a[aria-current="page"]', (a) => a.map((x) => x.textContent.trim()));
+    const h1 = await page.$eval('h1', (e) => e.textContent);
+    check(new URL(page.url()).pathname === path && h1 === heading && current.join() === label, `${width}px nav "${label}" opens ${path}, shows "${heading}" and is marked current`);
+  }
+  check(errors.length === 0, `${width}px using the nav causes no errors`);
+  await page.close();
+}
+
 // 3b. Chart range toggle works from the keyboard and says which range is on.
 {
   const { page, errors } = await open('/', 1360);

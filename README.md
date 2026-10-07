@@ -19,7 +19,11 @@ The bots themselves live elsewhere. They write their results to Firestore, and t
 ## What it shows
 
 - **Overview:** equity, today's result, open risk against its limit, trades today against the cap, kill switch, return since start for each bot, plans awaiting approval, open positions and recently closed trades.
-- **Bot report:** return, average R, win rate, profit factor and drawdown; paper against backtest, side by side; the go-live checklist with a verdict; results by setup; recent trades with both analyst verdicts.
+- **Bot report:** return, average R, win rate, profit factor and drawdown; paper against backtest, side by side; the go-live checklist with a verdict; results by setup; recent trades with both analyst verdicts; a Download report button (a CSV made in the browser).
+- **Trades:** every closed trade, newest first, with filters (bot, win or loss, exit, dates, stock) kept in the web address so a view can be shared, a summary of what is shown, and a CSV download.
+- **Reports:** weekly and monthly summaries that add up to the Overview total.
+- **Settings:** a read-only view of the limits, go-live thresholds and strategy settings the bots are running (published by the bots in `system/config`; see [docs/BOT-DATA-CONTRACT.md](docs/BOT-DATA-CONTRACT.md)).
+- **Backtest-only bots:** while no paper trading has started, every page says so and shows the backtest instead. Add `?scenario=backtest` to the address in sample-data mode to see it.
 - Gains and losses always carry a sign and an arrow, not only color. The pages work from phone width up.
 
 ## Read-only by design

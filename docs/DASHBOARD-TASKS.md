@@ -74,12 +74,12 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 ## D9: Later
 
-- [ ] D9-1 Trades list with filters; weekly and monthly report pages. (Planned in detail as D10-4 and D10-5.)
-- [ ] D9-2 Read-only Settings page showing the live config. (Planned in detail as D10-7.)
+- [x] D9-1 Trades list with filters; weekly and monthly report pages. (Done as D10-4 and D10-5.)
+- [x] D9-2 Read-only Settings page showing the live config. (Done as D10-7.)
 - [ ] D9-3 Phone-first approvals view (decide first whether web approvals are allowed at all).
 - [ ] D9-4 Optional: pause or halt from the web through a guarded control document the bots poll.
 
-## D10: Features the mockups show that are not built yet (about 5 days)
+## D10: Features the mockups show that are not built yet (about 5 days) (all done, on `develop`, not yet deployed)
 
 Found by rendering the two mockups next to the app on 7 October 2026. Look and feel was judged fine; these are missing features. Work in this order. Each page ships with unit tests, a demo-build entry in `e2e/smoke.mjs`, and sample data in the mock service. All of it stays read-only.
 
@@ -98,7 +98,7 @@ Dependency sketch: D10-1 to D10-3 are independent. D10-4 to D10-6 each need the 
 - [x] D10-6 Per-bot trades link: "See all trades" on each bot report opens `/trades` filtered to that bot.
 - [x] D10-7 Settings page at `/settings`, read-only: limits, go-live gates, costs and each strategy's budget, universe, reward to risk, time stop and parameters. The bots publish `system/config`, whose format is in `docs/BOT-DATA-CONTRACT.md`. Add `SystemConfig` to `models.ts`, `DataService` and the mock fixtures first. Done when: the page shows only what the document holds, says when the document is missing, secrets can never appear (the contract forbids them), and nothing on it is editable.
 - [x] D10-9 Understand backtest-only bots. Add `backtest` to the system mode and `BACKTEST_ONLY` to the bot status; show "Backtest only" instead of "Active" and "Paper trading"; hide the paper sections and show the backtest summary and curve when a bot has no paper trades yet. Done when: a bot with a backtest and no paper trades has a complete, honest page (test with a new mock bot state), and the Overview explains that paper trading has not started. See "Backtest-only bots" in `docs/BOT-DATA-CONTRACT.md`. (Done. Try it locally or on the demo with `?scenario=backtest`, for example https://the-three-stooges-demo.web.app/?scenario=backtest once the demo is redeployed.)
-- [ ] D10-8 Add Trades, Reports and Settings to the main nav, one at a time as each page ships, with `aria-current` on the active link. Done when: the nav matches the mockup and the keyboard order test in `e2e/smoke.mjs` still passes.
+- [x] D10-8 Add Trades, Reports and Settings to the main nav, one at a time as each page ships, with `aria-current` on the active link. Done when: the nav matches the mockup and the keyboard order test in `e2e/smoke.mjs` still passes.
 
 ### Decided against (not tasks)
 
@@ -133,7 +133,7 @@ What is still outstanding after D0 to D8. Items marked "owner" need you; the res
 - [x] O-14 The stale-data banner uses weekdays 9:30 to 16:00 New York time and ignores market holidays, so it can warn on a holiday. (Done: NYSE holidays and early closes for 2026 and 2027 are in `staleness.ts`; check the dates against the NYSE calendar and extend yearly.)
 - [ ] O-15 Try the Firestore emulator in a browser end to end (sign in with the Auth emulator pop-up). The rules and service were tested in the emulator, but the pop-up flow was not.
 - [ ] O-16 The nav "Bots" link always opens Wasif. Decide whether to add a Bots overview page, or point it at the Overview's bot cards.
-- [ ] O-17 The mockup's "8 weeks / All time" toggle on the overview was left out. (Now task D10-1.)
+- [x] O-17 The mockup's "8 weeks / All time" toggle on the overview was left out. (Done as D10-1.)
 - [x] O-18 Page components are not yet covered by an end-to-end browser test; checks so far are unit tests plus manual runs in headless Chrome. (Done: `npm run e2e` drives real Chrome over the demo build and runs in CI.)
 
 ### Decisions kept (not tasks)
