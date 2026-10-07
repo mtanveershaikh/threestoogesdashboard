@@ -18,11 +18,11 @@ export class AuthService {
   readonly user = this.current.asReadonly();
   /** True once the first sign-in state is known. */
   readonly ready = this.resolved.asReadonly();
-  /** True when the app may read data: always in mock mode, otherwise only for the allowed, verified account. */
+  /** True when the app may read data: always in mock mode, otherwise only for an allowed, verified account. */
   readonly canRead = computed(() => {
     if (!this.enabled) return true;
     const u = this.current();
-    return !!u && u.email === environment.allowedEmail && u.emailVerified;
+    return !!u && !!u.email && environment.allowedEmails.includes(u.email) && u.emailVerified;
   });
 
   private readonly readyPromise: Promise<void>;
