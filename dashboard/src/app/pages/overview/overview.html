@@ -94,6 +94,10 @@
       Paper trading only; past results do not predict live results.
     }
   </footer>
+} @else if (load().status === 'error') {
+  <app-empty-state [level]="1" title="The overview could not load" [message]="errorMessage()">
+    <button type="button" class="button" (click)="loader.retry()">Try again</button>
+  </app-empty-state>
 } @else {
-  <app-empty-state title="Loading the overview" message="Fetching the latest figures." />
+  <app-empty-state [level]="1" title="Loading the overview" message="Fetching the latest figures." />
 }

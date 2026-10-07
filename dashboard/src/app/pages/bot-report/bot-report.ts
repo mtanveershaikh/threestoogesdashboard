@@ -1,5 +1,5 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { combineLatest, map, switchMap } from 'rxjs';
 import { axisRange } from '../../charts/chart-math';
@@ -10,6 +10,7 @@ import { AnalystVerdict, BotId } from '../../data/models';
 import { Avatar } from '../../shared/avatar';
 import { Column, DataTable } from '../../shared/data-table';
 import { EmptyState } from '../../shared/empty-state';
+import { createLoader } from '../../shared/load-state';
 import { arrowOf, exitLabel, ratio, shortDate, signedPct, signedR, signedUsd, toneOf, usd } from '../../shared/format';
 import { GATE_COLORS, gateStatusText, gateVerdict } from '../../shared/gates';
 import { ProgressRow } from '../../shared/progress-row';
@@ -31,9 +32,10 @@ export class BotReport {
   private readonly data = inject(DataService);
   protected readonly isSample = this.data.isSample;
 
-  /** undefined while loading; `bot` is undefined inside when the id is unknown. */
-  protected readonly vm = toSignal(
-    inject(ActivatedRoute).paramMap.pipe(
+  private readonly route = inject(ActivatedRoute);
+
+  protected readonly loader = createLoader(() =>
+    this.route.paramMap.pipe(
       map((p) => p.get('id') as BotId),
       switchMap((id) =>
         combineLatest({
@@ -46,6 +48,22 @@ export class BotReport {
       ),
     ),
   );
+  protected readonly load = this.loader.state;
+  protected readonly errorMessage = computed(() => {
+    const l = this.load();
+    return l.status === 'error' ? l.message : '';
+  });
+  /** undefined while loading or after an error; `bot` is undefined inside when the id is unknown. */
+  protected readonly vm = computed(() => {
+    const l = this.load();
+    return l.status === 'ready' ? l.value : undefined;
+  });
+
+  private readonly title = inject(Title);
+  private readonly setTitle = effect(() => {
+    const name = this.vm()?.bot?.name;
+    if (name) this.title.setTitle(`${name} · Tradebots`);
+  });
 
   // Header and KPI tiles
   protected readonly description = computed(() => {

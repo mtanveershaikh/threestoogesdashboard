@@ -41,8 +41,9 @@ import { VerdictChip } from './verdict-chip';
       border: 1px solid var(--border);
       border-radius: 10px;
     }
-    .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .who { display: flex; align-items: center; gap: 8px; }
+    .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; }
+    .who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+    .who .muted { white-space: nowrap; }
     .symbol { font-family: var(--font-mono); font-weight: 500; font-size: 16px; }
     .dot { width: 8px; height: 8px; border-radius: 50%; }
     .muted { color: var(--text-muted); }

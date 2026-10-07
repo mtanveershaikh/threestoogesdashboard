@@ -93,6 +93,12 @@ describe('SampleDataBadge', () => {
 });
 
 describe('EmptyState', () => {
+  it('can be the page heading', () => {
+    const { el } = render(EmptyState, { title: 'Bot not found', level: 1 });
+    expect(el.querySelector('h1')?.textContent).toBe('Bot not found');
+    expect(el.querySelector('h3')).toBeNull();
+  });
+
   it('shows a title and message', () => {
     const { el } = render(EmptyState, { title: 'No trades yet', message: 'Trades appear after the first exit.' });
     expect(el.textContent).toContain('No trades yet');

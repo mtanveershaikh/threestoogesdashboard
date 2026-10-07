@@ -94,10 +94,14 @@
       }
     </footer>
   } @else {
-    <app-empty-state title="Bot not found" message="There is no bot with that name. Go back to the overview to pick one.">
+    <app-empty-state [level]="1" title="Bot not found" message="There is no bot with that name. Go back to the overview to pick one.">
       <a class="back" routerLink="/">← Back to overview</a>
     </app-empty-state>
   }
+} @else if (load().status === 'error') {
+  <app-empty-state [level]="1" title="The report could not load" [message]="errorMessage()">
+    <button type="button" class="button" (click)="loader.retry()">Try again</button>
+  </app-empty-state>
 } @else {
-  <app-empty-state title="Loading the report" message="Fetching the latest figures." />
+  <app-empty-state [level]="1" title="Loading the report" message="Fetching the latest figures." />
 }

@@ -8,12 +8,12 @@ import { EmptyState } from '../../shared/empty-state';
   imports: [EmptyState],
   template: `
     @if (auth.user(); as u) {
-      <app-empty-state title="This account cannot view the dashboard" [message]="u.email + ' is not the account this dashboard is set up for. Sign out and try another account.'">
-        <button type="button" (click)="signOut()">Sign out</button>
+      <app-empty-state [level]="1" title="This account cannot view the dashboard" [message]="u.email + ' is not the account this dashboard is set up for. Sign out and try another account.'">
+        <button type="button" class="button" (click)="signOut()">Sign out</button>
       </app-empty-state>
     } @else {
-      <app-empty-state title="Sign in to see your bots" message="This dashboard shows private trading results. Sign in with the Google account it is set up for.">
-        <button type="button" (click)="signIn()">Sign in with Google</button>
+      <app-empty-state [level]="1" title="Sign in to see your bots" message="This dashboard shows private trading results. Sign in with the Google account it is set up for.">
+        <button type="button" class="button" (click)="signIn()">Sign in with Google</button>
         @if (error()) {
           <p class="error" role="alert">{{ error() }}</p>
         }
@@ -21,17 +21,6 @@ import { EmptyState } from '../../shared/empty-state';
     }
   `,
   styles: `
-    button {
-      min-height: var(--touch);
-      margin-top: 16px;
-      padding: 0 18px;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-control);
-      background: var(--bg-raised);
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 500;
-    }
     .error { color: var(--loss); margin: 12px 0 0; }
   `,
 })

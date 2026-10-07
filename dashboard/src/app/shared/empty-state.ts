@@ -4,7 +4,11 @@ import { Component, input } from '@angular/core';
 @Component({
   selector: 'app-empty-state',
   template: `
-    <h3>{{ title() }}</h3>
+    @if (level() === 1) {
+      <h1>{{ title() }}</h1>
+    } @else {
+      <h3>{{ title() }}</h3>
+    }
     @if (message()) {
       <p>{{ message() }}</p>
     }
@@ -18,7 +22,7 @@ import { Component, input } from '@angular/core';
       border-radius: var(--radius-card);
       text-align: center;
     }
-    h3 { font-size: 16px; }
+    h1, h3 { font-size: 16px; }
     p {
       margin: 6px auto 0;
       max-width: 52ch;
@@ -30,4 +34,6 @@ import { Component, input } from '@angular/core';
 export class EmptyState {
   readonly title = input.required<string>();
   readonly message = input<string>();
+  /** Use 1 when the empty state is the whole page, so the page still has a main heading. */
+  readonly level = input<1 | 3>(3);
 }

@@ -1,3 +1,4 @@
+<a class="skip-link" href="#main" (click)="skipToMain($event)">Skip to content</a>
 <div class="page">
   <header class="shell">
     <a class="brand" routerLink="/" aria-label="Tradebots, overview">
@@ -9,8 +10,8 @@
     </a>
 
     <nav aria-label="Main">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Overview</a>
-      <a routerLink="/bots/breakout" routerLinkActive="active">Bots</a>
+      <a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Overview</a>
+      <a routerLink="/bots/breakout" routerLinkActive="active" ariaCurrentWhenActive="page">Bots</a>
     </nav>
 
     <div class="chips">
@@ -27,7 +28,11 @@
     </div>
   </header>
 
-  <main>
+  @if (status(); as s) {
+    <app-stale-data-banner [lastHeartbeat]="s.lastHeartbeat" [disabled]="isSample" />
+  }
+
+  <main id="main" tabindex="-1">
     <router-outlet />
   </main>
 </div>
