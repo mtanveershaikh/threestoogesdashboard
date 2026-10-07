@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { App } from './app';
 import { DataService } from './data/data.service';
@@ -33,5 +34,22 @@ describe('App shell', () => {
     const el = await render();
     expect(el.querySelector('a.skip-link')?.getAttribute('href')).toBe('#main');
     expect(el.querySelector('main#main')).not.toBeNull();
+  });
+
+  it('still renders the header and the page when the status read fails', async () => {
+    const failing = Object.assign(new MockDataService(), {
+      getSystemStatus: () => throwError(() => ({ code: 'permission-denied' })),
+    });
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideRouter([]), { provide: DataService, useValue: failing }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Tradebots');
+    expect(el.querySelector('main#main')).not.toBeNull();
+    expect(el.querySelector('.mode')).toBeNull();
   });
 });

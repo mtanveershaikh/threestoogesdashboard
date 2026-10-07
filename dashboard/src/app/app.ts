@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { of, switchMap } from 'rxjs';
+import { catchError, of, switchMap } from 'rxjs';
 import { AuthService } from './auth/auth.service';
 import { DataService } from './data/data.service';
 import { Avatar } from './shared/avatar';
@@ -21,7 +21,10 @@ export class App {
 
   /** Only reads once the account is allowed to, so a signed-out visit never hits the database. */
   protected readonly status = toSignal(
-    toObservable(this.auth.canRead).pipe(switchMap((ok) => (ok ? this.data.getSystemStatus() : of(undefined)))),
+    toObservable(this.auth.canRead).pipe(
+      // A failed status read must not break the whole shell; each page shows its own error.
+      switchMap((ok) => (ok ? this.data.getSystemStatus().pipe(catchError(() => of(undefined))) : of(undefined))),
+    ),
   );
 
   /** The skip link must move focus, not only scroll, or the next Tab returns to the header. */
