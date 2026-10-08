@@ -76,7 +76,7 @@ Done when: `ng serve` shows the starter page and CI is green.
 
 - [x] D9-1 Trades list with filters; weekly and monthly report pages. (Done as D10-4 and D10-5.)
 - [x] D9-2 Read-only Settings page showing the live config. (Done as D10-7.)
-- [ ] D9-5 Audit view: timeline of audit events for a plan or trade, filter by action, paged reads, links from the trade journal.
+- [x] D9-5 Audit view: timeline of audit events for a plan or trade, filter by action, paged reads, links from the trade journal. (Built on `develop` at `/audit`; tested locally, not deployed.)
 - [ ] D9-3 Phone-first approvals view (decide first whether web approvals are allowed at all).
 - [ ] D9-4 Optional: pause or halt from the web through a guarded control document the bots poll.
 

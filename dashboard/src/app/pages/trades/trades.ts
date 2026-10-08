@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { combineLatest, switchMap } from 'rxjs';
 import { DataService } from '../../data/data.service';
 import { Bot, BotId } from '../../data/models';
@@ -32,7 +32,7 @@ const RESULT_OPTIONS = [
 
 @Component({
   selector: 'app-trades',
-  imports: [StatTile, DataTable, EmptyState, Pager],
+  imports: [StatTile, DataTable, EmptyState, Pager, RouterLink],
   templateUrl: './trades.html',
   styleUrl: './trades.scss',
 })
@@ -110,6 +110,7 @@ export class Trades {
     { key: 'exit', label: 'Exit' },
     { key: 'r', label: 'R', align: 'right', mono: true },
     { key: 'usd', label: 'USD', align: 'right', mono: true },
+    { key: 'audit', label: 'History' },
   ];
   /** Where the page is within everything that matches the filters. */
   protected readonly pageInfo = computed(() => paginate(this.shown().length, this.pageParam(), this.pageSize()));
@@ -126,6 +127,7 @@ export class Trades {
       exit: exitLabel(t.exitReason),
       r: `${arrowOf(t.rMultiple)} ${signedR(t.rMultiple)}`.trim(),
       usd: `${arrowOf(t.pnlUsd)} ${signedUsd(t.pnlUsd)}`.trim(),
+      tradeId: t.id,
       tone: toneOf(t.rMultiple),
     }));
   });

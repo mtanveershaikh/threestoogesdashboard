@@ -6,6 +6,7 @@ export const routes: Routes = [
   { path: 'trades', title: 'Trades · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/trades/trades').then((m) => m.Trades) },
   { path: 'reports', title: 'Reports · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/reports/reports').then((m) => m.Reports) },
   { path: 'settings', title: 'Settings · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/settings/settings').then((m) => m.Settings) },
+  { path: 'audit', title: 'Audit · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/audit/audit').then((m) => m.Audit) },
   { path: 'bots/:id', title: 'Bot report · The Three Stooges', canActivate: [authGuard], loadComponent: () => import('./pages/bot-report/bot-report').then((m) => m.BotReport) },
   { path: 'signed-out', title: 'Sign in · The Three Stooges', loadComponent: () => import('./pages/signed-out/signed-out').then((m) => m.SignedOut) },
   // Hidden: not linked from the nav.

@@ -1,0 +1,84 @@
+<div class="title">
+  <h1>Audit</h1>
+  <p class="muted">Every step the bots took, newest first. Read-only: nobody can edit or delete an event.</p>
+</div>
+
+@if (status() === 'ready') {
+  <form class="filters card" (submit)="$event.preventDefault()" aria-label="Filter audit events">
+    <label>
+      <span>Plan</span>
+      <input type="search" placeholder="For example plan-ornx" [value]="filters().plan ?? ''" (change)="setFilter('plan', $any($event.target).value)" />
+    </label>
+    <label>
+      <span>Trade</span>
+      <input type="search" placeholder="Trade id" [value]="filters().trade ?? ''" (change)="setFilter('trade', $any($event.target).value)" />
+    </label>
+    <label>
+      <span>Action</span>
+      <select (change)="setFilter('action', $any($event.target).value)">
+        <option value="" [selected]="!filters().action">All actions</option>
+        @for (a of actions(); track a) {
+          <option [value]="a" [selected]="filters().action === a">{{ a }}</option>
+        }
+      </select>
+    </label>
+    @if (filtered()) {
+      <button type="button" class="button clear" (click)="clearFilters()">Clear filters</button>
+    }
+  </form>
+
+  <section class="card list">
+    @if (rows().length) {
+      <app-data-table [caption]="'Audit events, page ' + pageInfo().page + ' of ' + pageInfo().pages" [columns]="columns" [rows]="rows()" [cell]="cellTpl" />
+      <app-pager [page]="pageInfo().page" [pageSize]="pageSize()" [total]="pageInfo().total" noun="events" (pageChange)="setPage($event)" (sizeChange)="setPageSize($event)" />
+    } @else {
+      <app-empty-state [level]="2" title="No events" [message]="loaded().length ? 'None of the loaded events match these filters.' : 'The bots have not recorded any events yet.'">
+        @if (filtered()) {
+          <button type="button" class="button" (click)="clearFilters()">Clear filters</button>
+        }
+      </app-empty-state>
+    }
+    <div class="foot">
+      <p class="muted" role="status">
+        {{ shown().length }} of {{ loaded().length }} loaded events shown.
+        @if (canLoadMore()) {
+          Older events are not loaded yet.
+        }
+      </p>
+      <div class="actions">
+        @if (canLoadMore()) {
+          <button type="button" class="button" (click)="loadMore()">Load 100 older events</button>
+        }
+        <button type="button" class="button" (click)="refresh()">Refresh</button>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #cellTpl let-row let-col="column">
+    @switch (col.key) {
+      @case ('plan') {
+        @if (row['planId']) {
+          <a [routerLink]="[]" [queryParams]="{ plan: row['planId'], trade: null, action: null, page: null }">{{ row['plan'] }}</a>
+        } @else {
+          –
+        }
+      }
+      @case ('trade') {
+        @if (row['tradeId']) {
+          <a [routerLink]="[]" [queryParams]="{ trade: row['tradeId'], plan: null, action: null, page: null }">{{ row['trade'] }}</a>
+        } @else {
+          –
+        }
+      }
+      @default {
+        {{ row[col.key] }}
+      }
+    }
+  </ng-template>
+} @else if (status() === 'error') {
+  <app-empty-state [level]="2" title="Audit events could not load" [message]="errorMessage()">
+    <button type="button" class="button" (click)="refresh()">Try again</button>
+  </app-empty-state>
+} @else {
+  <app-empty-state [level]="2" title="Loading audit events" message="Fetching the latest events." />
+}

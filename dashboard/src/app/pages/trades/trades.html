@@ -111,6 +111,9 @@
       @case ('usd') {
         <span [class]="row['tone']">{{ row['usd'] }}</span>
       }
+      @case ('audit') {
+        <a routerLink="/audit" [queryParams]="{ trade: row['tradeId'] }" [attr.aria-label]="'Audit history for ' + row['symbol']">Audit</a>
+      }
       @default {
         {{ row[col.key] }}
       }

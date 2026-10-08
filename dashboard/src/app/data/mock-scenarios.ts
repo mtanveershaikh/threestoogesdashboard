@@ -1,8 +1,8 @@
 import {
-  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemConfig, SystemStatus, Trade,
+  AuditEvent, Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemConfig, SystemStatus, Trade,
 } from './models';
 import {
-  MOCK_BACKTESTS, MOCK_BOTS, MOCK_CONFIG, buildConfig, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
+  MOCK_BACKTESTS, MOCK_AUDIT, MOCK_BOTS, MOCK_CONFIG, buildConfig, MOCK_PLANS, MOCK_POSITIONS, MOCK_REPORTS, MOCK_ROLLUPS, MOCK_SETUPS, MOCK_STATUS, MOCK_TRADES,
   STARTING_CAPITAL,
 } from './mock-fixtures';
 
@@ -17,6 +17,7 @@ export interface MockDataset {
   plans: Plan[];
   positions: Position[];
   trades: Trade[];
+  audit: AuditEvent[];
   setups: SetupStat[];
   reports: Record<BotId, BotReport>;
 }
@@ -30,6 +31,7 @@ export const PAPER_DATASET: MockDataset = {
   plans: MOCK_PLANS,
   positions: MOCK_POSITIONS,
   trades: MOCK_TRADES,
+  audit: MOCK_AUDIT,
   setups: MOCK_SETUPS,
   reports: MOCK_REPORTS,
 };
@@ -64,6 +66,7 @@ export const BACKTEST_DATASET: MockDataset = {
   plans: [],
   positions: [],
   trades: [],
+  audit: [],
   setups: [],
   reports: Object.fromEntries(
     MOCK_BOTS.map((b) => {

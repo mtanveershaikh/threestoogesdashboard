@@ -26,7 +26,7 @@ describe('App shell', () => {
     const el = await render();
     expect(el.textContent).toContain('The Three Stooges');
     const links = Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim());
-    expect(links).toEqual(['Overview', 'Bots', 'Trades', 'Reports', 'Settings']);
+    expect(links).toEqual(['Overview', 'Bots', 'Trades', 'Reports', 'Audit', 'Settings']);
     expect(el.querySelector('.mode')?.textContent).toContain('Paper trading');
   });
 

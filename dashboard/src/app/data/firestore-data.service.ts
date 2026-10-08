@@ -4,7 +4,7 @@ import {
 import { Observable, defer, filter, from, shareReplay, switchMap, timer } from 'rxjs';
 import { DataService } from './data.service';
 import {
-  Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemConfig, SystemStatus, Trade,
+  AuditEvent, Bot, BotId, BotReport, DailyRollup, Plan, Position, SetupStat, SystemConfig, SystemStatus, Trade,
 } from './models';
 
 /**
@@ -15,6 +15,8 @@ export const REFRESH_MS = 60_000;
 /** The most trades one Trades page request will read. */
 export const TRADE_HISTORY_CAP = 1000;
 /** The most rollup documents 'all time' will read: about four years of trading days. */
+/** The most audit events one Audit page request will read. */
+export const AUDIT_CAP = 500;
 export const ALL_ROLLUPS_CAP = 1000;
 /** Rollups are up to 60 documents and change once a day, so they refresh slowly. */
 export const ROLLUP_REFRESH_MS = 10 * 60_000;
@@ -115,6 +117,20 @@ export class FirestoreDataService extends DataService {
             ? query(trades, where('botId', '==', options.botId), orderBy('closedAt', 'desc'), limit(count))
             : query(trades, orderBy('closedAt', 'desc'), limit(count));
           return (await getDocs(q)).docs.map((d) => ({ ...d.data(), id: d.id }) as Trade);
+        })(),
+      ),
+    );
+  }
+
+  getAuditEvents(options: { limit: number; planId?: string; tradeId?: string; action?: string }): Observable<AuditEvent[]> {
+    return defer(() =>
+      from(
+        (async () => {
+          const events = collection(this.db, 'audit_log');
+          const count = Math.min(options.limit, AUDIT_CAP);
+          const [field, value] = options.planId ? ['planId', options.planId] : options.tradeId ? ['tradeId', options.tradeId] : options.action ? ['action', options.action] : [];
+          const q = field ? query(events, where(field, '==', value), orderBy('time', 'desc'), limit(count)) : query(events, orderBy('time', 'desc'), limit(count));
+          return (await getDocs(q)).docs.map((d) => ({ ...d.data(), id: d.id }) as AuditEvent);
         })(),
       ),
     );

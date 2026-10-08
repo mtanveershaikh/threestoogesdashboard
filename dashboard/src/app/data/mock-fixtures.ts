@@ -1,4 +1,5 @@
 import {
+  AuditEvent,
   Bot,
   BotId,
   BotReport,
@@ -9,8 +10,7 @@ import {
   SetupStat,
   SystemConfig,
   SystemStatus,
-  Trade,
-} from './models';
+  Trade } from './models';
 import { BacktestParams, COST_R, simulateBacktest } from './backtest-sample';
 import { generatePaperTrades } from './paper-trades-sample';
 
@@ -301,3 +301,36 @@ export function buildConfig(mode: SystemConfig['mode'], strategyStatus: 'paper' 
 
 const RISK_PER_TRADE_PCT = 1;
 export const MOCK_CONFIG: SystemConfig = buildConfig('paper', 'paper');
+
+const AUDIT_VERSIONS = { configVersion: 'cfg-3f9a1c', codeVersion: 'a0b2d7f' };
+
+/** Audit events for the two awaiting plans and the newest closed trade, so the Audit view has a real story to show. */
+export const MOCK_AUDIT: AuditEvent[] = (() => {
+  const plan = (planId: string, day: string, steps: [string, string, string, string?][], tradeId?: string): AuditEvent[] =>
+    steps.map(([time, actor, action, reason], i) => ({
+      id: `${day}_${planId}_${i}`, time: `${day}T${time}Z`, actor, action, planId, ...(tradeId ? { tradeId } : {}), ...(reason ? { reason } : {}), ...AUDIT_VERSIONS,
+    }));
+  const last = MOCK_TRADES[0];
+  return [
+    ...plan('plan-ornx', '2026-10-07', [
+      ['13:05:12', 'screener', 'scan', 'Passed 7 of 7 filters: 55-day high on 1.9x volume'],
+      ['13:05:40', 'fundamental-analyst', 'verdict', 'BUY 74'],
+      ['13:05:44', 'technical-analyst', 'verdict', 'BUY 68'],
+      ['13:06:01', 'strategy-bot', 'proposal', 'Entry 48.20, stop 45.90, target 55.10, 8 shares'],
+    ]),
+    ...plan('plan-klvr', '2026-10-07', [
+      ['13:07:20', 'screener', 'scan', 'Passed 6 of 6 filters: RSI(2) at 6, above 200-day'],
+      ['13:07:48', 'fundamental-analyst', 'verdict', 'BUY 61'],
+      ['13:07:52', 'technical-analyst', 'verdict', 'AVOID 55'],
+      ['13:08:10', 'strategy-bot', 'proposal', 'Split verdict, flagged for a human'],
+    ]),
+    ...plan(`plan-${last.id}`, '2026-09-30', [
+      ['13:04:00', 'screener', 'scan', `${last.symbol} passed every filter`],
+      ['13:10:15', 'owner', 'approve', 'Approved in Telegram'],
+      ['14:31:02', 'executor', 'recheck', 'Drift and risk checks passed'],
+      ['14:31:05', 'executor', 'order_sent', 'Bracket order sent'],
+      ['14:31:07', 'executor', 'fill', 'Filled at the planned price'],
+    ], last.id),
+    ...plan(`plan-${last.id}`, last.closedAt, [['15:59:50', 'position-monitor', 'exit', `Closed: ${last.exitReason}`]], last.id),
+  ];
+})();

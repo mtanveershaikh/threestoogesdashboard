@@ -124,6 +124,22 @@ export interface Trade {
   technical?: AnalystVerdict;
 }
 
+/** `audit_log/{date_seq}`: one step of a trade's life. Append-only, written by the bots. */
+export interface AuditEvent {
+  id: string;
+  /** ISO date and time, UTC. */
+  time: string;
+  /** `system`, `owner` or a service name. */
+  actor: string;
+  /** For example `scan`, `veto`, `verdict`, `approve`, `recheck`, `order_sent`, `fill`, `exit`, `command`, `breaker`. */
+  action: string;
+  planId?: string;
+  tradeId?: string;
+  reason?: string;
+  configVersion?: string;
+  codeVersion?: string;
+}
+
 /** `setup_stats/{botId}_{setupId}` */
 export interface SetupStat {
   id: string;

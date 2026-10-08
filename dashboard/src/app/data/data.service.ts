@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import {
+  AuditEvent,
   Bot,
   BotId,
   BotReport,
@@ -35,6 +36,11 @@ export abstract class DataService {
    * completes, because the Trades page must not refresh on a timer (it can read hundreds of documents).
    */
   abstract getTradeHistory(options: { limit: number; botId?: BotId }): Observable<Trade[]>;
+  /**
+   * The latest `limit` audit events, newest first. One-shot, never a listener: the collection grows every day.
+   * One of planId, tradeId or action is applied by the database; the page narrows the rest.
+   */
+  abstract getAuditEvents(options: { limit: number; planId?: string; tradeId?: string; action?: string }): Observable<AuditEvent[]>;
   abstract getSetupStats(botId: BotId): Observable<SetupStat[]>;
   abstract getBotReport(botId: BotId): Observable<BotReport | undefined>;
   /** Every bot's report, for pages that compare bots (backtest-only Overview). */

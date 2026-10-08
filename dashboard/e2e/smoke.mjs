@@ -40,7 +40,7 @@ async function open(path, width) {
 }
 
 // 1. Every page: no errors, a heading, no sideways scroll, no accessibility violations.
-const routes = ['/', '/bots/breakout', '/bots/pullback', '/bots/reversion', '/bots/nope', '/signed-out', '/styleguide', '/?scenario=backtest', '/bots/breakout?scenario=backtest', '/trades', '/trades?bot=pullback&result=win', '/reports', '/reports?view=month', '/reports?scenario=backtest', '/trades?q=zzzz', '/settings', '/settings?scenario=backtest'];
+const routes = ['/', '/bots/breakout', '/bots/pullback', '/bots/reversion', '/bots/nope', '/signed-out', '/styleguide', '/?scenario=backtest', '/bots/breakout?scenario=backtest', '/trades', '/audit', '/audit?plan=plan-ornx', '/audit?plan=nope', '/trades?bot=pullback&result=win', '/reports', '/reports?view=month', '/reports?scenario=backtest', '/trades?q=zzzz', '/settings', '/settings?scenario=backtest'];
 for (const width of [1360, 390]) {
   for (const route of routes) {
     const { page, errors } = await open(route, width);
@@ -98,7 +98,7 @@ for (const width of [1360, 390]) {
 // 3a. Every nav link opens its page, and the nav marks where you are.
 for (const width of [1360, 390]) {
   const { page, errors } = await open('/', width);
-  for (const [label, path, heading] of [['Trades', '/trades', 'Trades'], ['Reports', '/reports', 'Reports'], ['Settings', '/settings', 'Settings'], ['Bots', '/bots/breakout', 'Wasif'], ['Overview', '/', 'Performance overview']]) {
+  for (const [label, path, heading] of [['Trades', '/trades', 'Trades'], ['Reports', '/reports', 'Reports'], ['Audit', '/audit', 'Audit'], ['Settings', '/settings', 'Settings'], ['Bots', '/bots/breakout', 'Wasif'], ['Overview', '/', 'Performance overview']]) {
     await page.evaluate((text) => [...document.querySelectorAll('nav[aria-label="Main"] a')].find((a) => a.textContent.trim() === text).click(), label);
     await new Promise((r) => setTimeout(r, 500));
     const current = await page.$$eval('nav[aria-label="Main"] a[aria-current="page"]', (a) => a.map((x) => x.textContent.trim()));
