@@ -306,6 +306,7 @@ Backlog of replacement ideas (each needs its own backtest): post-earnings drift,
 - Sizing: uses the same risk engine functions as live (sleeve risk percent, position caps, whole shares).
 - Outputs per run: trade list, equity curve, expectancy in R, win rate, average win/loss, profit factor, max drawdown, exposure, holding time, MAE/MFE, monthly returns, regime breakdown, parameter sensitivity, benchmark (SPY/QQQ buy-and-hold), data-bias warnings.
 - Hygiene: limit free parameters, write down hypotheses first, keep a holdout, and log every run (config hash, data version).
+- Two replay paths: the raw path runs the strategy rules and never reads memory, and stays an untouched honest baseline. The memory path is the same run with the memory screen switched on (see 10.4).
 
 ---
 
@@ -408,6 +409,19 @@ The trigger watcher streams or polls intraday bars for armed plans. When the tri
 3. Deterministic updates: `setup_stats` rollup (n, wins, expectancy R) per fingerprint; blocklist entries from rules (for example fingerprint expectancy below zero over at least 15 trades, or ticker cooldown).
 4. The memory screen (code) blocks blocklisted setups before any LLM spend. Bots see stats and lessons as context on the card.
 
+### 10.4 Proving the memory works
+
+Memory only earns its place if results are better with it than without. Two paths, same inputs, compared:
+
+- **Raw path (baseline):** strategy rules, risk engine and costs only. It never reads the ledger, `setup_stats` or `blocklist`, and it is never modified to look worse or better. Command: `replay-raw`.
+- **Memory path (improved):** the same run with the memory screen on. During a replay the ledger is rebuilt trade by trade from the simulated results, so each decision only sees the history that existed at that moment. No faked losses, no invented candles, no forced failures. Command: `replay-memory`.
+- **Comparison report:** same candles, same costs, both runs side by side: trades taken and blocked, expectancy in R, win rate, profit factor, drawdown, and the list of blocks with the rule that caused each. The report states plainly when memory made no difference or made things worse.
+- **Out-of-sample only:** memory fitted on the same history it is tested on always looks good. Judge it on walk-forward folds, the holdout and the paper run, never on the data it learned from.
+- **Before each entry,** the memory screen asks three questions of the ledger: has this stock lost on a similar setup before, does this setup's record warn against it, and is this signal repeating a known bad pattern. Each answer becomes a flag on the proposal (`memoryFlags`) and, if a rule says so, a block.
+- **Blocked signals are tracked:** every blocked candidate is written to `blocked_signals` with its hypothetical entry, stop and target, and its outcome is filled in later from the actual price path. This is the live proof that blocks avoided losers rather than winners. Compare the average R of blocked signals with the average R of trades taken.
+- **Reset:** `memory-reset` clears memory-derived data (`setup_stats`, `blocklist`, lessons) for a replay or emulator workspace only. It refuses to run against live or paper data.
+- **Mode tag:** every record carries `mode` (`live`, `paper`, `replay` or `backtest`). Replay and backtest records are stored apart from live and paper ones and never feed live memory.
+
 ---
 
 ## 11. Firestore schema
@@ -429,10 +443,13 @@ Firestore is the system of record. All writes come from the backend (Admin SDK).
 | `lessons/{id}` | tradeId, text, tags, createdAt |
 | `setup_stats/{fingerprint}` | n, wins, expectancyR, updatedAt |
 | `blocklist/{id}` | ticker or fingerprint, reason, until |
+| `blocked_signals/{id}` | candidateId, ticker, setupFingerprint, blockedBy (rule), blockedAt, hypothetical entry/stop/target, outcomeR and exitReason (filled in later), resolvedAt, mode |
 | `positions/{ticker}` | broker mirror maintained by the reconciler |
 | `daily_rollups/{date}` | equity, pnl, drawdown, per-strategy stats, counts |
 | `system/state` | killSwitch, heartbeat, regime, lastRuns |
 | `audit_log/{date_seq}` | time, actor (system, you, or a service name), action, planId, tradeId, reason, small payload, configVersion, codeVersion; append-only (see 13.3) |
+
+Every document in `trades`, `orders`, `proposals`, `plans`, `blocked_signals` and `audit_log` carries `mode`: `live`, `paper`, `replay` or `backtest`. Memory reads only `live` and `paper` records of the current mode, so replays never contaminate real learning.
 
 Indexes: `trades` by (`strategyId`, `exitAt`) and (`setupFingerprint`, `exitAt`); `plans` by (`state`, `expiry`); `audit_log` by (`planId`, `time`) and (`action`, `time`).
 
@@ -463,7 +480,7 @@ Quota notes (Spark plan: 1 GiB storage, 50,000 reads/day, 20,000 writes/day): ex
 - Strategy tests: golden datasets; backtest regression (same inputs give same trades).
 - Integration tests: Firestore emulator; Alpaca paper (small, tagged); Telegram sandbox chat.
 - LLM tests: schema validation, injection fixtures, recorded-response replay.
-- Replay mode: re-run a past day from stored snapshots to reproduce decisions.
+- Replay mode: re-run a past day from stored snapshots to reproduce decisions. The raw path must never read memory; a test fails if it does.
 
 ### 13.2 Observability
 

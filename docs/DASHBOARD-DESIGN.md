@@ -65,7 +65,7 @@ Rules: never show gain or loss by color alone (always a sign or a word); body te
 
 1. **Overview** (`/`): equity, today's result, open risk against the limit, trades today against the cap, kill switch status; return-since-start line chart; plans awaiting approval (read-only); three bot cards; open positions; recently closed trades.
 2. **Bot report** (`/bots/:id`): header with avatar, status and budget; KPI tiles (return, average R, win rate, profit factor, max drawdown); paper against backtest chart; R-result histogram; go-live checklist; results by setup; recent trades with both analyst verdicts.
-3. **Later:** Trades list with filters, Reports (weekly and monthly), Settings (read-only view of config), and a phone-first approvals view.
+3. **Later:** Trades list with filters, Reports (weekly and monthly), Settings (read-only view of config), an Audit view (read-only event timeline for one plan or trade, from `audit_log`, see `DESIGN.md` section 13.3), and a phone-first approvals view.
 
 ## 6. Components
 
@@ -85,8 +85,9 @@ The dashboard reads documents the bots already write. Names below are proposed; 
 | `trades` ordered by close time, limit 20 | Recent trades, with analyst verdicts | One-shot |
 | `setup_stats/{botId}_{setupId}` | Results by setup, memory-screen state | One-shot, queried by `botId` |
 | `bot_reports/{botId}` | Go-live gates, R histogram, backtest curve and summary | One-shot |
+| `audit_log` filtered by plan, trade or action (later) | Read-only Audit view | One-shot, paged, 50 per page |
 
-Read budget: the free Spark plan allows 50,000 reads a day. Use one-shot reads and a 60-second refresh, and a single listener on `system/status` only. Never listen to `trades` or `plans`. Rollups are up to 60 documents that change once a day, so they refresh every 10 minutes, and all refreshes pause while the tab is hidden.
+Read budget: the free Spark plan allows 50,000 reads a day. Use one-shot reads and a 60-second refresh, and a single listener on `system/status` only. Never listen to `trades` or `plans`. The Audit view must page its reads and never listen live; the collection grows every day. Rollups are up to 60 documents that change once a day, so they refresh every 10 minutes, and all refreshes pause while the tab is hidden.
 
 Shapes: `dashboard/src/app/data/models.ts` is the source of truth. Bot document ids are `breakout`, `pullback` and `reversion`; a bot's display name (Wasif, Waseem, Nawaz) is a field, so renaming never changes the id or the card order. `bot_reports/{botId}` is new and is not written by the bots yet.
 

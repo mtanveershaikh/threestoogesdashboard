@@ -12,7 +12,7 @@ Task IDs: `S<stage>-<n>`. Each stage ends with a Definition of Done (DoD). Do no
 |---|---|---|---|
 | M1: Backtest slice | S0, S1, S2, S3, S4 | All three strategies backtested end to end, no LLM | Are any strategies worth paper trading? Replace the ones that fail. |
 | M2: Rule-based paper trading | S5, S6, S8, S9 | Risk engine, ledger, Telegram approval and execution on Alpaca paper, LLM off | Does the plumbing behave for a week without surprises? |
-| M3: LLM and memory | S7 (plus learning in S6) | Analysts in shadow mode, then advisory; memory screen live | Do verdicts add information? (needs trades first) |
+| M3: LLM and memory | S7 (plus learning and the raw vs memory proof in S6) | Analysts in shadow mode, then advisory; memory screen live | Do verdicts add information? (needs trades first) |
 | M4: Visibility and deploy | S10, S11 | Reports, dashboard, VM deployment | Can it run unattended and tell you when it is broken? |
 | M5: Paper run and review | S12 | 6-8 weeks of paper trading and go-live gate review | Which bots, if any, earn a live trial? |
 
@@ -53,6 +53,7 @@ Goal: everything configurable and validated at startup.
 - [ ] S1-6 Interfaces (`Protocol`s) for `MarketDataProvider`, `FundamentalsProvider`, `Broker`, `Ledger`, `Strategy`, `Analyst`, `Notifier`.
 - [ ] S1-7 Strategy registry (load plugins by dotted path from config).
 - [ ] S1-8 Unit tests for validation, hashing and registry.
+- [ ] S1-9 `mode` field (`live`, `paper`, `replay`, `backtest`) on the domain types `Trade`, `Proposal`, `TradePlan` and on orders and audit events; run mode comes from config or CLI and is validated (DESIGN sections 10.4, 11).
 
 DoD: invalid config is rejected with a clear message; valid config loads in under a second; registry resolves the three plugin paths (stubs are fine).
 
@@ -114,6 +115,8 @@ Goal: an honest answer about whether each strategy has an edge.
 - [ ] S4-13 Regression tests: fixed dataset -> fixed trade list.
 - [ ] S4-14 Review session: per strategy decide `proceed`, `tune once, then decide`, or `replace` (DESIGN section 6.4). Record decisions in the decision log.
 - [ ] S4-15 If replacing: pick from the backlog (post-earnings drift, 52-week-high momentum, sector rotation, etc.), implement, rerun S4-6 to S4-11.
+- [ ] S4-16 `replay-raw` command: runs the strategy rules, risk engine and costs on stored snapshots with no memory access; stays the untouched baseline (DESIGN section 10.4). Records are tagged `mode=replay` or `backtest`.
+- [ ] S4-17 Test that fails if the raw path reads the ledger, `setup_stats` or `blocklist` (inject a ledger that raises on any read).
 
 DoD: for each of the three slots there is either a strategy that passes the acceptance gates or a documented replacement in progress. No strategy moves on without a saved backtest report.
 
@@ -135,6 +138,8 @@ Goal: deterministic safety layer that nothing can bypass.
 - [ ] S5-8 PDT guard and trade-count caps.
 - [ ] S5-9 Table-driven unit tests for every rule, boundary values and combinations; property tests for sizing.
 - [ ] S5-10 Rule evaluation log: each decision stored with inputs for audit.
+- [ ] S5-11 Fail-closed rule: stale price data, missing risk inputs or an unreachable vendor blocks new entries and raises an alert.
+- [ ] S5-12 Memory screen asks three questions of the ledger before each entry: lost on a similar setup before, does the setup record warn against it, is the signal repeating a known bad pattern. Each answer becomes a `memoryFlags` entry on the proposal and, if a rule says so, a block naming that rule. Reads only `live` and `paper` records of the current mode.
 
 DoD: test suite shows every rule rejects and accepts correctly at its boundary; the risk engine cannot be configured below hard minimums (for example kill switch cannot be disabled in live mode).
 
@@ -155,6 +160,15 @@ Goal: durable, auditable records and the data for learning.
 - [ ] S6-9 Index definitions file and deployment script.
 - [ ] S6-10 Nightly export job (JSON to VM storage) and restore test.
 - [ ] S6-11 Tests against the emulator, including concurrent writes and idempotency.
+- [ ] S6-12 `audit_log` repository: append-only writes with `planId`, `tradeId`, actor, action, reason, config and code versions; rules and code allow no update or delete; emulator test that proves it (DESIGN section 13.3).
+- [ ] S6-13 Correlation: one `runId` per job and one `planId` per trade stamped on every log line and audit event.
+- [ ] S6-14 `mode` stamped on every document in `trades`, `orders`, `proposals`, `plans`, `blocked_signals` and `audit_log`; replay and backtest records stored apart from live and paper; memory queries filter by mode (DESIGN section 11).
+- [ ] S6-15 `blocked_signals` collection: every blocked candidate stored with ticker, setup fingerprint, blocking rule, hypothetical entry/stop/target and mode; add to security rules and index definitions.
+- [ ] S6-16 Blocked-signal outcome job: fills `outcomeR`, `exitReason` and `resolvedAt` from the actual price path after the fact; no invented candles.
+- [ ] S6-17 `memory-reset` command: clears `setup_stats`, `blocklist` and lessons for a replay or emulator workspace only; refuses to run against live or paper data (test proves the refusal).
+- [ ] S6-18 `replay-memory` command: same inputs as `replay-raw` with the memory screen on; the ledger is rebuilt trade by trade from simulated results so each decision sees only prior history.
+- [ ] S6-19 Raw vs memory comparison report: same candles and costs, trades taken and blocked, expectancy in R, win rate, profit factor, drawdown, and each block with its rule; states plainly when memory made no difference or made things worse. Judged on walk-forward folds, holdout and paper only, never on the data memory learned from.
+- [ ] S6-20 Tests: replay data never reaches live memory; the memory path sees no future trades; the comparison report is reproducible from a fixed dataset.
 
 DoD: a simulated trade lifecycle produces the full document chain; rollups match recomputation from raw trades; export/restore round trip works.
 
@@ -215,6 +229,9 @@ Goal: reliable, reconciled order handling on Alpaca paper.
 - [ ] S9-8 Restart safety: after a crash, bracket orders still protect positions; the system rebuilds state from broker and ledger.
 - [ ] S9-9 Integration tests on Alpaca paper (small test trades, tagged) and simulated failures (timeouts, partial fills, rejected orders).
 - [ ] S9-10 Dry-run mode: full flow without placing orders (logs what would happen).
+- [ ] S9-11 Idempotent orders: generate a client order id per plan, check for an existing order before sending, and make a restart safe (reconciler runs on start and the broker is the source of truth).
+- [ ] S9-12 Fail-closed on AI outage: with no verdict the card is marked verdict unavailable or skipped, per config; never block risk checks or exits on the AI.
+- [ ] S9-13 Audit events for every order step (sent, acknowledged, filled, rejected, cancelled).
 
 DoD: an approved plan triggers, passes recheck, places a bracket order on paper, is monitored, closes, and the ledger and broker agree. Killing the process mid-trade and restarting leaves no orphaned or duplicate orders.
 
@@ -234,6 +251,8 @@ Goal: you can judge performance without reading logs.
 - [ ] S10-8 Rejected/vetoed log and system health (heartbeat, last runs, kill switch state, cost).
 - [ ] S10-9 Quota-safe data access (read rollups and paged lists only; no wide realtime listeners).
 - [ ] S10-10 Deploy to Firebase Hosting; verify access control from another account.
+- [ ] S10-11 Audit view in the dashboard (read-only, filtered by plan, trade or action); can follow in a later pass.
+- [ ] S10-12 Memory proof view: blocked signals with outcome, average R of blocked vs taken trades, and the latest raw vs memory comparison report (read from rollups).
 
 DoD: dashboard loads from rollups within quota, shows all strategies and the trade journal, and rejects other users.
 
@@ -254,6 +273,10 @@ Goal: runs unattended and alerts when broken. Close decision P1 here.
 - [ ] S11-9 Secrets handling on the VM and key rotation procedure.
 - [ ] S11-10 Game day: kill the VM during a paper trade and verify recovery per the runbook.
 - [ ] S11-11 Record the hosting decision in the decision log.
+- [ ] S11-12 Outside dead-man ping (healthchecks.io or similar) on every heartbeat; alert rules for the metrics in DESIGN section 13.2 (data freshness, API error rate, order latency, reconciliation differences, slippage, AI cost).
+- [ ] S11-13 Move secrets to Secret Manager (or a locked-down file), separate credentials for bots, CI and dashboard; document the rotation order: create new, switch, then delete old.
+- [ ] S11-14 Log rotation and a disk-size cap; keep 30 days locally.
+- [ ] S11-15 Include `audit_log` in the nightly export and the restore test.
 
 DoD: a full day runs on the VM with no manual steps, alerts fire when you stop the process, and the game day passes.
 
@@ -272,6 +295,7 @@ Goal: evidence for a per-bot go or no-go.
 - [ ] S12-7 Verify broker eligibility, funding path, taxes/remittance and current day-trading rules (DESIGN section 16.2). Do this early, not at the end.
 - [ ] S12-8 If go: separate live keys and config, much smaller limits, one bot first, live checklist signed off, kill switch tested live.
 - [ ] S12-9 If no-go: write down why, decide whether to iterate strategies, extend paper, or stop.
+- [ ] S12-10 Memory verdict: compare blocked-signal average R with taken-trade average R and the raw vs memory out-of-sample result; keep, tune or switch off the memory screen on that evidence.
 
 DoD: a written decision for each bot with the evidence attached.
 
